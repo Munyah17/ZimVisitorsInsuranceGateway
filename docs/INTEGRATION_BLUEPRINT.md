@@ -1,0 +1,188 @@
+# ZVIG Integration Blueprint
+
+How the three prototype parts — the Next.js frontend (mock data), the Supabase
+schema (`supabase/schema.sql`) and future channels (WhatsApp, payments, mobile
+apps, partner APIs) — become one production platform.
+
+---
+
+## 1. System architecture
+
+```
+Foreign Visitor ──▶ Web app (Next.js on Netlify)
+                    WhatsApp bot (Cloud API)
+                    Mobile apps (future: Android / iOS)
+                         │
+                         ▼
+              Next.js API routes + Supabase Edge Functions
+              (issuance, quoting, payments, verification)
+                         │
+                         ▼
+                Supabase PostgreSQL  ◀── Row Level Security
+                Supabase Auth · Storage (certificates, claim docs)
+                         │
+                         ▼
+   Multiple Agency ─▶ Microinsurance Co. (primary underwriter)
+                      Partner insurers (specialised products)
+                      Hospitals · Ambulances · Tourism operators
+```
+
+The customer always sees **one brand** — "Zimbabwe Visitor Insurance". The
+underwriter, agency split, premium allocation and claims routing are resolved
+internally via `policies.underwriter_id`, `agents`, and `commissions`.
+
+---
+
+## 2. Frontend ⇄ Supabase
+
+### 2.1 Deploy the schema
+
+Run `supabase/schema.sql` in the Supabase SQL Editor (project
+`hteouvowlkctgvseapvy`). It creates all tables, enables RLS, and seeds the
+same mock data the frontend uses — so screens light up immediately.
+
+### 2.2 Swap mock data for queries
+
+`lib/supabase.ts` is already wired; every mock type in `lib/mock-data.ts`
+mirrors a table. Replacement map:
+
+| Screen | Mock source | Live query |
+|---|---|---|
+| Landing plan cards | `FEATURED_PRODUCTS` | `from("insurance_products").select().eq("active", true)` |
+| Quote wizard steps 1–2 | local state | insert `customers`, `travel_details` |
+| Quote wizard step 4 | `lib/quote-engine.ts` | Edge Function `POST /api/quote` → `quotes` row |
+| Quote wizard step 6 | simulated | `POST /api/policy/create` (server) → `policies` |
+| Customer portal | `MOCK_CUSTOMER` | `policies` joined to `customers` via Supabase Auth session |
+| Verify page | `findPolicy()` | `GET /api/policy/{number}` (SECURITY DEFINER function) |
+| Claims page | simulated | insert `claims`; upload files to Storage bucket `claims/` |
+| Agent portal | `MOCK_AGENT` | `agents` + `commissions` + `policies` filtered by `user_id` |
+| Admin centre | `MOCK_ADMIN` | aggregate views over `policies`, `payments`, `claims` |
+
+### 2.3 Auth
+
+1. Enable Supabase Auth (email OTP + Google). On signup, a trigger inserts a
+   `users` row with `auth_user_id = auth.uid()`.
+2. RLS policies (already stubbed in the schema) tighten to
+   `auth.uid() = users.auth_user_id` joins.
+3. Roles (`customer` / `agent` / `admin`) route to `/portal`, `/agent`,
+   `/admin`. Middleware checks the role claim in the JWT.
+
+### 2.4 Key rules
+
+- **Anon key** (browser): read-only on active products + limited verification.
+- **Service-role key** (server only — Netlify env var, never `NEXT_PUBLIC_`):
+  policy issuance, payment webhooks, claims transitions, certificate writes.
+
+---
+
+## 3. API layer
+
+Implemented as Next.js Route Handlers (hosted by Netlify's Next runtime) or
+Supabase Edge Functions — both talk to the same tables.
+
+| Endpoint | Consumer | Behaviour |
+|---|---|---|
+| `POST /api/quote` | web, WhatsApp, partners | price a trip; writes `quotes` with `pricing_breakdown` |
+| `POST /api/policy/create` | web checkout, bot, partners | quote → policy after payment success; generates PDF + QR |
+| `GET /api/policy/{number}` | borders, hotels, airlines | public, rate-limited; returns status, holder, nationality, expiry, coverage summary only |
+| `POST /api/claims` | portal, bot, hospital partners | claim intake + document links |
+| `POST /api/webhooks/stripe` · `/paynow` | payment providers | verify signature → `payments.status = succeeded` → activate policy → email certificate |
+| `POST /api/webhooks/whatsapp` | Meta Cloud API | conversation engine (below) |
+| Partner API (`/api/partner/*`) | tourism cos, universities, airlines | org-scoped API keys (`organizations`), group purchases, embedded quotes |
+
+Verification QR on every certificate encodes
+`https://<domain>/verify?n=ZVIG-2026-00001` — scanning opens the public verify
+page which calls `GET /api/policy/{number}`.
+
+---
+
+## 4. Payments
+
+One `payments` table, many rails:
+
+- **Stripe / Adyen / PayPal** — international cards & wallets. Checkout creates
+  a `payments` row (`status = initiated`) + provider session; webhook flips it
+  to `succeeded`.
+- **Paynow / EcoCash** — regional mobile money, same lifecycle via Paynow's
+  poll/result URL.
+- **Agent-collected cash** — `provider = manual`, recorded by agents, settled
+  against their commission statement.
+
+Policy activation is *always* webhook-driven (`pending_payment → active`),
+never trusted from the browser. `provider_payload` stores the raw webhook for
+reconciliation and disputes.
+
+---
+
+## 5. WhatsApp chatbot
+
+```
+Visitor ⇄ WhatsApp ⇄ Meta Cloud API ⇄ POST /api/webhooks/whatsapp
+                                          │  conversation engine
+                                          │  (state machine per phone number)
+                                          ▼
+                              Supabase (customers, quotes, policies)
+                                          ▼
+                              Payment link (Stripe/Paynow) → certificate PDF
+```
+
+- **Menu**: 1 Buy Insurance · 2 Check Existing Policy · 3 Emergency
+  Assistance · 4 Speak to Agent.
+- **Buy flow** collects nationality, travel dates, purpose, age, coverage
+  preference, email, passport → `POST /api/quote` → payment link → on webhook
+  success the certificate PDF is sent back in-chat.
+- **Verify** replies with status, expiry, coverage, emergency contact.
+- **Emergency** shows buttons (Medical / Ambulance / Support / Nearest
+  hospital — from `organizations`).
+- **Escalation** hands the thread to support/claims/agents with full context.
+- Conversation state lives in a `whatsapp_sessions` table (phase-2 migration);
+  every issued policy reuses the exact same tables as the web flow.
+
+---
+
+## 6. Certificates & documents
+
+- Edge Function renders the certificate PDF (policy number, holder, dates,
+  underwriter licence, QR) → Supabase Storage `certificates/` →
+  `policies.certificate_url`.
+- Claim documents/photos upload to `claims/{claim_number}/` with signed URLs;
+  paths land in `claims.documents`.
+
+---
+
+## 7. Future mobile apps
+
+Android/iOS consume the **same API layer** — no new backend:
+
+- Supabase Auth SDKs for login (same `users` rows).
+- `GET /api/policy/*`, `POST /api/quote`, `POST /api/claims` as on web.
+- Offline certificate cache + QR display; push notifications on claim status
+  changes (webhook → FCM/APNs).
+
+---
+
+## 8. Hosting & environments (Netlify)
+
+- **Frontend**: Netlify, auto-deploy from GitHub `main`
+  (`Munyah17/ZimVisitorsInsuranceGateway`). `netlify.toml` is committed;
+  Netlify's Next.js runtime handles App Router + API routes.
+- **Env vars** in Netlify UI: `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` now; service-role, Stripe, Paynow and
+  WhatsApp secrets when the backend goes live.
+- **Preview deploys** per pull request for stakeholder demos.
+- **Backend**: Supabase (database, auth, storage, edge functions) — deploy
+  schema changes via `supabase db push` / migrations.
+
+---
+
+## 9. Security checklist
+
+- RBAC via `users.role` + RLS on every table (deny-by-default, already on).
+- Passport numbers: encrypt at rest (pgcrypto) + column privileges; masked in
+  UI (`P123•••789`).
+- Public verification discloses only status/holder/nationality/expiry/coverage.
+- Append-only `audit_logs` for every material state change (IPEC compliance).
+- API keys per partner organization; rate limiting on public endpoints
+  (Netlify edge / Supabase).
+- Fraud preparation: audit pattern scans (many policies per IP, reused
+  passports), payment/provider reconciliation jobs.

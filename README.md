@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zimbabwe Visitor Insurance Gateway (ZVIG)
 
-## Getting Started
+Digital insurance distribution and administration platform for foreign
+visitors to Zimbabwe — operated by a licensed Multiple Agency, underwritten by
+a licensed Microinsurance Company. The customer sees one brand: **Zimbabwe
+Visitor Insurance**; the platform manages the underwriter, product ownership,
+premium allocation and claims routing underneath.
 
-First, run the development server:
+> **Prototype** — the frontend runs entirely on mock data; the SQL file is a
+> complete, commented Supabase schema ready to deploy. Not an offer of insurance.
+
+## What's in this repo
+
+| Part | Location | Description |
+|---|---|---|
+| **A — Frontend prototype** | `app/`, `components/`, `lib/` | Next.js 16 (App Router) + TypeScript + Tailwind v4 + shadcn-style UI + Framer Motion. Mock data only. |
+| **B — Backend prototype** | `supabase/schema.sql` | Complete PostgreSQL schema: 12 tables, enums, FKs, indexes, RLS, seed data — every table commented with frontend + API + insurance meaning. |
+| **C — Integration blueprint** | `docs/INTEGRATION_BLUEPRINT.md` | How frontend ⇄ Supabase ⇄ payments ⇄ WhatsApp ⇄ future mobile apps connect. |
+
+## Screens
+
+- `/` — Landing page (hero, why-insurance, coverage plans, trust)
+- `/quote` — 6-step quote wizard: visitor → travel → coverage → premium → checkout → certificate
+- `/portal` — Customer portal (active policy, days left, coverage, emergency assistance)
+- `/verify` — Public policy verification (try `ZVIG-2026-00001`)
+- `/claims` — Claim submission + tracking timeline
+- `/agent` — Agent portal (sales, commissions, recent customers)
+- `/admin` — Admin command centre (KPIs, countries, agents, claims queue)
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+No backend needed. To prepare the live connection, copy `.env.local.example`
+to `.env.local` and fill in your Supabase project URL + anon key.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: Netlify (config in `netlify.toml`) — connect this GitHub repo,
+  set the two `NEXT_PUBLIC_SUPABASE_*` env vars.
+- **Database**: run `supabase/schema.sql` in the Supabase SQL Editor.
 
-## Learn More
+## Tech
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · Framer Motion ·
+lucide-react · @supabase/supabase-js · Netlify · Supabase PostgreSQL

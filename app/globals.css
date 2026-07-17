@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
+/*
+  ZVIG design tokens — Zimbabwe tourism + modern fintech (per UI/UX mockup).
+  `safari-*` = brand deep navy, `sunset-*` = Zambezi sunset orange,
+  warm stone neutrals for surfaces.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafaf8;
+  --foreground: #1c1917;
 }
 
 @theme inline {
@@ -10,17 +15,39 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Brand: deep midnight navy */
+  --color-safari-50: #eef2f9;
+  --color-safari-100: #d9e2f0;
+  --color-safari-200: #b3c4e0;
+  --color-safari-300: #86a0cb;
+  --color-safari-400: #5c7db3;
+  --color-safari-500: #3f5f99;
+  --color-safari-600: #30497c;
+  --color-safari-700: #273b64;
+  --color-safari-800: #1f2f50;
+  --color-safari-900: #16233d;
+  --color-safari-950: #0d1730;
+
+  /* Accent: Zambezi sunset orange */
+  --color-sunset-50: #fff4ec;
+  --color-sunset-100: #ffe6d3;
+  --color-sunset-200: #ffc9a3;
+  --color-sunset-300: #fea468;
+  --color-sunset-400: #fb8434;
+  --color-sunset-500: #f26a13;
+  --color-sunset-600: #dd550a;
+  --color-sunset-700: #b7420c;
+  --color-sunset-800: #92350f;
+  --color-sunset-900: #782d10;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--color-sunset-200);
+  color: var(--color-safari-950);
 }
