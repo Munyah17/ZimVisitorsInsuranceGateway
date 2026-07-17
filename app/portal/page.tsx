@@ -218,7 +218,7 @@ export default function PortalPage() {
                     <span className="block text-xs font-medium uppercase tracking-wider text-red-100">
                       Call emergency hotline
                     </span>
-                    <span className="block text-2xl font-bold tracking-tight">
+                    <span className="block text-xl font-bold tracking-tight sm:text-2xl">
                       {policy.emergencyPhone}
                     </span>
                   </span>

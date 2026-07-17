@@ -1,30 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight, LogIn } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/**
+ * Public site navigation only — portal dashboards (client, agent, admin,
+ * system admin) live behind /portals, not in the header.
+ */
 const NAV = [
   { href: "/#plans", label: "Coverage" },
   { href: "/verify", label: "Verify Policy" },
   { href: "/claims", label: "Claims" },
-  { href: "/agent", label: "Agents" },
-  { href: "/admin", label: "Admin" },
 ];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
+  // Close the drawer on route change and lock body scroll while open.
+  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Logo />
 
+        {/* Desktop nav */}
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV.map((item) => (
             <Link
@@ -41,9 +54,10 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link href="/portal">
+          <Link href="/portals">
             <Button variant="ghost" size="sm">
-              My Policy
+              <LogIn className="size-4" />
+              Sign in
             </Button>
           </Link>
           <Link href="/quote">
@@ -53,41 +67,85 @@ export function SiteHeader() {
           </Link>
         </div>
 
+        {/* Mobile: clean bar — logo + hamburger only */}
         <button
-          className="grid size-10 place-items-center rounded-xl text-stone-700 hover:bg-stone-100 lg:hidden"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
+          className="grid size-10 place-items-center rounded-xl text-stone-700 transition-colors hover:bg-stone-100 lg:hidden"
+          onClick={() => setOpen(true)}
+          aria-label="Open menu"
         >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          <Menu className="size-5" />
         </button>
       </div>
 
-      {open && (
-        <div className="border-t border-stone-200/60 bg-white px-4 pb-4 pt-2 lg:hidden">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
+      {/* Retractable mobile sidebar */}
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.button
+              key="backdrop"
+              aria-label="Close menu"
+              className="fixed inset-0 z-50 bg-safari-950/50 backdrop-blur-sm lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setOpen(false)}
-              className="block rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-stone-100"
+            />
+            <motion.aside
+              key="drawer"
+              className="fixed inset-y-0 right-0 z-50 flex w-[300px] max-w-[85vw] flex-col bg-white shadow-2xl lg:hidden"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
             >
-              {item.label}
-            </Link>
-          ))}
-          <div className="mt-2 flex gap-2 px-2">
-            <Link href="/portal" className="flex-1" onClick={() => setOpen(false)}>
-              <Button variant="outline" className="w-full">
-                My Policy
-              </Button>
-            </Link>
-            <Link href="/quote" className="flex-1" onClick={() => setOpen(false)}>
-              <Button variant="accent" className="w-full">
-                Get Insurance
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
+              <div className="flex h-16 items-center justify-between border-b border-stone-100 px-5">
+                <span className="text-sm font-bold tracking-tight text-stone-900">Menu</span>
+                <button
+                  className="grid size-10 place-items-center rounded-xl text-stone-600 hover:bg-stone-100"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+
+              <nav className="flex-1 overflow-y-auto px-3 py-4">
+                {NAV.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-between rounded-xl px-4 py-3.5 text-[15px] font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-safari-800"
+                  >
+                    {item.label}
+                    <ArrowRight className="size-4 text-stone-300" />
+                  </Link>
+                ))}
+                <Link
+                  href="/portals"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-between rounded-xl px-4 py-3.5 text-[15px] font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-safari-800"
+                >
+                  Sign in to a portal
+                  <LogIn className="size-4 text-stone-300" />
+                </Link>
+              </nav>
+
+              <div className="border-t border-stone-100 p-4">
+                <Link href="/quote" onClick={() => setOpen(false)}>
+                  <Button variant="accent" size="lg" className="w-full">
+                    Get Insurance
+                    <ArrowRight className="size-4" />
+                  </Button>
+                </Link>
+                <p className="mt-3 text-center text-[11px] text-stone-400">
+                  Cover issued in under 3 minutes
+                </p>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

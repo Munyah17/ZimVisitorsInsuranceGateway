@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
+import { HeroSlider } from "@/components/hero-slider";
 import { FEATURED_PRODUCTS } from "@/lib/mock-data";
 import { formatUSD } from "@/lib/utils";
 
@@ -68,23 +69,10 @@ export default function LandingPage() {
     <>
       {/* ============================== HERO ============================== */}
       <section className="relative overflow-hidden bg-safari-950">
-        {/* Layered landscape glow — Zambezi sunset over safari green */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-32 left-1/2 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-safari-700/40 blur-[120px]" />
-          <div className="absolute -right-40 top-20 h-[360px] w-[520px] rounded-full bg-sunset-500/20 blur-[100px]" />
-          <div className="absolute -left-40 bottom-0 h-[300px] w-[480px] rounded-full bg-safari-500/20 blur-[100px]" />
-          {/* subtle grid */}
-          <div
-            className="absolute inset-0 opacity-[0.07]"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
-              backgroundSize: "56px 56px",
-            }}
-          />
-        </div>
+        {/* 5-scene background slider under a translucent navy overlay */}
+        <HeroSlider />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-20 sm:px-6 sm:pt-28 lg:pb-32">
+        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 sm:pt-28 lg:pb-32">
           <FadeIn>
             <Badge variant="dark" className="border border-white/15 bg-white/10 px-4 py-1.5 text-sunset-200">
               <Zap className="size-3.5" />

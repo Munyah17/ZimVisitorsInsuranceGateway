@@ -41,12 +41,12 @@ export function DashboardShell({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 shrink-0 bg-safari-950 pt-20 transition-transform lg:static lg:translate-x-0 lg:pt-6",
+          "fixed inset-y-0 left-0 z-[60] w-64 shrink-0 bg-safari-950 pt-6 transition-transform duration-300 ease-out lg:static lg:z-auto lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex h-full flex-col px-4 pb-6">
-          <div className="mb-6 hidden items-center gap-2 px-2 lg:flex">
+          <div className="mb-6 flex items-center gap-2 px-2">
             <span className="grid size-8 place-items-center rounded-lg bg-white/10 text-sunset-300">
               <ShieldCheck className="size-4" />
             </span>
@@ -61,10 +61,10 @@ export function DashboardShell({
                   href={item.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 px-3.5 py-2.5 text-sm transition-colors",
                     isActive
-                      ? "bg-sunset-500 text-white shadow-lg shadow-sunset-500/25"
-                      : "text-safari-200/70 hover:bg-white/5 hover:text-white"
+                      ? "font-semibold text-white"
+                      : "font-medium text-safari-200/60 hover:text-white"
                   )}
                 >
                   <item.icon className="size-4.5" />
@@ -83,7 +83,7 @@ export function DashboardShell({
       {open && (
         <button
           aria-label="Close menu"
-          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm lg:hidden"
           onClick={() => setOpen(false)}
         />
       )}

@@ -22,17 +22,18 @@ const COLUMNS = [
   {
     title: "Partners",
     links: [
-      { label: "Agent Portal", href: "/agent" },
-      { label: "Tourism Operators", href: "/agent" },
-      { label: "Hotels & Lodges", href: "/agent" },
+      { label: "Agent Portal", href: "/portals" },
+      { label: "Tourism Operators", href: "/portals" },
+      { label: "Hotels & Lodges", href: "/portals" },
       { label: "API Access (soon)", href: "/#" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "Admin Command Centre", href: "/admin" },
+      { label: "Sign in to a Portal", href: "/portals" },
       { label: "Emergency Assistance", href: "/portal" },
+      { label: "System Console", href: "/sysadmin" },
       { label: "Contact", href: "/#" },
     ],
   },
