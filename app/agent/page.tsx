@@ -129,7 +129,7 @@ export default function AgentPage() {
           <BadgeCheck className="size-6 shrink-0 text-safari-700" />
           <p className="text-sm text-safari-900">
             <strong>Sell in seconds:</strong> generate a quote for a walk-in visitor and
-            they pay on their own phone — your commission is credited automatically
+            they pay on their own phone. Your commission is credited automatically
             when the policy activates.
           </p>
           <Link href="/quote" className="ml-auto">

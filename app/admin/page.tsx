@@ -59,7 +59,7 @@ export default function AdminPage() {
   return (
     <DashboardShell
       title="Admin Command Centre"
-      subtitle="Zimbabwe Visitor Insurance Gateway · live operations"
+      subtitle="Hola Amigo Travelmate · live operations"
       nav={NAV}
       activeHref="/admin"
       badge={
@@ -188,7 +188,7 @@ export default function AdminPage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle>Recent policies</CardTitle>
-              <CardDescription>Issued across all channels — web, WhatsApp and agents</CardDescription>
+              <CardDescription>Issued across web, WhatsApp and agent channels</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">

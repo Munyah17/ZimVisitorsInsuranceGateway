@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
  * system admin) live behind /portals, not in the header.
  */
 const NAV = [
+  { href: "/", label: "Home" },
   { href: "/#plans", label: "Coverage" },
   { href: "/verify", label: "Verify Policy" },
   { href: "/claims", label: "Claims" },
@@ -57,12 +58,12 @@ export function SiteHeader() {
           <Link href="/portals">
             <Button variant="ghost" size="sm">
               <LogIn className="size-4" />
-              Sign in
+              Login
             </Button>
           </Link>
           <Link href="/quote">
             <Button variant="accent" size="sm" className="h-9 px-5">
-              Get Insurance
+              Get Started Now!
             </Button>
           </Link>
         </div>
@@ -126,7 +127,7 @@ export function SiteHeader() {
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-between rounded-xl px-4 py-3.5 text-[15px] font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-safari-800"
                 >
-                  Sign in to a portal
+                  Login / Signup
                   <LogIn className="size-4 text-stone-300" />
                 </Link>
               </nav>
@@ -134,7 +135,7 @@ export function SiteHeader() {
               <div className="border-t border-stone-100 p-4">
                 <Link href="/quote" onClick={() => setOpen(false)}>
                   <Button variant="accent" size="lg" className="w-full">
-                    Get Insurance
+                    Get Started Now!
                     <ArrowRight className="size-4" />
                   </Button>
                 </Link>

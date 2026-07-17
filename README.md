@@ -1,9 +1,9 @@
-# Zimbabwe Visitor Insurance Gateway (ZVIG)
+# Hola Amigo Travelmate (Zimbabwe Visitor Insurance Gateway)
 
 Digital insurance distribution and administration platform for foreign
-visitors to Zimbabwe — operated by a licensed Multiple Agency, underwritten by
-a licensed Microinsurance Company. The customer sees one brand: **Zimbabwe
-Visitor Insurance**; the platform manages the underwriter, product ownership,
+visitors to Zimbabwe, operated by Hola Amigo Multiple Agent and underwritten
+by a licensed Microinsurance Company. The customer sees one brand, **Hola
+Amigo Travelmate**; the platform manages the underwriter, product ownership,
 premium allocation and claims routing underneath.
 
 > **Prototype** — the frontend runs entirely on mock data; the SQL file is a
@@ -19,13 +19,16 @@ premium allocation and claims routing underneath.
 
 ## Screens
 
-- `/` — Landing page (hero, why-insurance, coverage plans, trust)
+- `/` — Landing page (hero slider, why-insurance, coverage plans, trust)
 - `/quote` — 6-step quote wizard: visitor → travel → coverage → premium → checkout → certificate
-- `/portal` — Customer portal (active policy, days left, coverage, emergency assistance)
+- `/portals` — Login/Signup with demo credentials (client, agent, admin)
+- `/portal` — Client portal (active policy, days left, coverage, emergency assistance)
 - `/verify` — Public policy verification (try `ZVIG-2026-00001`)
 - `/claims` — Claim submission + tracking timeline
 - `/agent` — Agent portal (sales, commissions, recent customers)
 - `/admin` — Admin command centre (KPIs, countries, agents, claims queue)
+- `/super-admin` — hidden Super Admin console (passcode `SUPER-2026`): feature
+  flags, gateways, pricing, users & roles, API keys, audit, system health
 
 ## Run locally
 

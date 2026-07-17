@@ -50,7 +50,7 @@ export function DashboardShell({
             <span className="grid size-8 place-items-center rounded-lg bg-white/10 text-sunset-300">
               <ShieldCheck className="size-4" />
             </span>
-            <span className="text-sm font-bold text-white">ZVIG</span>
+            <span className="text-sm font-bold text-white">Hola Amigo</span>
           </div>
           <nav className="space-y-1">
             {nav.map((item) => {
@@ -74,8 +74,9 @@ export function DashboardShell({
             })}
           </nav>
           <p className="mt-auto px-2 text-[10px] leading-relaxed text-safari-200/40">
-            Prototype — mock data only.
-            <br />© 2026 ZVIG Multiple Agency
+            © 2026 Hola Amigo Multiple Agent.
+            <br />
+            All Rights Reserved
           </p>
         </div>
       </aside>

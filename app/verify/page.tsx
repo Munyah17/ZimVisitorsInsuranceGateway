@@ -163,8 +163,9 @@ export default function VerifyPage() {
                     </div>
                   </dl>
                   <p className="mt-5 text-xs text-stone-400">
-                    Verified against the Zimbabwe Visitor Insurance Gateway registry.
-                    This check discloses only the fields shown — no contact or passport data.
+                    Verified against the Hola Amigo Travelmate policy registry.
+                    This check discloses only the fields shown and reveals no
+                    contact or passport data.
                   </p>
                 </CardContent>
               </Card>

@@ -212,7 +212,7 @@ export function QuoteWizard() {
                     Who&apos;s travelling?
                   </h1>
                   <p className="mt-1.5 text-sm text-stone-500">
-                    Exactly as they appear in your passport — this goes on your certificate.
+                    Exactly as they appear in your passport. This goes on your certificate.
                   </p>
                   <div className="mt-7 grid gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
@@ -447,7 +447,7 @@ export function QuoteWizard() {
                 </div>
                 {form.activities.includes("adventure") && product.category !== "adventure" && (
                   <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                    You selected adventure activities — the{" "}
+                    You selected adventure activities. The{" "}
                     <strong>Zimbabwe Adventure Rider</strong> covers rafting, bungee and
                     gorge swing.
                   </p>
@@ -461,7 +461,7 @@ export function QuoteWizard() {
                 <CardContent className="p-7 sm:p-9">
                   <h1 className="text-2xl font-bold tracking-tight text-stone-900">Your quote</h1>
                   <p className="mt-1.5 text-sm text-stone-500">
-                    Transparent pricing — this exact breakdown is stored with your policy.
+                    Transparent pricing. This exact breakdown is stored with your policy.
                   </p>
 
                   <div className="mt-7 rounded-2xl bg-safari-950 p-6 text-white">
@@ -472,7 +472,7 @@ export function QuoteWizard() {
                         </p>
                         <p className="mt-1 text-sm text-safari-200/80">
                           {form.fullName || "Visitor"} · {days} day{days === 1 ? "" : "s"} ·{" "}
-                          {form.arrivalDate && formatDate(form.arrivalDate)} –{" "}
+                          {form.arrivalDate && formatDate(form.arrivalDate)} to{" "}
                           {form.departureDate && formatDate(form.departureDate)}
                         </p>
                       </div>
@@ -536,8 +536,8 @@ export function QuoteWizard() {
                 <CardContent className="p-7 sm:p-9">
                   <h1 className="text-2xl font-bold tracking-tight text-stone-900">Payment</h1>
                   <p className="mt-1.5 text-sm text-stone-500">
-                    Simulation only — no real charge. Live payments will run through
-                    Stripe, PayPal and Paynow.
+                    This checkout is a simulation and no real charge is made. Live
+                    payments will run through Stripe, PayPal and Paynow.
                   </p>
 
                   <div className="mt-7 grid gap-3 sm:grid-cols-3">
@@ -639,7 +639,7 @@ export function QuoteWizard() {
                   <div className="flex items-center justify-between bg-safari-950 px-6 py-4">
                     <div className="flex items-center gap-2 text-white">
                       <ShieldCheck className="size-5 text-sunset-300" />
-                      <span className="text-sm font-bold">Zimbabwe Visitor Insurance</span>
+                      <span className="text-sm font-bold">Hola Amigo Travelmate</span>
                     </div>
                     <Badge variant="success" className="bg-emerald-400/20 text-emerald-300">
                       ACTIVE ✓
@@ -662,7 +662,7 @@ export function QuoteWizard() {
                       <div>
                         <dt className="text-xs uppercase tracking-wider text-stone-400">Valid</dt>
                         <dd className="mt-0.5 font-semibold text-stone-900">
-                          {form.arrivalDate && formatDate(form.arrivalDate)} —{" "}
+                          {form.arrivalDate && formatDate(form.arrivalDate)} to{" "}
                           {form.departureDate && formatDate(form.departureDate)}
                         </dd>
                       </div>

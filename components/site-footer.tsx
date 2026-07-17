@@ -13,7 +13,7 @@ const COLUMNS = [
   {
     title: "Product",
     links: [
-      { label: "Get Insurance", href: "/quote" },
+      { label: "Get Started Now!", href: "/quote" },
       { label: "Coverage Plans", href: "/#plans" },
       { label: "Verify a Policy", href: "/verify" },
       { label: "Submit a Claim", href: "/claims" },
@@ -31,9 +31,8 @@ const COLUMNS = [
   {
     title: "Company",
     links: [
-      { label: "Sign in to a Portal", href: "/portals" },
+      { label: "Login / Signup", href: "/portals" },
       { label: "Emergency Assistance", href: "/portal" },
-      { label: "System Console", href: "/sysadmin" },
       { label: "Contact", href: "/#" },
     ],
   },
@@ -66,7 +65,7 @@ export function SiteFooter() {
           <div>
             <Logo light />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-safari-200/70">
-              Digital insurance for every visitor to Zimbabwe — issued in minutes,
+              Digital insurance for every visitor to Zimbabwe. Issued in minutes,
               verified anywhere, backed by a licensed Zimbabwean underwriter.
             </p>
             <p className="mt-4 text-xs text-safari-200/50">
@@ -93,9 +92,8 @@ export function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-safari-200/50 sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 ZVIG Multiple Agency (Pvt) Ltd · Licensed multiple agent, IPEC-MA-2026-041</span>
-          <span>Prototype — mock data only. Not an offer of insurance.</span>
+        <div className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-safari-200/50">
+          <span>© 2026 Hola Amigo Multiple Agent. All Rights Reserved</span>
         </div>
       </div>
     </footer>

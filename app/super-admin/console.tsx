@@ -1,12 +1,13 @@
 "use client";
 
 /**
- * System Admin Console — platform-owner workspace with total control:
- * feature flags, payment gateways, products & pricing, users & roles,
- * API keys, audit trail and system health.
+ * Super Admin Console (hidden at /super-admin, never linked publicly).
+ * Platform-owner workspace with total control: feature flags, payment
+ * gateways, products & pricing, users & roles, API keys, audit trail
+ * and system health. Independent of the Admin (operations) role.
  *
- * Live version: role = 'sysadmin' guarded by RLS + middleware; toggles
- * persist to a `platform_settings` table and flow through Edge Config.
+ * Live version: role = 'super_admin' guarded by RLS + middleware; toggles
+ * persist to a `platform_settings` table.
  */
 
 import { useState } from "react";
@@ -37,16 +38,16 @@ import { PRODUCTS } from "@/lib/mock-data";
 import { cn, formatUSD } from "@/lib/utils";
 
 const NAV = [
-  { label: "Overview", href: "/sysadmin", icon: LayoutDashboard },
-  { label: "Feature Flags", href: "/sysadmin", icon: Flag },
-  { label: "Payments Config", href: "/sysadmin", icon: Wallet },
-  { label: "Products & Pricing", href: "/sysadmin", icon: Package },
-  { label: "Users & Roles", href: "/sysadmin", icon: Users },
-  { label: "Organizations", href: "/sysadmin", icon: Building2 },
-  { label: "API Keys", href: "/sysadmin", icon: KeyRound },
-  { label: "Audit Logs", href: "/sysadmin", icon: FileClock },
-  { label: "System Health", href: "/sysadmin", icon: Activity },
-  { label: "Settings", href: "/sysadmin", icon: Settings },
+  { label: "Overview", href: "/super-admin", icon: LayoutDashboard },
+  { label: "Feature Flags", href: "/super-admin", icon: Flag },
+  { label: "Payments Config", href: "/super-admin", icon: Wallet },
+  { label: "Products & Pricing", href: "/super-admin", icon: Package },
+  { label: "Users & Roles", href: "/super-admin", icon: Users },
+  { label: "Organizations", href: "/super-admin", icon: Building2 },
+  { label: "API Keys", href: "/super-admin", icon: KeyRound },
+  { label: "Audit Logs", href: "/super-admin", icon: FileClock },
+  { label: "System Health", href: "/super-admin", icon: Activity },
+  { label: "Settings", href: "/super-admin", icon: Settings },
 ];
 
 const INITIAL_FLAGS = [
@@ -69,7 +70,7 @@ const GATEWAYS = [
 ];
 
 const USERS = [
-  { name: "Munya M.", email: "mmuzvi@gmail.com", role: "System Admin", badge: "dark" as const },
+  { name: "Munya M.", email: "mmuzvi@gmail.com", role: "Super Admin", badge: "dark" as const },
   { name: "Rufaro Chikwava", email: "admin@zvig.co.zw", role: "Admin", badge: "default" as const },
   { name: "Tendai Moyo", email: "tendai@shearwater.co.zw", role: "Agent", badge: "info" as const },
   { name: "Chipo Nyathi", email: "support@zvig.co.zw", role: "Support", badge: "outline" as const },
@@ -123,7 +124,7 @@ function Toggle({ on, danger, onClick }: { on: boolean; danger?: boolean; onClic
   );
 }
 
-export default function SysAdminPage() {
+export function SuperAdminConsole() {
   const [flags, setFlags] = useState(INITIAL_FLAGS);
   const [gateways, setGateways] = useState(GATEWAYS);
 
@@ -136,8 +137,8 @@ export default function SysAdminPage() {
 
   return (
     <DashboardShell
-      title="System Admin Console"
-      subtitle="Full platform control · features, configuration & health"
+      title="Super Admin Console"
+      subtitle="Hola Amigo Travelmate · full platform control"
       nav={NAV}
       activeHref="/sysadmin"
       badge={
@@ -169,7 +170,7 @@ export default function SysAdminPage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle>Feature flags</CardTitle>
-              <CardDescription>Turn platform capabilities on or off — instantly</CardDescription>
+              <CardDescription>Turn platform capabilities on or off in real time</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-1">
@@ -222,7 +223,8 @@ export default function SysAdminPage() {
                 ))}
               </ul>
               <p className="mt-4 text-xs text-stone-400">
-                Keys are stored server-side (Netlify env vars) — never in the browser.
+                Gateway keys are stored server side in Netlify environment
+                variables and never reach the browser.
               </p>
             </CardContent>
           </Card>

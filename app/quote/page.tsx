@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { QuoteWizard } from "./quote-wizard";
 
 export const metadata: Metadata = {
-  title: "Get Insurance",
+  title: "Get Started",
   description: "Get a Zimbabwe visitor insurance quote in minutes.",
 };
 

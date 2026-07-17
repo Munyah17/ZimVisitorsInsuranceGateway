@@ -99,7 +99,7 @@ export default function PortalPage() {
                 <div>
                   <dt className="text-xs uppercase tracking-wider text-stone-400">Valid</dt>
                   <dd className="mt-1 font-semibold text-stone-900">
-                    {formatDate(policy.startDate)} — {formatDate(policy.endDate)}
+                    {formatDate(policy.startDate)} to {formatDate(policy.endDate)}
                   </dd>
                 </div>
                 <div>

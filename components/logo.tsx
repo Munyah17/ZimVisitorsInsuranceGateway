@@ -15,7 +15,7 @@ export function Logo({ light = false, className }: { light?: boolean; className?
             light ? "text-white" : "text-stone-900"
           )}
         >
-          Zimbabwe Visitor Insurance
+          Hola Amigo
         </span>
         <span
           className={cn(
@@ -23,7 +23,7 @@ export function Logo({ light = false, className }: { light?: boolean; className?
             light ? "text-sunset-300" : "text-safari-600"
           )}
         >
-          Gateway
+          Travelmate
         </span>
       </span>
     </Link>

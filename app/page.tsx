@@ -25,12 +25,12 @@ const WHY = [
   {
     icon: HeartPulse,
     title: "Medical protection",
-    body: "Hospital treatment, doctor visits and medication across Zimbabwe's private healthcare network — without upfront bills.",
+    body: "Hospital treatment, doctor visits and medication across Zimbabwe's private healthcare network, with no upfront bills.",
   },
   {
     icon: Siren,
     title: "Emergency assistance",
-    body: "24/7 assistance line, ambulance dispatch and medical evacuation coordination from Victoria Falls to Great Zimbabwe.",
+    body: "A 24/7 assistance line, ambulance dispatch and medical evacuation coordination from Victoria Falls to Great Zimbabwe.",
   },
   {
     icon: Compass,
@@ -53,12 +53,12 @@ const TRUST = [
   {
     icon: LockKeyhole,
     title: "Secure Payments",
-    body: "International cards, PayPal and African payment methods — processed over encrypted, PCI-compliant rails.",
+    body: "International cards, PayPal and African payment methods, processed over encrypted and fully compliant payment rails.",
   },
 ];
 
 const STEPS = [
-  { n: "01", title: "Tell us about your trip", body: "Your details and travel dates — two minutes, from any device." },
+  { n: "01", title: "Tell us about your trip", body: "Your details and travel dates in under two minutes, from any device." },
   { n: "02", title: "Choose your cover", body: "Essential, Premium or Adventure. One clear price, no fine print." },
   { n: "03", title: "Pay securely", body: "Card, PayPal or mobile money in your currency." },
   { n: "04", title: "Travel covered", body: "Instant digital certificate with a QR code, delivered to your inbox." },
@@ -72,7 +72,7 @@ export default function LandingPage() {
         {/* 5-scene background slider under a translucent navy overlay */}
         <HeroSlider />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 sm:pt-28 lg:pb-32">
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pb-24 pt-16 text-center sm:px-6 sm:pt-28 lg:pb-32">
           <FadeIn>
             <Badge variant="dark" className="border border-white/15 bg-white/10 px-4 py-1.5 text-sunset-200">
               <Zap className="size-3.5" />
@@ -81,7 +81,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn delay={0.08}>
-            <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
               Travel Zimbabwe with{" "}
               <span className="bg-gradient-to-r from-sunset-200 via-sunset-300 to-sunset-400 bg-clip-text text-transparent">
                 confidence.
@@ -90,18 +90,18 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn delay={0.16}>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-safari-100/80">
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-safari-100/80">
               Instant visitor medical and emergency insurance for your Zimbabwean
-              adventure — from the mist of Victoria Falls to the plains of Hwange.
+              adventure, from the mist of Victoria Falls to the plains of Hwange.
               Buy online, verified anywhere.
             </p>
           </FadeIn>
 
           <FadeIn delay={0.24}>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/quote">
                 <Button variant="accent" size="lg" className="w-full sm:w-auto">
-                  Get Insurance
+                  Get Started Now!
                   <ArrowRight className="size-4" />
                 </Button>
               </Link>
@@ -115,7 +115,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn delay={0.34}>
-            <dl className="mt-16 grid max-w-2xl grid-cols-3 gap-6 border-t border-white/10 pt-8">
+            <dl className="mx-auto mt-16 grid w-full max-w-2xl grid-cols-3 gap-6 border-t border-white/10 pt-8">
               {[
                 { k: "12,400+", v: "Visitors covered" },
                 { k: "63", v: "Nationalities" },
@@ -172,8 +172,8 @@ export default function LandingPage() {
                 One brand. Clear cover. Fair prices.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-stone-500">
-                All plans are backed by our licensed Zimbabwean underwriting partner —
-                you choose the cover, we handle the rest.
+                All plans are backed by our licensed Zimbabwean underwriting partner.
+                You choose the cover, we handle the rest.
               </p>
             </div>
           </FadeIn>
@@ -268,8 +268,8 @@ export default function LandingPage() {
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-relaxed text-safari-200/70">
-                Zimbabwe Visitor Insurance Gateway is operated by a licensed multiple
-                agency and underwritten by a licensed microinsurance company — one
+                Hola Amigo Travelmate is operated by a licensed multiple
+                agent and underwritten by a licensed microinsurance company. One
                 brand for you, full regulatory compliance underneath.
               </p>
             </div>
@@ -301,13 +301,13 @@ export default function LandingPage() {
               Your Zimbabwean adventure starts protected
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-safari-100/70">
-              Get your certificate in minutes — or message us on WhatsApp and buy
+              Get your certificate in minutes, or message us on WhatsApp and buy
               cover without ever opening a browser.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/quote">
                 <Button variant="accent" size="lg" className="w-full sm:w-auto">
-                  Get Insurance
+                  Get Started Now!
                   <ArrowRight className="size-4" />
                 </Button>
               </Link>

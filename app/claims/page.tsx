@@ -88,7 +88,7 @@ export default function ClaimsPage() {
             </h1>
             <p className="mx-auto mt-2 max-w-md text-sm text-stone-500">
               Your claim <span className="font-mono font-semibold text-stone-800">ZVIG-C-2026-00045</span>{" "}
-              has been received. We&apos;ll email you at every step — most claims get a
+              has been received. We&apos;ll email you at every step, and most claims get a
               first response within 24 hours.
             </p>
           </div>
@@ -145,7 +145,7 @@ export default function ClaimsPage() {
           </h1>
           <p className="mx-auto mt-3 max-w-md text-stone-500">
             Tell us what happened. Have your policy number, receipts and any
-            medical reports ready — photos are fine.
+            medical reports ready. Photos are fine.
           </p>
         </div>
 
@@ -218,7 +218,7 @@ export default function ClaimsPage() {
                 >
                   <UploadCloud className="size-6" />
                   <span className="text-sm font-medium">Upload documents</span>
-                  <span className="text-xs text-stone-400">PDF, JPG, PNG — max 10 MB</span>
+                  <span className="text-xs text-stone-400">PDF, JPG or PNG, up to 10 MB</span>
                 </button>
                 <button
                   type="button"
@@ -265,8 +265,8 @@ export default function ClaimsPage() {
               )}
             </Button>
             <p className="mt-3 text-center text-xs text-stone-400">
-              Claims are triaged by ZVIG and assessed by our licensed underwriting
-              partner. You&apos;ll receive updates by email and WhatsApp.
+              Claims are triaged by Hola Amigo and assessed by our licensed
+              underwriting partner. You&apos;ll receive updates by email and WhatsApp.
             </p>
           </CardContent>
         </Card>
