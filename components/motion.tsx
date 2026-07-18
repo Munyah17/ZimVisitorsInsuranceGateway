@@ -1,11 +1,20 @@
 "use client";
 
 /**
- * Framer Motion wrappers usable from Server Components.
+ * Animation helpers.
+ *
+ * FadeIn / Stagger / StaggerItem are scroll-reveal wrappers implemented as
+ * plain divs + CSS driven by the inline script in app/layout.tsx. Content
+ * is visible by default and only animates when JavaScript is healthy, so a
+ * failed bundle can never leave the page blank.
+ *
+ * `motion` and `AnimatePresence` re-export Framer Motion for interactive,
+ * post-load animations (wizard steps, drawers, sliders) where a JS failure
+ * makes the feature unusable anyway.
  */
 
 import { motion, AnimatePresence } from "framer-motion";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export { motion, AnimatePresence };
 
@@ -13,23 +22,20 @@ export function FadeIn({
   children,
   delay = 0,
   className,
-  y = 24,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
+  /** Kept for API compatibility; the travel distance is set in CSS. */
   y?: number;
 }) {
+  const style: CSSProperties | undefined = delay
+    ? { transitionDelay: `${delay}s` }
+    : undefined;
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.55, delay, ease: [0.21, 0.65, 0.36, 1] }}
-    >
+    <div data-reveal className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -41,15 +47,9 @@ export function Stagger({
   className?: string;
 }) {
   return (
-    <motion.div
-      className={className}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: "-60px" }}
-      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
-    >
+    <div data-stagger className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -61,18 +61,8 @@ export function StaggerItem({
   className?: string;
 }) {
   return (
-    <motion.div
-      className={className}
-      variants={{
-        hidden: { opacity: 0, y: 24 },
-        show: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.55, ease: [0.21, 0.65, 0.36, 1] },
-        },
-      }}
-    >
+    <div data-reveal className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }

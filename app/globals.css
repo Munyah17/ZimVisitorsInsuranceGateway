@@ -63,3 +63,32 @@ body {
   background: var(--color-sunset-200);
   color: var(--color-safari-950);
 }
+
+/*
+  Scroll-reveal animations as progressive enhancement.
+  Content is VISIBLE by default. A small inline script in the layout adds
+  .reveal-ready to <html> only when IntersectionObserver is available, and
+  then reveals [data-reveal] elements as they enter the viewport. If any
+  JavaScript fails (old browsers, in-app browsers, network hiccups) the
+  page still renders fully — no blank screens.
+*/
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s cubic-bezier(0.21, 0.65, 0.36, 1),
+    transform 0.6s cubic-bezier(0.21, 0.65, 0.36, 1);
+}
+
+.reveal-ready [data-reveal].reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-ready [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

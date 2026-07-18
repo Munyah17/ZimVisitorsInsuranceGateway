@@ -76,7 +76,9 @@ export function QuoteWizard() {
 
   const [step, setStep] = useState(0);
   const [paying, setPaying] = useState(false);
-  const [policyNumber] = useState(nextPolicyNumber);
+  // Generated on payment success (not during render) so the prerendered
+  // HTML and the hydrated client tree always match.
+  const [policyNumber, setPolicyNumber] = useState("");
   const [form, setForm] = useState<FormState>({
     fullName: "",
     nationality: "",
@@ -140,6 +142,7 @@ export function QuoteWizard() {
   const simulatePayment = () => {
     setPaying(true);
     setTimeout(() => {
+      setPolicyNumber(nextPolicyNumber());
       setPaying(false);
       next();
     }, 1800);
