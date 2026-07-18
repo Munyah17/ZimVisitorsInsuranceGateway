@@ -39,43 +39,21 @@ export interface InsuranceProduct {
   };
   features: string[];
   popular?: boolean;
-  /** Shown on the landing page plan grid (Essential / Premium / Plus). */
+  /** Shown on the landing page plan grid. */
   featured?: boolean;
 }
 
+/**
+ * Single-product catalogue for now: Zimbabwe Visitor Premium at $30.
+ * Further plans (Essential, Plus, Adventure Rider) can be added back here
+ * when the business is ready; every screen renders from this array.
+ */
 export const PRODUCTS: InsuranceProduct[] = [
-  {
-    id: "aaaaaaa1-0000-0000-0000-000000000001",
-    name: "Zimbabwe Visitor Essential",
-    tagline: "Core protection for every visitor",
-    description: "Core medical and emergency cover for visitors to Zimbabwe.",
-    category: "medical",
-    providerName: "Horizon Microinsurance Company",
-    basePriceUsd: 10,
-    baseRatePerDayUsd: 0.8,
-    minPremiumUsd: 10,
-    coverage: {
-      medicalLimitUsd: 10000,
-      emergencyAssistance: true,
-      accidentCoverUsd: 2500,
-      travelProtection: false,
-      safariAssistance: false,
-      adventureActivities: false,
-      evacuation: false,
-    },
-    features: [
-      "$10,000 medical cover",
-      "24/7 emergency assistance",
-      "$2,500 accident cover",
-      "Instant digital certificate",
-    ],
-    featured: true,
-  },
   {
     id: "aaaaaaa1-0000-0000-0000-000000000002",
     name: "Zimbabwe Visitor Premium",
-    tagline: "Higher limits, total confidence",
-    description: "Higher medical limits with travel protection and safari assistance.",
+    tagline: "Complete protection for your visit",
+    description: "Medical and emergency cover with travel protection and safari assistance.",
     category: "medical_plus_travel",
     providerName: "Horizon Microinsurance Company",
     basePriceUsd: 30,
@@ -92,6 +70,7 @@ export const PRODUCTS: InsuranceProduct[] = [
     },
     features: [
       "$30,000 medical cover",
+      "24/7 emergency assistance",
       "Travel protection & delays",
       "Safari assistance network",
       "Emergency medical evacuation",
@@ -100,62 +79,9 @@ export const PRODUCTS: InsuranceProduct[] = [
     popular: true,
     featured: true,
   },
-  {
-    id: "aaaaaaa1-0000-0000-0000-000000000003",
-    name: "Zimbabwe Adventure Rider",
-    tagline: "For thrill-seekers at the Falls",
-    description: "Extension for high-risk activities: white-water rafting, bungee, gorge swing.",
-    category: "adventure",
-    providerName: "Savanna Specialty Insurers",
-    basePriceUsd: 30,
-    baseRatePerDayUsd: 3.0,
-    minPremiumUsd: 30,
-    coverage: {
-      medicalLimitUsd: 50000,
-      emergencyAssistance: true,
-      accidentCoverUsd: 10000,
-      travelProtection: false,
-      safariAssistance: true,
-      adventureActivities: true,
-      evacuation: true,
-    },
-    features: [
-      "$50,000 medical cover",
-      "White-water rafting & bungee",
-      "Gorge swing & abseiling",
-      "Helicopter evacuation",
-    ],
-  },
-  {
-    id: "aaaaaaa1-0000-0000-0000-000000000004",
-    name: "Zimbabwe Visitor Plus",
-    tagline: "VIP protection, zero compromise",
-    description: "Very high medical limits with trip cancellation, personal liability and VIP assistance.",
-    category: "medical_plus_travel",
-    providerName: "Horizon Microinsurance Company",
-    basePriceUsd: 45,
-    baseRatePerDayUsd: 2.75,
-    minPremiumUsd: 45,
-    coverage: {
-      medicalLimitUsd: 75000,
-      emergencyAssistance: true,
-      accidentCoverUsd: 10000,
-      travelProtection: true,
-      safariAssistance: true,
-      adventureActivities: false,
-      evacuation: true,
-    },
-    features: [
-      "$75,000 medical cover",
-      "Trip cancellation cover",
-      "Personal liability",
-      "VIP assistance & priority support",
-    ],
-    featured: true,
-  },
 ];
 
-/** The three plans shown on the landing page (per the UI mockup). */
+/** Plans shown on the landing page. */
 export const FEATURED_PRODUCTS = PRODUCTS.filter((p) => p.featured);
 
 export interface MockPolicy {
@@ -188,11 +114,11 @@ export const MOCK_POLICIES: MockPolicy[] = [
     policyNumber: "ZVIG-2026-00002",
     holderName: "Anna Müller",
     nationality: "Germany",
-    productName: "Zimbabwe Visitor Essential",
-    coverageSummary: "Medical + Emergency",
+    productName: "Zimbabwe Visitor Premium",
+    coverageSummary: "Medical + Emergency + Travel Protection",
     startDate: "2026-06-10",
     endDate: "2026-06-24",
-    premium: 12,
+    premium: 30,
     status: "expired",
     emergencyPhone: "+263 78 000 1111",
   },
@@ -229,10 +155,10 @@ export const MOCK_AGENT = {
   },
   recentCustomers: [
     { name: "John Smith", country: "United Kingdom", product: "Visitor Premium", premium: 30, date: "2026-07-16", status: "active" },
-    { name: "Chloé Dubois", country: "France", product: "Adventure Rider", premium: 42, date: "2026-07-15", status: "active" },
-    { name: "Marco Rossi", country: "Italy", product: "Visitor Essential", premium: 12, date: "2026-07-15", status: "active" },
+    { name: "Chloé Dubois", country: "France", product: "Visitor Premium", premium: 42, date: "2026-07-15", status: "active" },
+    { name: "Marco Rossi", country: "Italy", product: "Visitor Premium", premium: 30, date: "2026-07-15", status: "active" },
     { name: "Sarah Johnson", country: "United States", product: "Visitor Premium", premium: 33, date: "2026-07-14", status: "pending_payment" },
-    { name: "Yuki Tanaka", country: "Japan", product: "Visitor Essential", premium: 10, date: "2026-07-13", status: "active" },
+    { name: "Yuki Tanaka", country: "Japan", product: "Visitor Premium", premium: 30, date: "2026-07-13", status: "active" },
   ] as AgentCustomer[],
 };
 
@@ -267,10 +193,10 @@ export const MOCK_ADMIN = {
     { claimNumber: "ZVIG-C-2026-0003", holder: "Yuki Tanaka", type: "Travel", amount: 240, status: "paid" as ClaimStatus, date: "2026-07-08" },
   ],
   recentPolicies: [
-    { policyNumber: "ZVIG-2026-01847", holder: "Emma Wilson", country: "Australia", premium: 25, channel: "Web" },
+    { policyNumber: "ZVIG-2026-01847", holder: "Emma Wilson", country: "Australia", premium: 30, channel: "Web" },
     { policyNumber: "ZVIG-2026-01846", holder: "Lars Eriksen", country: "Norway", premium: 47, channel: "WhatsApp" },
-    { policyNumber: "ZVIG-2026-01845", holder: "Priya Patel", country: "India", premium: 10, channel: "Agent" },
-    { policyNumber: "ZVIG-2026-01844", holder: "Tom Becker", country: "Germany", premium: 30, channel: "Web" },
+    { policyNumber: "ZVIG-2026-01845", holder: "Priya Patel", country: "India", premium: 30, channel: "Agent" },
+    { policyNumber: "ZVIG-2026-01844", holder: "Tom Becker", country: "Germany", premium: 36, channel: "Web" },
   ],
 };
 

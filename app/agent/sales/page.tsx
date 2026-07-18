@@ -18,11 +18,11 @@ import { formatDate, formatUSD } from "@/lib/utils";
 /** Recent sales plus older history for the full statement view. */
 const ALL_SALES: AgentCustomer[] = [
   ...MOCK_AGENT.recentCustomers,
-  { name: "Emma Wilson", country: "Australia", product: "Visitor Premium", premium: 27, date: "2026-07-11", status: "active" },
-  { name: "Lars Eriksen", country: "Norway", product: "Visitor Plus", premium: 47, date: "2026-07-10", status: "active" },
-  { name: "Priya Patel", country: "India", product: "Visitor Essential", premium: 10, date: "2026-07-08", status: "active" },
-  { name: "Tom Becker", country: "Germany", product: "Adventure Rider", premium: 34, date: "2026-07-05", status: "active" },
-  { name: "Aisha Diallo", country: "Nigeria", product: "Visitor Essential", premium: 12, date: "2026-07-02", status: "active" },
+  { name: "Emma Wilson", country: "Australia", product: "Visitor Premium", premium: 30, date: "2026-07-11", status: "active" },
+  { name: "Lars Eriksen", country: "Norway", product: "Visitor Premium", premium: 47, date: "2026-07-10", status: "active" },
+  { name: "Priya Patel", country: "India", product: "Visitor Premium", premium: 30, date: "2026-07-08", status: "active" },
+  { name: "Tom Becker", country: "Germany", product: "Visitor Premium", premium: 34, date: "2026-07-05", status: "active" },
+  { name: "Aisha Diallo", country: "Nigeria", product: "Visitor Premium", premium: 30, date: "2026-07-02", status: "active" },
 ];
 
 export default function AgentSalesPage() {

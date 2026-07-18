@@ -166,19 +166,19 @@ export default function LandingPage() {
           <FadeIn>
             <div className="text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-safari-600">
-                Coverage plans
+                Coverage
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-                One brand. Clear cover. Fair prices.
+                One plan. Clear cover. Fair price.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-stone-500">
-                All plans are backed by our licensed Zimbabwean underwriting partner.
-                You choose the cover, we handle the rest.
+                Backed by our licensed Zimbabwean underwriting partner. One
+                simple plan covers your whole visit, and your whole group.
               </p>
             </div>
           </FadeIn>
 
-          <Stagger className="mt-14 grid gap-6 lg:grid-cols-3">
+          <Stagger className="mx-auto mt-14 grid max-w-md gap-6">
             {FEATURED_PRODUCTS.map((p) => (
               <StaggerItem key={p.id} className="h-full">
                 <Card

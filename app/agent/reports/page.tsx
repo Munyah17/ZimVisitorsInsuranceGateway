@@ -20,11 +20,10 @@ const MONTHLY = [
   { month: "Jul", policies: 128 },
 ];
 
-const TOP_PRODUCTS = [
-  { name: "Zimbabwe Visitor Premium", share: 46 },
-  { name: "Zimbabwe Visitor Essential", share: 31 },
-  { name: "Zimbabwe Adventure Rider", share: 15 },
-  { name: "Zimbabwe Visitor Plus", share: 8 },
+const CHANNELS = [
+  { name: "Your desk (walk-in)", share: 52 },
+  { name: "Referral link", share: 31 },
+  { name: "WhatsApp referrals", share: 17 },
 ];
 
 export default function AgentReportsPage() {
@@ -40,7 +39,7 @@ export default function AgentReportsPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <StatTile accent label="Best month" value="Jul 2026" hint="128 policies and counting" icon={TrendingUp} />
           <StatTile label="6 month total" value={String(MONTHLY.reduce((s, m) => s + m.policies, 0))} hint="Policies sold" icon={ChartNoAxesColumn} />
-          <StatTile label="Top product" value="Premium" hint="46% of your sales" icon={Package} />
+          <StatTile label="Top channel" value="Your desk" hint="52% of your sales" icon={Package} />
         </div>
       </FadeIn>
 
@@ -75,12 +74,12 @@ export default function AgentReportsPage() {
         <FadeIn y={16} delay={0.06}>
           <Card className="h-full">
             <CardHeader>
-              <CardTitle>Product mix</CardTitle>
-              <CardDescription>Share of your sales by plan, last 90 days</CardDescription>
+              <CardTitle>Sales by channel</CardTitle>
+              <CardDescription>Where your Visitor Premium sales come from, last 90 days</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-4">
-                {TOP_PRODUCTS.map((p) => (
+                {CHANNELS.map((p) => (
                   <li key={p.name}>
                     <div className="mb-1.5 flex items-baseline justify-between text-sm">
                       <span className="font-medium text-stone-700">{p.name}</span>
@@ -96,8 +95,8 @@ export default function AgentReportsPage() {
                 ))}
               </ul>
               <p className="mt-5 rounded-xl bg-safari-50 px-4 py-3 text-xs leading-relaxed text-safari-900">
-                Tip: visitors booking adventure activities convert best on the
-                Adventure Rider when it is offered at the till.
+                Tip: group bookings convert best at the till. One leader can
+                cover the whole party in a single checkout.
               </p>
             </CardContent>
           </Card>

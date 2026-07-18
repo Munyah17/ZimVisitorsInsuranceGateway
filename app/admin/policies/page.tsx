@@ -15,14 +15,14 @@ import { ADMIN_NAV } from "../nav";
 import { formatUSD } from "@/lib/utils";
 
 const POLICIES = [
-  { number: "ZVIG-2026-01847", holder: "Emma Wilson", country: "Australia", plan: "Visitor Premium", premium: 25, channel: "Web", status: "active" },
-  { number: "ZVIG-2026-01846", holder: "Lars Eriksen", country: "Norway", plan: "Visitor Plus", premium: 47, channel: "WhatsApp", status: "active" },
-  { number: "ZVIG-2026-01845", holder: "Priya Patel", country: "India", plan: "Visitor Essential", premium: 10, channel: "Agent", status: "active" },
-  { number: "ZVIG-2026-01844", holder: "Tom Becker", country: "Germany", plan: "Adventure Rider", premium: 30, channel: "Web", status: "active" },
+  { number: "ZVIG-2026-01847", holder: "Emma Wilson", country: "Australia", plan: "Visitor Premium", premium: 30, channel: "Web", status: "active" },
+  { number: "ZVIG-2026-01846", holder: "Lars Eriksen", country: "Norway", plan: "Visitor Premium", premium: 47, channel: "WhatsApp", status: "active" },
+  { number: "ZVIG-2026-01845", holder: "Priya Patel", country: "India", plan: "Visitor Premium", premium: 30, channel: "Agent", status: "active" },
+  { number: "ZVIG-2026-01844", holder: "Tom Becker", country: "Germany", plan: "Visitor Premium", premium: 36, channel: "Web", status: "active" },
   { number: "ZVIG-2026-01843", holder: "Sarah Johnson", country: "United States", plan: "Visitor Premium", premium: 33, channel: "Agent", status: "pending_payment" },
-  { number: "ZVIG-2026-01842", holder: "Chen Wei", country: "China", plan: "Visitor Essential", premium: 12, channel: "Web", status: "active" },
-  { number: "ZVIG-2026-01841", holder: "Anna Müller", country: "Germany", plan: "Visitor Essential", premium: 12, channel: "Web", status: "expired" },
-  { number: "ZVIG-2026-01840", holder: "James Okoro", country: "Nigeria", plan: "Visitor Premium", premium: 28, channel: "WhatsApp", status: "active" },
+  { number: "ZVIG-2026-01842", holder: "Chen Wei", country: "China", plan: "Visitor Premium", premium: 30, channel: "Web", status: "active" },
+  { number: "ZVIG-2026-01841", holder: "Anna Müller", country: "Germany", plan: "Visitor Premium", premium: 30, channel: "Web", status: "expired" },
+  { number: "ZVIG-2026-01840", holder: "James Okoro", country: "Nigeria", plan: "Visitor Premium", premium: 45, channel: "WhatsApp", status: "active" },
 ];
 
 const STATUS = {

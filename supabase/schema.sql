@@ -208,15 +208,15 @@ create index idx_organizations_status on organizations (status);
 -- ===========================================================================
 create table insurance_products (
   id               uuid primary key default gen_random_uuid(),
-  name             text not null,                    -- e.g. 'Zimbabwe Visitor Essential'
+  name             text not null,                    -- e.g. 'Zimbabwe Visitor Premium'
   description      text,
   category         product_category not null,
   provider_id      uuid not null references organizations (id),
   -- Flexible coverage definition consumed by the frontend plan cards and the
   -- premium calculator. Example shape:
-  -- { "medical_limit_usd": 50000, "emergency_evacuation": true,
-  --   "accident_cover_usd": 10000, "adventure_activities": false,
-  --   "base_rate_per_day_usd": 1.5, "min_premium_usd": 20 }
+  -- { "medical_limit_usd": 30000, "emergency_evacuation": true,
+  --   "accident_cover_usd": 5000, "adventure_activities": false,
+  --   "base_rate_per_day_usd": 1.5, "min_premium_usd": 30 }
   coverage_details jsonb not null default '{}'::jsonb,
   base_price_usd   numeric(10,2) not null,           -- displayed "from" price
   active           boolean not null default true,
@@ -332,9 +332,10 @@ create table quotes (
   travel_detail_id  uuid not null references travel_details (id),
   product_id        uuid not null references insurance_products (id),
   -- Snapshot of the pricing maths so the number can be audited later even if
-  -- product rates change. Example:
-  -- { "days": 19, "day_rate": 1.5, "activity_loading": 1.2,
-  --   "age_loading": 1.0, "subtotal": 34.2, "levies": 1.8 }
+  -- product rates change. Statutory charges are percentages of the premium:
+  -- ZTA levy 2%, stamp duty 5%. Example:
+  -- { "days": 20, "day_rate": 1.5, "activity_loading": 1.0, "travellers": 1,
+  --   "premium": 30.00, "zta_levy": 0.60, "stamp_duty": 1.50, "total": 32.10 }
   pricing_breakdown jsonb not null default '{}'::jsonb,
   calculated_price  numeric(10,2) not null,
   currency          text not null default 'USD',
@@ -679,28 +680,16 @@ insert into organizations (id, name, type, license_number, status, contact_email
   ('66666666-6666-6666-6666-666666666666', 'MARS Ambulance Zimbabwe', 'ambulance_service', null, 'active', 'dispatch@mars.co.zw');
 
 -- --- Products ---------------------------------------------------------------
+-- Single-product catalogue for launch: Zimbabwe Visitor Premium at USD 30.
+-- Further plans are simply new rows here when the business adds them.
 insert into insurance_products (id, name, description, category, provider_id, coverage_details, base_price_usd, active) values
-  ('aaaaaaa1-0000-0000-0000-000000000001',
-   'Zimbabwe Visitor Essential',
-   'Core medical and emergency cover for visitors to Zimbabwe.',
-   'medical',
-   '22222222-2222-2222-2222-222222222222',
-   '{"medical_limit_usd": 50000, "emergency_assistance": true, "accident_cover_usd": 10000, "adventure_activities": false, "base_rate_per_day_usd": 1.00, "min_premium_usd": 20}',
-   20.00, true),
   ('aaaaaaa1-0000-0000-0000-000000000002',
    'Zimbabwe Visitor Premium',
-   'Higher medical limits with travel protection and safari assistance.',
+   'Medical and emergency cover with travel protection and safari assistance.',
    'medical_plus_travel',
    '22222222-2222-2222-2222-222222222222',
-   '{"medical_limit_usd": 150000, "emergency_assistance": true, "accident_cover_usd": 25000, "travel_protection": true, "safari_assistance": true, "adventure_activities": false, "base_rate_per_day_usd": 2.50, "min_premium_usd": 50}',
-   50.00, true),
-  ('aaaaaaa1-0000-0000-0000-000000000003',
-   'Zimbabwe Adventure Rider',
-   'Extension for high-risk activities: white-water rafting, bungee, gorge swing.',
-   'adventure',
-   '33333333-3333-3333-3333-333333333333',
-   '{"medical_limit_usd": 200000, "adventure_activities": true, "evacuation": true, "base_rate_per_day_usd": 4.00, "min_premium_usd": 35}',
-   35.00, true);
+   '{"medical_limit_usd": 30000, "emergency_assistance": true, "accident_cover_usd": 5000, "travel_protection": true, "safari_assistance": true, "adventure_activities": false, "evacuation": true, "base_rate_per_day_usd": 1.50, "min_premium_usd": 30}',
+   30.00, true);
 
 -- --- Users ------------------------------------------------------------------
 insert into users (id, name, email, phone, country, role) values
@@ -734,8 +723,8 @@ insert into quotes (id, quote_number, customer_id, travel_detail_id, product_id,
    'ccccccc1-0000-0000-0000-000000000001',
    'ddddddd1-0000-0000-0000-000000000001',
    'aaaaaaa1-0000-0000-0000-000000000002',
-   '{"days": 20, "day_rate": 2.50, "activity_loading": 1.0, "age_loading": 1.0, "subtotal": 50.00, "levies": 0}',
-   50.00, 'converted', '2026-07-20T00:00:00Z',
+   '{"days": 20, "day_rate": 1.50, "activity_loading": 1.0, "travellers": 1, "premium": 30.00, "zta_levy": 0.60, "stamp_duty": 1.50, "total": 32.10}',
+   32.10, 'converted', '2026-07-20T00:00:00Z',
    'eeeeeee1-0000-0000-0000-000000000001');
 
 insert into policies (id, policy_number, quote_id, customer_id, travel_detail_id, product_id, underwriter_id, agent_id, start_date, end_date, premium, status, certificate_url, qr_code) values
@@ -747,7 +736,7 @@ insert into policies (id, policy_number, quote_id, customer_id, travel_detail_id
    'aaaaaaa1-0000-0000-0000-000000000002',
    '22222222-2222-2222-2222-222222222222',
    'eeeeeee1-0000-0000-0000-000000000001',
-   '2026-08-01', '2026-08-20', 50.00, 'active',
+   '2026-08-01', '2026-08-20', 30.00, 'active',
    'certificates/ZVIG-2026-00001.pdf',
    'https://zvig.co.zw/verify/ZVIG-2026-00001');
 
@@ -755,12 +744,12 @@ insert into payments (policy_id, quote_id, customer_id, amount, currency, provid
   ('99999991-0000-0000-0000-000000000001',
    'fffffff1-0000-0000-0000-000000000001',
    'ccccccc1-0000-0000-0000-000000000001',
-   50.00, 'USD', 'stripe', 'pi_3PmockZVIG0001', 'succeeded');
+   32.10, 'USD', 'stripe', 'pi_3PmockZVIG0001', 'succeeded');
 
 insert into commissions (agent_id, policy_id, amount, status) values
   ('eeeeeee1-0000-0000-0000-000000000001',
    '99999991-0000-0000-0000-000000000001',
-   5.00, 'accrued');
+   3.00, 'accrued');
 
 -- --- Sample claim ------------------------------------------------------------
 insert into claims (claim_number, policy_id, incident_date, description, location, documents, status) values

@@ -158,7 +158,7 @@ export function QuoteWizard() {
     documents: [],
     productId: preselected && PRODUCTS.some((p) => p.id === preselected)
       ? preselected
-      : PRODUCTS[1].id,
+      : PRODUCTS[0].id,
     paymentMethod: "card",
   });
 
@@ -185,7 +185,7 @@ export function QuoteWizard() {
         : [...f.documents, id],
     }));
 
-  const product = PRODUCTS.find((p) => p.id === form.productId) ?? PRODUCTS[1];
+  const product = PRODUCTS.find((p) => p.id === form.productId) ?? PRODUCTS[0];
   const totalTravellers = 1 + (form.tripType === "group" ? form.travellers.length : 0);
 
   const pricing = useMemo(
@@ -748,13 +748,6 @@ export function QuoteWizard() {
                     );
                   })}
                 </div>
-                {form.activities.includes("adventure") && product.category !== "adventure" && (
-                  <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                    You selected adventure activities. The{" "}
-                    <strong>Zimbabwe Adventure Rider</strong> covers rafting, bungee and
-                    gorge swing.
-                  </p>
-                )}
               </div>
             )}
 
@@ -791,24 +784,12 @@ export function QuoteWizard() {
 
                   <dl className="mt-6 space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-stone-500">
-                        Base rate · {pricing.days} days × {formatUSD(pricing.dayRate)}/day
-                        {pricing.travellers > 1 && ` × ${pricing.travellers} travellers`}
+                      <dt className="font-semibold text-stone-900">
+                        Premium
+                        {pricing.travellers > 1 && (
+                          <span className="font-normal text-stone-400"> · {pricing.travellers} travellers</span>
+                        )}
                       </dt>
-                      <dd className="font-medium text-stone-900">
-                        {formatUSD(Math.round(pricing.days * pricing.dayRate * pricing.travellers * 100) / 100)}
-                      </dd>
-                    </div>
-                    {pricing.activityLoading > 1 && (
-                      <div className="flex justify-between">
-                        <dt className="text-stone-500">
-                          Activity loading × {pricing.activityLoading.toFixed(1)}
-                        </dt>
-                        <dd className="font-medium text-stone-900">included</dd>
-                      </div>
-                    )}
-                    <div className="flex justify-between border-t border-stone-200 pt-3">
-                      <dt className="font-semibold text-stone-900">Premium</dt>
                       <dd className="font-semibold text-stone-900">{formatUSD(pricing.premium)}</dd>
                     </div>
                     <div className="flex justify-between">

@@ -70,7 +70,7 @@ const INITIAL_FLAGS = [
   { id: "web_sales", label: "Web sales channel", desc: "Quote wizard + checkout on the public site", on: true },
   { id: "whatsapp_bot", label: "WhatsApp bot channel", desc: "Purchases and verification via WhatsApp Cloud API", on: false },
   { id: "agent_signup", label: "Agent self-registration", desc: "Let hotels and operators apply for agent accounts", on: true },
-  { id: "adventure_rider", label: "Adventure Rider product", desc: "High-risk activities cover (partner insurer)", on: true },
+  { id: "group_travel", label: "Group travel purchases", desc: "A group leader can buy cover for a whole party", on: true },
   { id: "public_verify_api", label: "Public verification API", desc: "GET /api/policy/{number} for borders & airlines", on: true },
   { id: "auto_cert_email", label: "Auto certificate email", desc: "Send PDF certificate on payment success", on: true },
   { id: "fraud_monitor", label: "Fraud monitoring", desc: "Pattern scans on issuance & claims", on: true },
@@ -126,7 +126,7 @@ const AUDIT = [
   { who: "mmuzvi@gmail.com", what: "feature flag agent_signup enabled", when: "1 h ago" },
   { who: "tendai@shearwater.co.zw", what: "quote ZVIG-Q-2026-000871 created (agent)", when: "2 h ago" },
   { who: "system", what: "nightly reconciliation: 0 mismatches across 3 gateways", when: "6 h ago" },
-  { who: "mmuzvi@gmail.com", what: "product Zimbabwe Visitor Plus price updated", when: "1 d ago" },
+  { who: "mmuzvi@gmail.com", what: "product Zimbabwe Visitor Premium price set to $30", when: "1 d ago" },
   { who: "system", what: "backup completed: 1.2 GB snapshot stored", when: "1 d ago" },
   { who: "admin@zvig.co.zw", what: "agent AGT-0004 approved", when: "2 d ago" },
 ];
