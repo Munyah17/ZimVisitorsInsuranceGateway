@@ -7,14 +7,19 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShieldCheck, Menu, X, type LucideIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ShieldCheck, Menu, X, LogOut, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface NavItem {
   label: string;
-  href: string;
   icon: LucideIcon;
+  /** Route to navigate to. Omit when using onClick section switching. */
+  href?: string;
+  /** Section switcher (e.g. Super Admin console tabs). */
+  onClick?: () => void;
+  /** Explicit active state for onClick items. */
+  active?: boolean;
 }
 
 export function DashboardShell({
@@ -34,6 +39,7 @@ export function DashboardShell({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const active = activeHref ?? pathname;
 
   return (
@@ -52,32 +58,59 @@ export function DashboardShell({
             </span>
             <span className="text-sm font-bold text-white">Hola Amigo</span>
           </div>
-          <nav className="space-y-1">
+          <nav className="space-y-1 overflow-y-auto">
             {nav.map((item) => {
-              const isActive = active === item.href;
+              const isActive = item.active ?? active === item.href;
+              const classes = cn(
+                "flex w-full items-center gap-3 px-3.5 py-2.5 text-sm transition-colors",
+                isActive
+                  ? "font-semibold text-white"
+                  : "font-medium text-safari-200/60 hover:text-white"
+              );
+              if (item.href) {
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={classes}
+                  >
+                    <item.icon className="size-4.5" />
+                    {item.label}
+                  </Link>
+                );
+              }
               return (
-                <Link
+                <button
                   key={item.label}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3.5 py-2.5 text-sm transition-colors",
-                    isActive
-                      ? "font-semibold text-white"
-                      : "font-medium text-safari-200/60 hover:text-white"
-                  )}
+                  type="button"
+                  onClick={() => {
+                    item.onClick?.();
+                    setOpen(false);
+                  }}
+                  className={cn(classes, "text-left")}
                 >
                   <item.icon className="size-4.5" />
                   {item.label}
-                </Link>
+                </button>
               );
             })}
           </nav>
-          <p className="mt-auto px-2 text-[10px] leading-relaxed text-safari-200/40">
-            © 2026 Hola Amigo Multiple Agent.
-            <br />
-            All Rights Reserved
-          </p>
+          <div className="mt-auto">
+            <button
+              type="button"
+              onClick={() => router.push("/portals")}
+              className="flex w-full items-center gap-3 border-t border-white/10 px-3.5 pb-1 pt-4 text-sm font-medium text-safari-200/60 transition-colors hover:text-white"
+            >
+              <LogOut className="size-4.5" />
+              Logout
+            </button>
+            <p className="mt-3 px-2 text-[10px] leading-relaxed text-safari-200/40">
+              © 2026 Hola Amigo Multiple Agent.
+              <br />
+              All Rights Reserved
+            </p>
+          </div>
         </div>
       </aside>
 

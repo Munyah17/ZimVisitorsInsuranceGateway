@@ -8,15 +8,14 @@
 
 import Link from "next/link";
 import {
-  LayoutDashboard,
   Users,
   FileText,
   Wallet,
-  ChartNoAxesColumn,
   Plus,
   TrendingUp,
   BadgeCheck,
 } from "lucide-react";
+import { AGENT_NAV } from "./nav";
 import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,14 +24,6 @@ import { FadeIn } from "@/components/motion";
 import { MOCK_AGENT } from "@/lib/mock-data";
 import { formatDate, formatUSD } from "@/lib/utils";
 
-const NAV = [
-  { label: "Dashboard", href: "/agent", icon: LayoutDashboard },
-  { label: "My Sales", href: "/agent", icon: FileText },
-  { label: "Visitors", href: "/agent", icon: Users },
-  { label: "Commissions", href: "/agent", icon: Wallet },
-  { label: "Reports", href: "/agent", icon: ChartNoAxesColumn },
-];
-
 export default function AgentPage() {
   const { stats } = MOCK_AGENT;
 
@@ -40,8 +31,7 @@ export default function AgentPage() {
     <DashboardShell
       title={`Agent dashboard`}
       subtitle={`${MOCK_AGENT.name} · ${MOCK_AGENT.organization} · ${MOCK_AGENT.agentCode}`}
-      nav={NAV}
-      activeHref="/agent"
+      nav={AGENT_NAV}
       badge={
         <Link href="/quote">
           <Button variant="accent">
@@ -87,7 +77,9 @@ export default function AgentPage() {
               <CardTitle>Recent customers</CardTitle>
               <CardDescription>Your latest visitor insurance sales</CardDescription>
             </div>
-            <Button variant="outline" size="sm">View all sales</Button>
+            <Link href="/agent/sales">
+              <Button variant="outline" size="sm">View all sales</Button>
+            </Link>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">

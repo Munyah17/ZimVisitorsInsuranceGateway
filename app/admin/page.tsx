@@ -7,12 +7,9 @@
  */
 
 import {
-  LayoutDashboard,
   FileText,
   ShieldAlert,
   Users,
-  Building2,
-  Settings,
   Globe2,
   Wallet,
   Activity,
@@ -20,21 +17,13 @@ import {
   MonitorSmartphone,
   UserRound,
 } from "lucide-react";
+import { ADMIN_NAV } from "./nav";
 import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
 import { MOCK_ADMIN, type ClaimStatus } from "@/lib/mock-data";
 import { formatUSD } from "@/lib/utils";
-
-const NAV = [
-  { label: "Overview", href: "/admin", icon: LayoutDashboard },
-  { label: "Policies", href: "/admin", icon: FileText },
-  { label: "Claims", href: "/admin", icon: ShieldAlert },
-  { label: "Agents", href: "/admin", icon: Users },
-  { label: "Organizations", href: "/admin", icon: Building2 },
-  { label: "Settings", href: "/admin", icon: Settings },
-];
 
 const CLAIM_BADGE: Record<ClaimStatus, { label: string; variant: "success" | "warning" | "info" | "outline" | "destructive" }> = {
   submitted: { label: "Submitted", variant: "info" },
@@ -60,8 +49,7 @@ export default function AdminPage() {
     <DashboardShell
       title="Admin Command Centre"
       subtitle="Hola Amigo Travelmate · live operations"
-      nav={NAV}
-      activeHref="/admin"
+      nav={ADMIN_NAV}
       badge={
         <Badge variant="success" className="px-3 py-1.5">
           <Activity className="size-3.5" /> All systems operational

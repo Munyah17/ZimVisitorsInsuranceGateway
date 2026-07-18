@@ -42,6 +42,18 @@
   --color-sunset-900: #782d10;
 }
 
+/*
+  Lock the page to vertical scrolling only: no horizontal panning or
+  rubber-band dragging on mobile. Containers that intentionally scroll
+  sideways (tables) keep their own overflow-x-auto.
+*/
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

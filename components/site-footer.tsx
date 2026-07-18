@@ -68,9 +68,6 @@ export function SiteFooter() {
               Digital insurance for every visitor to Zimbabwe. Issued in minutes,
               verified anywhere, backed by a licensed Zimbabwean underwriter.
             </p>
-            <p className="mt-4 text-xs text-safari-200/50">
-              Underwritten by Horizon Microinsurance Company · IPEC-MI-2024-007
-            </p>
           </div>
           {COLUMNS.map((col) => (
             <div key={col.title}>
