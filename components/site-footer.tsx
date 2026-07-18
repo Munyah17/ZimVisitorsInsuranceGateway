@@ -89,8 +89,22 @@ export function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-safari-200/50">
-          <span>© 2026 Hola Amigo Multiple Agent. All Rights Reserved</span>
+        <div className="mt-12 border-t border-white/10 pt-6 text-center text-xs">
+          <a
+            href="https://globalspaceweb.co.zw"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="+263 77 390 9307"
+            className="group inline-block text-safari-200/50 transition-colors hover:text-sunset-300"
+          >
+            © 2026 Hola Amigo Multiple Agent. All Rights Reserved · Powered By{" "}
+            <span className="font-semibold underline decoration-sunset-400/40 underline-offset-2 group-hover:decoration-sunset-300">
+              Global Space Web
+            </span>
+            <span className="ml-1.5 hidden font-medium text-sunset-300 group-hover:inline">
+              · +263 77 390 9307
+            </span>
+          </a>
         </div>
       </div>
     </footer>

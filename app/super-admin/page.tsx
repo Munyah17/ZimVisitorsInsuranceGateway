@@ -2,9 +2,11 @@
 
 /**
  * /super-admin — unlinked, unlisted entry point for the platform owner.
- * Prototype gate: a passcode unlocks the console for the session.
- * Live version: dedicated Supabase Auth login + role = 'super_admin'
- * enforced in middleware and RLS, with hardware 2FA.
+ *
+ * Owner account (prototype):
+ *   Munyah Griezmann · username "Munyah" · munyamuzvidziwa19@gmail.com
+ * The gate asks for username + PIN. Live version: dedicated Supabase Auth
+ * login + role = 'super_admin' enforced in middleware and RLS, with 2FA.
  */
 
 import { useState } from "react";
@@ -15,11 +17,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SuperAdminConsole } from "./console";
 
-const DEMO_PASSCODE = "SUPER-2026";
+const SUPER_ADMIN = {
+  name: "Munyah Griezmann",
+  username: "Munyah",
+  email: "munyamuzvidziwa19@gmail.com",
+  pin: "3743",
+};
 
 export default function SuperAdminPage() {
   const [unlocked, setUnlocked] = useState(false);
-  const [code, setCode] = useState("");
+  const [username, setUsername] = useState("");
+  const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
@@ -28,7 +36,10 @@ export default function SuperAdminPage() {
     setBusy(true);
     setError(false);
     setTimeout(() => {
-      if (code.trim().toUpperCase() === DEMO_PASSCODE) {
+      const nameOk =
+        username.trim().toLowerCase() === SUPER_ADMIN.username.toLowerCase() ||
+        username.trim().toLowerCase() === SUPER_ADMIN.email.toLowerCase();
+      if (nameOk && pin.trim() === SUPER_ADMIN.pin) {
         setUnlocked(true);
       } else {
         setError(true);
@@ -50,30 +61,51 @@ export default function SuperAdminPage() {
             Super Admin access
           </h1>
           <p className="mt-2 text-center text-sm text-safari-200/60">
-            Restricted area for the platform owner. Enter your access passcode
-            to continue.
+            Restricted area for the platform owner. Sign in with your username
+            and PIN.
           </p>
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="passcode" className="text-safari-200/80">
-                Passcode
+              <Label htmlFor="username" className="text-safari-200/80">
+                Username or email
               </Label>
               <Input
-                id="passcode"
-                type="password"
-                placeholder="••••••••••"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                id="username"
+                autoComplete="username"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 autoFocus
+                className="border-white/15 bg-white/10 text-white placeholder:text-safari-200/30"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pin" className="text-safari-200/80">
+                PIN
+              </Label>
+              <Input
+                id="pin"
+                type="password"
+                inputMode="numeric"
+                autoComplete="current-password"
+                placeholder="••••"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
                 className="border-white/15 bg-white/10 text-white placeholder:text-safari-200/30"
               />
             </div>
             {error && (
               <p className="rounded-xl bg-red-500/15 px-4 py-2.5 text-sm text-red-300">
-                Incorrect passcode. Access to this console is logged.
+                Incorrect username or PIN. Access to this console is logged.
               </p>
             )}
-            <Button type="submit" variant="accent" size="lg" className="w-full" disabled={busy || !code}>
+            <Button
+              type="submit"
+              variant="accent"
+              size="lg"
+              className="w-full"
+              disabled={busy || !username || !pin}
+            >
               {busy ? (
                 <>
                   <Loader2 className="size-4 animate-spin" /> Verifying…
@@ -85,9 +117,6 @@ export default function SuperAdminPage() {
               )}
             </Button>
           </form>
-          <p className="mt-4 text-center text-[11px] text-safari-200/40">
-            Prototype passcode: SUPER-2026
-          </p>
         </CardContent>
       </Card>
     </div>

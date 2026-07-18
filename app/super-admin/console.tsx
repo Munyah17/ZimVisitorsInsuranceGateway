@@ -86,7 +86,7 @@ const GATEWAYS = [
 ];
 
 const USERS = [
-  { name: "Munya M.", email: "mmuzvi@gmail.com", role: "Super Admin", badge: "dark" as const },
+  { name: "Munyah Griezmann", email: "munyamuzvidziwa19@gmail.com", role: "Super Admin", badge: "dark" as const },
   { name: "Rufaro Chikwava", email: "admin@zvig.co.zw", role: "Admin", badge: "default" as const },
   { name: "Tendai Moyo", email: "tendai@shearwater.co.zw", role: "Agent", badge: "info" as const },
   { name: "Chipo Nyathi", email: "support@zvig.co.zw", role: "Support", badge: "outline" as const },
@@ -123,10 +123,10 @@ const SERVICES = [
 const AUDIT = [
   { who: "system", what: "payment.succeeded → policy ZVIG-2026-01847 activated", when: "2 min ago" },
   { who: "admin@zvig.co.zw", what: "claim ZVIG-C-2026-0006 → under_review", when: "26 min ago" },
-  { who: "mmuzvi@gmail.com", what: "feature flag agent_signup enabled", when: "1 h ago" },
+  { who: "Munyah", what: "feature flag agent_signup enabled", when: "1 h ago" },
   { who: "tendai@shearwater.co.zw", what: "quote ZVIG-Q-2026-000871 created (agent)", when: "2 h ago" },
   { who: "system", what: "nightly reconciliation: 0 mismatches across 3 gateways", when: "6 h ago" },
-  { who: "mmuzvi@gmail.com", what: "product Zimbabwe Visitor Premium price set to $30", when: "1 d ago" },
+  { who: "Munyah", what: "product Zimbabwe Visitor Premium price set to $30", when: "1 d ago" },
   { who: "system", what: "backup completed: 1.2 GB snapshot stored", when: "1 d ago" },
   { who: "admin@zvig.co.zw", what: "agent AGT-0004 approved", when: "2 d ago" },
 ];
@@ -505,7 +505,7 @@ export function SuperAdminConsole() {
   return (
     <DashboardShell
       title="Super Admin Console"
-      subtitle={`Hola Amigo Travelmate · ${current.label}`}
+      subtitle={`Signed in as Munyah Griezmann · ${current.label}`}
       nav={nav}
       badge={
         maintenance ? (

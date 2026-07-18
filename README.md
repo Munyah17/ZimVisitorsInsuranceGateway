@@ -27,7 +27,7 @@ premium allocation and claims routing underneath.
 - `/claims` — Claim submission + tracking timeline
 - `/agent` — Agent portal (sales, commissions, recent customers)
 - `/admin` — Admin command centre (KPIs, countries, agents, claims queue)
-- `/super-admin` — hidden Super Admin console (passcode `SUPER-2026`): feature
+- `/super-admin` — hidden Super Admin console (owner username + PIN): feature
   flags, gateways, pricing, users & roles, API keys, audit, system health
 
 ## Run locally
