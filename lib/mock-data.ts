@@ -78,9 +78,9 @@ export const PRODUCTS: InsuranceProduct[] = [
     description: "Higher medical limits with travel protection and safari assistance.",
     category: "medical_plus_travel",
     providerName: "Horizon Microinsurance Company",
-    basePriceUsd: 25,
+    basePriceUsd: 30,
     baseRatePerDayUsd: 1.5,
-    minPremiumUsd: 25,
+    minPremiumUsd: 30,
     coverage: {
       medicalLimitUsd: 30000,
       emergencyAssistance: true,

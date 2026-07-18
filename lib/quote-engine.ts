@@ -1,9 +1,15 @@
 /**
- * ZVIG premium calculation engine (frontend simulation).
+ * Premium calculation engine (frontend simulation).
  *
  * Mirrors the `pricing_breakdown` JSON stored on the `quotes` table in
- * supabase/schema.sql:
- *   { days, day_rate, activity_loading, age_loading, subtotal, levies }
+ * supabase/schema.sql. Supports individual and group trips: a group is
+ * priced per traveller (each with their own age loading and the product
+ * minimum premium), then statutory charges apply to the combined premium:
+ *
+ *   Premium      = sum of per-traveller premiums
+ *   ZTA Levy     = 2% of premium   (Zimbabwe Tourism Authority)
+ *   Stamp Duty   = 5% of premium
+ *   Total Due    = premium + ZTA levy + stamp duty
  *
  * When the backend goes live this logic moves to a Supabase Edge Function
  * (POST /api/quote) so rates can change without redeploying the frontend.
@@ -11,15 +17,20 @@
 
 import type { ActivityId, InsuranceProduct } from "./mock-data";
 
+export const ZTA_LEVY_RATE = 0.02;
+export const STAMP_DUTY_RATE = 0.05;
+
 export interface PricingBreakdown {
   days: number;
   dayRate: number;
   activityLoading: number;
-  ageLoading: number;
-  subtotal: number;
-  levies: number;
+  /** Number of travellers priced (1 for individual trips). */
+  travellers: number;
+  /** Combined risk premium for all travellers, after minimum premium rules. */
+  premium: number;
+  ztaLevy: number;
+  stampDuty: number;
   total: number;
-  minPremiumApplied: boolean;
 }
 
 const ACTIVITY_LOADINGS: Record<ActivityId, number> = {
@@ -27,9 +38,6 @@ const ACTIVITY_LOADINGS: Record<ActivityId, number> = {
   safari: 1.2,
   adventure: 1.4,
 };
-
-/** IPEC-style policyholder protection levy, applied on top of the risk premium. */
-const LEVY_RATE = 0.05;
 
 export function tripDays(arrival: string, departure: string): number {
   const a = new Date(arrival + "T00:00:00");
@@ -58,10 +66,11 @@ export function calculatePremium(params: {
   product: InsuranceProduct;
   arrivalDate: string;
   departureDate: string;
-  dateOfBirth: string;
+  /** One date of birth per traveller (group leader first). */
+  dateOfBirths: string[];
   activities: ActivityId[];
 }): PricingBreakdown {
-  const { product, arrivalDate, departureDate, dateOfBirth, activities } = params;
+  const { product, arrivalDate, departureDate, dateOfBirths, activities } = params;
 
   const days = tripDays(arrivalDate, departureDate);
   const dayRate = product.baseRatePerDayUsd;
@@ -71,24 +80,30 @@ export function calculatePremium(params: {
     ? Math.max(...activities.map((a) => ACTIVITY_LOADINGS[a]))
     : 1.0;
 
-  const age = ageOn(dateOfBirth, arrivalDate || new Date().toISOString().slice(0, 10));
-  const loadingForAge = dateOfBirth ? ageLoading(age) : 1.0;
+  const onDate = arrivalDate || new Date().toISOString().slice(0, 10);
+  const dobs = dateOfBirths.length > 0 ? dateOfBirths : [""];
 
-  const risk = days * dayRate * activityLoading * loadingForAge;
-  const minPremiumApplied = risk < product.minPremiumUsd;
-  const subtotal = Math.max(risk, product.minPremiumUsd);
-  const levies = round2(subtotal * LEVY_RATE);
-  const total = round2(subtotal + levies);
+  let premium = 0;
+  for (const dob of dobs) {
+    const loadingForAge = dob ? ageLoading(ageOn(dob, onDate)) : 1.0;
+    const risk = days * dayRate * activityLoading * loadingForAge;
+    premium += Math.max(risk, product.minPremiumUsd);
+  }
+  premium = round2(premium);
+
+  const ztaLevy = round2(premium * ZTA_LEVY_RATE);
+  const stampDuty = round2(premium * STAMP_DUTY_RATE);
+  const total = round2(premium + ztaLevy + stampDuty);
 
   return {
     days,
     dayRate,
     activityLoading,
-    ageLoading: loadingForAge,
-    subtotal: round2(subtotal),
-    levies,
+    travellers: dobs.length,
+    premium,
+    ztaLevy,
+    stampDuty,
     total,
-    minPremiumApplied,
   };
 }
 
