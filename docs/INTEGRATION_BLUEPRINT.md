@@ -9,7 +9,7 @@ apps, partner APIs) — become one production platform.
 ## 1. System architecture
 
 ```
-Foreign Visitor ──▶ Web app (Next.js on Netlify)
+Foreign Visitor ──▶ Web app (Next.js on Vercel)
                     WhatsApp bot (Cloud API)
                     Mobile apps (future: Android / iOS)
                          │
@@ -70,15 +70,15 @@ mirrors a table. Replacement map:
 ### 2.4 Key rules
 
 - **Anon key** (browser): read-only on active products + limited verification.
-- **Service-role key** (server only — Netlify env var, never `NEXT_PUBLIC_`):
+- **Service-role key** (server only — Vercel env var, never `NEXT_PUBLIC_`):
   policy issuance, payment webhooks, claims transitions, certificate writes.
 
 ---
 
 ## 3. API layer
 
-Implemented as Next.js Route Handlers (hosted by Netlify's Next runtime) or
-Supabase Edge Functions — both talk to the same tables.
+Implemented as Next.js Route Handlers (running on Vercel Functions with
+Fluid Compute) or Supabase Edge Functions — both talk to the same tables.
 
 | Endpoint | Consumer | Behaviour |
 |---|---|---|
@@ -161,15 +161,17 @@ Android/iOS consume the **same API layer** — no new backend:
 
 ---
 
-## 8. Hosting & environments (Netlify)
+## 8. Hosting & environments (Vercel)
 
-- **Frontend**: Netlify, auto-deploy from GitHub `main`
-  (`Munyah17/ZimVisitorsInsuranceGateway`). `netlify.toml` is committed;
-  Netlify's Next.js runtime handles App Router + API routes.
-- **Env vars** in Netlify UI: `NEXT_PUBLIC_SUPABASE_URL`,
-  `NEXT_PUBLIC_SUPABASE_ANON_KEY` now; service-role, Stripe, Paynow and
-  WhatsApp secrets when the backend goes live.
-- **Preview deploys** per pull request for stakeholder demos.
+- **Frontend**: Vercel, auto-deploy from GitHub `main`
+  (`Munyah17/ZimVisitorsInsuranceGateway`). Next.js is detected with zero
+  configuration; App Router pages and API routes run on Vercel Functions.
+- **Env vars** in Vercel (Project → Settings → Environment Variables):
+  `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` now;
+  service-role, Stripe, Paynow and WhatsApp secrets when the backend goes
+  live. Manage from the CLI with `vercel env` if preferred.
+- **Preview deploys** per pull request for stakeholder demos; production
+  promotions and instant rollbacks from the Vercel dashboard.
 - **Backend**: Supabase (database, auth, storage, edge functions) — deploy
   schema changes via `supabase db push` / migrations.
 
@@ -183,6 +185,6 @@ Android/iOS consume the **same API layer** — no new backend:
 - Public verification discloses only status/holder/nationality/expiry/coverage.
 - Append-only `audit_logs` for every material state change (IPEC compliance).
 - API keys per partner organization; rate limiting on public endpoints
-  (Netlify edge / Supabase).
+  (Vercel Firewall rate limiting / Supabase).
 - Fraud preparation: audit pattern scans (many policies per IP, reused
   passports), payment/provider reconciliation jobs.

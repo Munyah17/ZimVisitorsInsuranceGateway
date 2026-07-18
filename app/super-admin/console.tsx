@@ -111,7 +111,7 @@ const API_KEYS = [
 ];
 
 const SERVICES = [
-  { name: "Web application (Netlify)", ok: true, note: "42 ms p50" },
+  { name: "Web application (Vercel)", ok: true, note: "42 ms p50" },
   { name: "Supabase PostgreSQL", ok: true, note: "12 ms p50" },
   { name: "Supabase Auth", ok: true, note: "Operational" },
   { name: "Storage (certificates & claims)", ok: true, note: "Operational" },
@@ -239,7 +239,7 @@ export function SuperAdminConsole() {
           ))}
         </ul>
         <p className="mt-4 text-xs text-stone-400">
-          Gateway keys are stored server side in Netlify environment variables
+          Gateway keys are stored server side in Vercel environment variables
           and never reach the browser.
         </p>
       </CardContent>

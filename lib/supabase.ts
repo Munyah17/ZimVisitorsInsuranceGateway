@@ -11,7 +11,7 @@
  *     .select("*")
  *     .eq("active", true);
  *
- * Env vars (set in .env.local and in Netlify site settings):
+ * Env vars (set in .env.local and in Vercel project settings):
  *   NEXT_PUBLIC_SUPABASE_URL
  *   NEXT_PUBLIC_SUPABASE_ANON_KEY
  *

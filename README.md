@@ -42,11 +42,12 @@ to `.env.local` and fill in your Supabase project URL + anon key.
 
 ## Deploy
 
-- **Frontend**: Netlify (config in `netlify.toml`) — connect this GitHub repo,
-  set the two `NEXT_PUBLIC_SUPABASE_*` env vars.
+- **Frontend**: Vercel — import this GitHub repo (zero config; Next.js is
+  auto-detected), set the two `NEXT_PUBLIC_SUPABASE_*` env vars in
+  Project → Settings → Environment Variables.
 - **Database**: run `supabase/schema.sql` in the Supabase SQL Editor.
 
 ## Tech
 
 Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · Framer Motion ·
-lucide-react · @supabase/supabase-js · Netlify · Supabase PostgreSQL
+lucide-react · @supabase/supabase-js · Vercel · Supabase PostgreSQL
