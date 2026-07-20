@@ -93,7 +93,7 @@ export default function LandingPage() {
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-safari-100/80">
               Instant visitor medical and emergency insurance for your Zimbabwean
               adventure, from the mist of Victoria Falls to the plains of Hwange.
-              Buy online, verified anywhere.
+              Trusted protection, verified anywhere.
             </p>
           </FadeIn>
 

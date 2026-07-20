@@ -22,8 +22,8 @@ const COLUMNS = [
   {
     title: "Partners",
     links: [
+      { label: "Service Partners", href: "/partners" },
       { label: "Agent Portal", href: "/portals" },
-      { label: "Tourism Operators", href: "/portals" },
       { label: "Hotels & Lodges", href: "/portals" },
       { label: "API Access (soon)", href: "/#" },
     ],

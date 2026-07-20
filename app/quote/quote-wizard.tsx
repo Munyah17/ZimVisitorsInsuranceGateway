@@ -72,14 +72,34 @@ const STEPS = [
 
 /**
  * Documents the Zimbabwe Tourism Authority expects to accompany visitor
- * cover. Mock uploads for the prototype; live version stores them in
- * Supabase Storage alongside the quote.
+ * cover, matched to the purpose of travel. Mock uploads for the prototype;
+ * live version stores them in Supabase Storage alongside the quote.
  */
-const ZTA_DOCS = [
-  { id: "itinerary", label: "Travel itinerary", hint: "Flights or road plan" },
-  { id: "accommodation", label: "Accommodation booking", hint: "Hotel or lodge confirmation" },
-  { id: "return-ticket", label: "Return / onward ticket", hint: "Proof of departure" },
-  { id: "bank-statement", label: "Bank statement", hint: "Recent, any currency" },
+const DOCS_BY_PURPOSE: Record<string, { id: string; label: string; hint: string }[]> = {
+  tourism: [
+    { id: "accommodation", label: "Accommodation booking", hint: "Hotel or lodge confirmation" },
+    { id: "return-ticket", label: "Return / onward ticket", hint: "Proof of departure" },
+  ],
+  business: [
+    { id: "invitation", label: "Invitation letter", hint: "From your host organization" },
+    { id: "accommodation", label: "Accommodation booking", hint: "Hotel or lodge confirmation" },
+    { id: "return-ticket", label: "Return / onward ticket", hint: "Proof of departure" },
+  ],
+  study: [
+    { id: "admission", label: "Admission letter", hint: "From your institution" },
+    { id: "accommodation", label: "Accommodation booking", hint: "Residence or lodging confirmation" },
+  ],
+  transit: [
+    { id: "onward-ticket", label: "Onward ticket", hint: "Your connecting travel" },
+  ],
+};
+
+const TRANSPORT_MODES = [
+  "Air travel",
+  "Road · self drive",
+  "Road · bus or coach",
+  "Rail",
+  "Boat or cruise",
 ];
 
 interface Traveller {
@@ -114,8 +134,15 @@ interface FormState {
   purpose: string;
   activities: ActivityId[];
   accommodation: string;
+  modeOfTransport: string;
   transport: string;
   documents: string[];
+  // Purpose-specific details
+  company: string;
+  hostOrganization: string;
+  institution: string;
+  programme: string;
+  finalDestination: string;
   // Coverage & payment
   productId: string;
   paymentMethod: "card" | "paypal" | "mobile";
@@ -154,8 +181,14 @@ export function QuoteWizard() {
     purpose: "tourism",
     activities: ["general"],
     accommodation: "",
+    modeOfTransport: "",
     transport: "",
     documents: [],
+    company: "",
+    hostOrganization: "",
+    institution: "",
+    programme: "",
+    finalDestination: "",
     productId: preselected && PRODUCTS.some((p) => p.id === preselected)
       ? preselected
       : PRODUCTS[0].id,
@@ -213,21 +246,35 @@ export function QuoteWizard() {
           form.nationality &&
           form.passportNumber.trim().length > 4 &&
           form.dateOfBirth &&
-          /.+@.+\..+/.test(form.email);
+          /.+@.+\..+/.test(form.email) &&
+          form.phone.trim().length >= 7;
         if (!leaderOk) return false;
         if (form.tripType === "group") {
           return form.travellers.length > 0 && form.travellers.every(travellerValid);
         }
         return true;
       }
-      case 1:
+      case 1: {
+        const purposeOk =
+          form.purpose === "business"
+            ? Boolean(form.company.trim() && form.hostOrganization.trim())
+            : form.purpose === "study"
+              ? Boolean(form.institution.trim() && form.programme.trim())
+              : form.purpose === "transit"
+                ? Boolean(form.finalDestination.trim())
+                : true;
+        const accommodationOk =
+          form.purpose === "transit" || Boolean(form.accommodation.trim());
         return Boolean(
           form.arrivalDate &&
             form.departureDate &&
             days > 0 &&
             form.activities.length > 0 &&
-            form.accommodation.trim()
+            form.modeOfTransport &&
+            accommodationOk &&
+            purposeOk
         );
+      }
       case 2:
         return Boolean(form.productId);
       default:
@@ -427,7 +474,7 @@ export function QuoteWizard() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="phone">Phone (optional)</Label>
+                      <Label htmlFor="phone">Phone</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -567,6 +614,63 @@ export function QuoteWizard() {
                         ))}
                       </Select>
                     </div>
+
+                    {/* Purpose-matched details */}
+                    {form.purpose === "business" && (
+                      <>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="company">Company / employer</Label>
+                          <Input
+                            id="company"
+                            placeholder="e.g. Acme Logistics Ltd"
+                            value={form.company}
+                            onChange={(e) => set("company", e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="hostOrganization">Host organization in Zimbabwe</Label>
+                          <Input
+                            id="hostOrganization"
+                            placeholder="Who you are visiting"
+                            value={form.hostOrganization}
+                            onChange={(e) => set("hostOrganization", e.target.value)}
+                          />
+                        </div>
+                      </>
+                    )}
+                    {form.purpose === "study" && (
+                      <>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="institution">Institution in Zimbabwe</Label>
+                          <Input
+                            id="institution"
+                            placeholder="e.g. University of Zimbabwe"
+                            value={form.institution}
+                            onChange={(e) => set("institution", e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="programme">Programme / course</Label>
+                          <Input
+                            id="programme"
+                            placeholder="e.g. Semester exchange, BSc Biology"
+                            value={form.programme}
+                            onChange={(e) => set("programme", e.target.value)}
+                          />
+                        </div>
+                      </>
+                    )}
+                    {form.purpose === "transit" && (
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label htmlFor="finalDestination">Final destination</Label>
+                        <Input
+                          id="finalDestination"
+                          placeholder="Where you are headed after Zimbabwe"
+                          value={form.finalDestination}
+                          onChange={(e) => set("finalDestination", e.target.value)}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {days > 0 && (
@@ -617,7 +721,12 @@ export function QuoteWizard() {
                   </h2>
                   <div className="mt-3 grid gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label htmlFor="accommodation">Accommodation</Label>
+                      <Label htmlFor="accommodation">
+                        Accommodation
+                        {form.purpose === "transit" && (
+                          <span className="font-normal text-stone-400"> (if staying overnight)</span>
+                        )}
+                      </Label>
                       <div className="relative">
                         <BedDouble className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-stone-400" />
                         <Input
@@ -630,8 +739,21 @@ export function QuoteWizard() {
                       </div>
                     </div>
                     <div className="space-y-1.5">
+                      <Label htmlFor="modeOfTransport">Mode of transport</Label>
+                      <Select
+                        id="modeOfTransport"
+                        value={form.modeOfTransport}
+                        onChange={(e) => set("modeOfTransport", e.target.value)}
+                      >
+                        <option value="">Select mode of transport</option>
+                        {TRANSPORT_MODES.map((m) => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
                       <Label htmlFor="transport">
-                        Arrival transport{" "}
+                        Transport details{" "}
                         <span className="font-normal text-stone-400">(optional)</span>
                       </Label>
                       <div className="relative">
@@ -654,7 +776,7 @@ export function QuoteWizard() {
                       them later from your portal.
                     </p>
                     <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
-                      {ZTA_DOCS.map((d) => {
+                      {(DOCS_BY_PURPOSE[form.purpose] ?? DOCS_BY_PURPOSE.tourism).map((d) => {
                         const uploaded = form.documents.includes(d.id);
                         return (
                           <button

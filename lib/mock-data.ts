@@ -218,7 +218,7 @@ export type ActivityId = (typeof ACTIVITIES)[number]["id"];
 export const TRAVEL_PURPOSES: { id: TravelPurpose; label: string }[] = [
   { id: "tourism", label: "Tourism" },
   { id: "business", label: "Business" },
-  { id: "study", label: "Study" },
+  { id: "study", label: "Study / Education" },
   { id: "transit", label: "Transit" },
 ];
 
