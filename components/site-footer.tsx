@@ -40,7 +40,7 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-safari-900/10 bg-safari-950 text-safari-100">
+    <footer className="border-t border-safari-900/10 bg-safari-950 text-safari-100 print:hidden">
       {/* Trust strip (per UI mockup) */}
       <div className="border-b border-white/10">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">

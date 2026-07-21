@@ -47,7 +47,7 @@ export function DashboardShell({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-[60] w-64 shrink-0 bg-safari-950 pt-6 transition-transform duration-300 ease-out lg:static lg:z-auto lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-[60] w-64 shrink-0 bg-safari-950 pt-6 transition-transform duration-300 ease-out print:hidden lg:static lg:z-auto lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -56,7 +56,7 @@ export function DashboardShell({
             <span className="grid size-8 place-items-center rounded-lg bg-white/10 text-sunset-300">
               <ShieldCheck className="size-4" />
             </span>
-            <span className="text-sm font-bold text-white">Hola Amigo</span>
+            <span className="text-sm font-bold text-white">Travelmate Zim</span>
           </div>
           <nav className="space-y-1 overflow-y-auto">
             {nav.map((item) => {
@@ -106,9 +106,9 @@ export function DashboardShell({
               Logout
             </button>
             <p className="mt-3 px-2 text-[10px] leading-relaxed text-safari-200/40">
-              © 2026 Hola Amigo Multiple Agent.
+              © 2026 Hola Amigo Multiple Agent
               <br />
-              All Rights Reserved
+              trading as Travelmate Zim
             </p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export function DashboardShell({
       {/* Main */}
       <div className="min-w-0 flex-1">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10">
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4 print:hidden">
             <div className="flex items-center gap-3">
               <button
                 className="grid size-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-700 lg:hidden"

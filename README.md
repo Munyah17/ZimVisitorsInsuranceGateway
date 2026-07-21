@@ -1,10 +1,10 @@
-# Hola Amigo Travelmate (Zimbabwe Visitor Insurance Gateway)
+# Travelmate Zim (Zimbabwe Visitor Insurance Gateway)
 
 Digital insurance distribution and administration platform for foreign
 visitors to Zimbabwe, operated by Hola Amigo Multiple Agent and underwritten
-by a licensed Microinsurance Company. The customer sees one brand, **Hola
-Amigo Travelmate**; the platform manages the underwriter, product ownership,
-premium allocation and claims routing underneath.
+by a licensed Microinsurance Company. The customer sees one brand, **Travelmate
+Zim**; the platform manages the underwriter, product ownership, premium
+allocation and claims routing underneath.
 
 > **Prototype** — the frontend runs entirely on mock data; the SQL file is a
 > complete, commented Supabase schema ready to deploy. Not an offer of insurance.
@@ -26,9 +26,13 @@ premium allocation and claims routing underneath.
 - `/verify` — Public policy verification (try `ZVIG-2026-00001`)
 - `/claims` — Claim submission + tracking timeline
 - `/agent` — Agent portal (sales, commissions, recent customers)
-- `/admin` — Admin command centre (KPIs, countries, agents, claims queue)
+- `/admin` — Admin command centre (KPIs incl. YTD visitors/claims/commission,
+  countries, agents, claims queue)
+- `/partners` — Service Partners directory (clinics, ambulances, emergency
+  care), searchable and filterable by category
 - `/super-admin` — hidden Super Admin console (owner username + PIN): feature
-  flags, gateways, pricing, users & roles, API keys, audit, system health
+  flags, gateways, pricing, users & roles, API keys, integrations, SMS
+  messaging, audit, system health
 
 ## Run locally
 

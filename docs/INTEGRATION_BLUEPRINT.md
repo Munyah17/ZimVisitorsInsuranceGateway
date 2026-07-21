@@ -1,8 +1,8 @@
-# ZVIG Integration Blueprint
+# Travelmate Zim Integration Blueprint
 
 How the three prototype parts — the Next.js frontend (mock data), the Supabase
-schema (`supabase/schema.sql`) and future channels (WhatsApp, payments, mobile
-apps, partner APIs) — become one production platform.
+schema (`supabase/schema.sql`) and future channels (WhatsApp, SMS, payments,
+mobile apps, partner APIs) — become one production platform.
 
 ---
 
@@ -27,7 +27,7 @@ Foreign Visitor ──▶ Web app (Next.js on Vercel)
                       Hospitals · Ambulances · Tourism operators
 ```
 
-The customer always sees **one brand** — "Zimbabwe Visitor Insurance". The
+The customer always sees **one brand** — "Travelmate Zim". The
 underwriter, agency split, premium allocation and claims routing are resolved
 internally via `policies.underwriter_id`, `agents`, and `commissions`.
 
@@ -140,7 +140,30 @@ Visitor ⇄ WhatsApp ⇄ Meta Cloud API ⇄ POST /api/webhooks/whatsapp
 
 ---
 
-## 6. Certificates & documents
+## 6. SMS messaging
+
+A bulk + transactional SMS gateway (e.g. a local aggregator or Africa's
+Talking) sends three kinds of message, all triggered from the same
+`policies`/`claims` events that drive email:
+
+- **Automatic — thank you**: fires on `payments.status = succeeded`, same
+  moment the certificate email sends.
+- **Automatic — lapse reminder**: a scheduled job queries
+  `policies.end_date` 48 hours out and sends one SMS per policy.
+- **Automatic — claim status**: fires on every `claims.status` transition.
+- **Manual / bulk**: ops staff compose a message in the Super Admin console
+  and target a recipient group (all active policyholders, expiring this
+  week, all agents, or a single number) — `POST /api/messages/send`,
+  logged the same way as the automatic sends.
+
+Every send (automatic or manual) writes one row to a `messages` table
+(phase-2 migration: recipient, type, body, provider delivery status) so the
+Super Admin message log and per-customer history both read from one source
+of truth.
+
+---
+
+## 7. Certificates & documents
 
 - Edge Function renders the certificate PDF (policy number, holder, dates,
   underwriter licence, QR) → Supabase Storage `certificates/` →
@@ -150,7 +173,7 @@ Visitor ⇄ WhatsApp ⇄ Meta Cloud API ⇄ POST /api/webhooks/whatsapp
 
 ---
 
-## 7. Future mobile apps
+## 8. Future mobile apps
 
 Android/iOS consume the **same API layer** — no new backend:
 
@@ -161,7 +184,30 @@ Android/iOS consume the **same API layer** — no new backend:
 
 ---
 
-## 8. Hosting & environments (Vercel)
+## 9. System integrations
+
+The Super Admin console's **Integrations** panel is the operational view of
+this list — each row toggles/monitors one of these connections:
+
+| System | Direction | Purpose |
+|---|---|---|
+| WhatsApp Business Cloud API | In/out | Purchases, verification, support (§5) |
+| SMS gateway | Out | Transactional + bulk messaging (§6) |
+| Airline partner API (e.g. Air Zimbabwe) | In | Pre-fill itinerary from a booking reference |
+| Immigration / ZTA verification | In/out | Border checks against `policies`; satisfies Zimbabwe Tourism Authority reporting |
+| Hospital & clinic EMR sync | In/out | Direct billing on claims with `organizations` of type `hospital` |
+| Accounting export (Xero/QuickBooks) | Out | Revenue and commission ledger sync for finance |
+| Payment gateways | In/out | See §4 |
+
+Each integration is a scoped, authenticated Next.js API route or Supabase
+Edge Function with its own audit trail entry (`audit_logs`) and, where the
+integration is inbound, an entry in `organizations` + a partner API key
+(§3's Partner API). New integrations do not require schema changes — they
+read/write the same core tables as the web and WhatsApp channels.
+
+---
+
+## 10. Hosting & environments (Vercel)
 
 - **Frontend**: Vercel, auto-deploy from GitHub `main`
   (`Munyah17/ZimVisitorsInsuranceGateway`). Next.js is detected with zero
@@ -177,7 +223,7 @@ Android/iOS consume the **same API layer** — no new backend:
 
 ---
 
-## 9. Security checklist
+## 11. Security checklist
 
 - RBAC via `users.role` + RLS on every table (deny-by-default, already on).
 - Passport numbers: encrypt at rest (pgcrypto) + column privileges; masked in

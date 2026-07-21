@@ -13,9 +13,8 @@
  * Step 6  Certificate          -> `policies` row + PDF in Supabase Storage
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -27,6 +26,9 @@ import {
   FileText,
   Loader2,
   Lock,
+  Mail,
+  MapPin,
+  Phone,
   Plane,
   Plus,
   QrCode,
@@ -45,6 +47,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { CertificateFooter } from "@/components/certificate-footer";
+import { ZimRibbon } from "@/components/zim-ribbon";
 import {
   ACTIVITIES,
   NATIONALITIES,
@@ -59,6 +63,7 @@ import {
   STAMP_DUTY_RATE,
   ZTA_LEVY_RATE,
 } from "@/lib/quote-engine";
+import { DESTINATIONS, partnersNear } from "@/lib/partners-data";
 import { cn, formatDate, formatUSD } from "@/lib/utils";
 
 const STEPS = [
@@ -107,6 +112,8 @@ interface Traveller {
   nationality: string;
   dateOfBirth: string;
   passportNumber: string;
+  email: string;
+  phone: string;
 }
 
 const EMPTY_TRAVELLER: Traveller = {
@@ -114,6 +121,8 @@ const EMPTY_TRAVELLER: Traveller = {
   nationality: "",
   dateOfBirth: "",
   passportNumber: "",
+  email: "",
+  phone: "",
 };
 
 interface FormState {
@@ -129,6 +138,7 @@ interface FormState {
   // Additional group members
   travellers: Traveller[];
   // Trip & itinerary
+  destination: string;
   arrivalDate: string;
   departureDate: string;
   purpose: string;
@@ -153,14 +163,13 @@ function travellerValid(t: Traveller) {
     t.fullName.trim().length > 2 &&
     t.nationality &&
     t.dateOfBirth &&
-    t.passportNumber.trim().length > 4
+    t.passportNumber.trim().length > 4 &&
+    /.+@.+\..+/.test(t.email) &&
+    t.phone.trim().length >= 7
   );
 }
 
 export function QuoteWizard() {
-  const params = useSearchParams();
-  const preselected = params.get("product");
-
   const [step, setStep] = useState(0);
   const [paying, setPaying] = useState(false);
   // Generated on payment success (not during render) so the prerendered
@@ -176,6 +185,7 @@ export function QuoteWizard() {
     email: "",
     phone: "",
     travellers: [],
+    destination: "",
     arrivalDate: "",
     departureDate: "",
     purpose: "tourism",
@@ -189,11 +199,21 @@ export function QuoteWizard() {
     institution: "",
     programme: "",
     finalDestination: "",
-    productId: preselected && PRODUCTS.some((p) => p.id === preselected)
-      ? preselected
-      : PRODUCTS[0].id,
+    productId: PRODUCTS[0].id,
     paymentMethod: "card",
   });
+
+  // A ?product= link (e.g. from the landing page plan cards) preselects a
+  // plan. Read after mount rather than via useSearchParams(), which forces
+  // Next.js to statically prerender this whole wizard as an empty
+  // placeholder — the page would otherwise ship with no content until the
+  // JS bundle hydrates.
+  useEffect(() => {
+    const preselected = new URLSearchParams(window.location.search).get("product");
+    if (preselected && PRODUCTS.some((p) => p.id === preselected)) {
+      setForm((f) => ({ ...f, productId: preselected }));
+    }
+  }, []);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -266,7 +286,8 @@ export function QuoteWizard() {
         const accommodationOk =
           form.purpose === "transit" || Boolean(form.accommodation.trim());
         return Boolean(
-          form.arrivalDate &&
+          form.destination &&
+            form.arrivalDate &&
             form.departureDate &&
             days > 0 &&
             form.activities.length > 0 &&
@@ -306,7 +327,7 @@ export function QuoteWizard() {
     <div className="bg-gradient-to-b from-safari-50/60 to-transparent">
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         {/* Progress */}
-        <div className="mb-10">
+        <div className="mb-10 print:hidden">
           <div className="flex items-center justify-between">
             {STEPS.map((label, i) => (
               <div key={label} className="flex flex-1 items-center last:flex-none">
@@ -552,13 +573,32 @@ export function QuoteWizard() {
                                   onChange={(e) => setTraveller(i, { passportNumber: e.target.value })}
                                 />
                               </div>
+                              <div className="space-y-1.5">
+                                <Label>Email</Label>
+                                <Input
+                                  type="email"
+                                  placeholder="Their own certificate is sent here"
+                                  value={t.email}
+                                  onChange={(e) => setTraveller(i, { email: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label>Phone</Label>
+                                <Input
+                                  type="tel"
+                                  placeholder="+44 7700 900123"
+                                  value={t.phone}
+                                  onChange={(e) => setTraveller(i, { phone: e.target.value })}
+                                />
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                       <p className="mt-3 text-xs text-stone-400">
                         Every traveller is individually covered and named on the group
-                        certificate. One payment covers everyone.
+                        certificate, and each receives their own certificate at the
+                        email address given above. One payment covers everyone.
                       </p>
                     </div>
                   )}
@@ -602,7 +642,20 @@ export function QuoteWizard() {
                         onChange={(e) => set("departureDate", e.target.value)}
                       />
                     </div>
-                    <div className="space-y-1.5 sm:col-span-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="destination">Destination</Label>
+                      <Select
+                        id="destination"
+                        value={form.destination}
+                        onChange={(e) => set("destination", e.target.value)}
+                      >
+                        <option value="">Select destination</option>
+                        {DESTINATIONS.map((d) => (
+                          <option key={d.value} value={d.value}>{d.label}</option>
+                        ))}
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
                       <Label htmlFor="purpose">Purpose of visit</Label>
                       <Select
                         id="purpose"
@@ -683,6 +736,33 @@ export function QuoteWizard() {
                         </span>
                       )}
                     </p>
+                  )}
+
+                  {/* Service providers near the chosen destination */}
+                  {form.destination && form.destination !== "Multiple" && (
+                    <div className="mt-6 rounded-xl border border-safari-100 bg-safari-50/60 p-4">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-safari-700">
+                        <MapPin className="size-3.5" />
+                        Service providers near {form.destination}
+                      </p>
+                      <ul className="mt-3 space-y-2">
+                        {partnersNear(form.destination, 3).map((p) => (
+                          <li
+                            key={p.name}
+                            className="flex items-center justify-between gap-3 rounded-lg bg-white px-3.5 py-2.5 text-sm"
+                          >
+                            <span className="min-w-0 truncate font-medium text-stone-800">{p.name}</span>
+                            <span className="shrink-0 text-xs text-stone-400">{p.category}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link
+                        href={`/partners?city=${encodeURIComponent(form.destination)}`}
+                        className="mt-3 inline-block text-xs font-semibold text-safari-700 underline underline-offset-2 hover:text-safari-900"
+                      >
+                        View all partners in {form.destination} →
+                      </Link>
+                    </div>
                   )}
 
                   <div className="mt-7">
@@ -1039,17 +1119,20 @@ export function QuoteWizard() {
                       : `You're covered, ${form.fullName.split(" ")[0] || "traveller"}!`}
                   </h1>
                   <p className="mx-auto mt-2 max-w-md text-sm text-stone-500">
-                    Your certificate has been emailed to {form.email || "your inbox"}.
+                    {totalTravellers > 1
+                      ? "Every traveller in your group has been emailed their own certificate."
+                      : `Your certificate has been emailed to ${form.email || "your inbox"}.`}{" "}
                     Show the QR code at borders, hotels or hospitals.
                   </p>
                 </div>
 
                 {/* Certificate */}
                 <div className="mt-8 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl">
+                  <ZimRibbon />
                   <div className="flex items-center justify-between bg-safari-950 px-6 py-4">
                     <div className="flex items-center gap-2 text-white">
                       <ShieldCheck className="size-5 text-sunset-300" />
-                      <span className="text-sm font-bold">Hola Amigo Travelmate</span>
+                      <span className="text-sm font-bold">Travelmate Zim</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {totalTravellers > 1 && (
@@ -1102,26 +1185,31 @@ export function QuoteWizard() {
                   {totalTravellers > 1 && (
                     <div className="border-t border-stone-100 px-6 py-5 sm:px-8">
                       <p className="text-xs uppercase tracking-wider text-stone-400">
-                        Covered travellers
+                        Covered travellers · each sent their own certificate
                       </p>
-                      <ul className="mt-2 flex flex-wrap gap-2">
-                        <li className="flex items-center gap-1.5 rounded-full bg-safari-50 px-3 py-1.5 text-xs font-semibold text-safari-900">
-                          <Check className="size-3 text-safari-600" /> {form.fullName} (leader)
+                      <ul className="mt-3 space-y-2">
+                        <li className="flex items-center justify-between gap-3 rounded-lg bg-safari-50 px-3.5 py-2.5 text-sm">
+                          <span className="font-semibold text-safari-900">
+                            {form.fullName} <span className="font-normal text-safari-700/70">(leader)</span>
+                          </span>
+                          <span className="text-xs text-safari-700/70">{form.email}</span>
                         </li>
                         {form.travellers.map((t, i) => (
                           <li
                             key={i}
-                            className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-semibold text-stone-700"
+                            className="flex items-center justify-between gap-3 rounded-lg bg-stone-50 px-3.5 py-2.5 text-sm"
                           >
-                            <Check className="size-3 text-safari-600" /> {t.fullName}
+                            <span className="font-semibold text-stone-800">{t.fullName}</span>
+                            <span className="text-xs text-stone-400">{t.email}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                   )}
+                  <CertificateFooter />
                 </div>
 
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center print:hidden">
                   <Button size="lg" onClick={() => window.print()}>
                     <Download className="size-4" />
                     Download certificate
@@ -1133,6 +1221,10 @@ export function QuoteWizard() {
                     </Button>
                   </Link>
                 </div>
+                <p className="mt-3 text-center text-xs text-stone-400 print:hidden">
+                  Tip: in the print dialog, choose &quot;Save as PDF&quot; as the
+                  destination to download it.
+                </p>
               </div>
             )}
           </motion.div>

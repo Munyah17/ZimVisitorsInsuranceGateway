@@ -268,7 +268,7 @@ export default function LandingPage() {
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-relaxed text-safari-200/70">
-                Hola Amigo Travelmate is operated by a licensed multiple
+                Travelmate Zim is operated by a licensed multiple
                 agent and underwritten by a licensed microinsurance company. One
                 brand for you, full regulatory compliance underneath.
               </p>

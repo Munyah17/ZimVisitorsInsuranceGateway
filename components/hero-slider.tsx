@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ZimRibbon } from "@/components/zim-ribbon";
 
 const SLIDES = [
   { src: "/hero/victoria-falls-sunset.jpg", alt: "Victoria Falls at sunset" },
@@ -104,6 +105,9 @@ export function HeroSlider() {
           />
         ))}
       </div>
+
+      {/* National frame under the landmark photography */}
+      <ZimRibbon className="absolute inset-x-0 bottom-0 z-10" />
     </div>
   );
 }

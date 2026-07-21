@@ -40,6 +40,13 @@
   --color-sunset-700: #b7420c;
   --color-sunset-800: #92350f;
   --color-sunset-900: #782d10;
+
+  /* National identity: Zimbabwe flag colors, used sparingly as a ribbon
+     accent (masthead, hero frame, certificates) — never as UI chrome. */
+  --color-zim-green: #319f43;
+  --color-zim-gold: #ffd200;
+  --color-zim-red: #d40000;
+  --color-zim-black: #16140f;
 }
 
 /*
@@ -90,5 +97,33 @@ body {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+}
+
+/* National ribbon: a thin Zimbabwe-flag accent bar, used on the site
+   masthead, framing hero landmark photos, and certificate headers. */
+.zim-ribbon {
+  background: linear-gradient(
+    to right,
+    var(--color-zim-green) 0 25%,
+    var(--color-zim-gold) 25% 50%,
+    var(--color-zim-red) 50% 75%,
+    var(--color-zim-black) 75% 100%
+  );
+}
+
+/*
+  Certificates print as clean standalone documents, not a screenshot of
+  the whole app. Site chrome (header, footer, sidebars, nav controls)
+  opts out via print:hidden; colors are preserved so the certificate's
+  branding survives "Save as PDF".
+*/
+@media print {
+  html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page {
+    margin: 12mm;
   }
 }

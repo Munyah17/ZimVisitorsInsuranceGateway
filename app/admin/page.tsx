@@ -48,7 +48,7 @@ export default function AdminPage() {
   return (
     <DashboardShell
       title="Admin Command Centre"
-      subtitle="Hola Amigo Travelmate · live operations"
+      subtitle="Travelmate Zim · live operations"
       nav={ADMIN_NAV}
       badge={
         <Badge variant="success" className="px-3 py-1.5">
@@ -58,12 +58,14 @@ export default function AdminPage() {
     >
       {/* KPI row */}
       <FadeIn y={16}>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatTile accent label="Policies today" value={String(metrics.policiesToday)} hint="+12% vs yesterday" icon={FileText} />
           <StatTile label="Revenue today" value={formatUSD(metrics.revenueToday)} hint="Gross written premium" icon={Wallet} />
-          <StatTile label="Open claims" value={String(metrics.openClaims)} hint="Awaiting action" icon={ShieldAlert} />
-          <StatTile label="Active visitors" value={metrics.activeVisitors.toLocaleString()} hint="Covered in-country now" icon={Users} />
+          <StatTile label="Open claims" value={String(metrics.openClaims)} hint="Awaiting action now" icon={ShieldAlert} />
           <StatTile label="Countries covered" value={String(metrics.countriesCovered)} hint="Visitor nationalities" icon={Globe2} />
+          <StatTile label="Visitors (YTD)" value={metrics.visitorsYtd.toLocaleString()} hint="Since 1 Jan 2026" icon={Users} />
+          <StatTile label="Claims (YTD)" value={String(metrics.claimsYtd)} hint="Filed since 1 Jan 2026" icon={ShieldAlert} />
+          <StatTile label="Commission liability (YTD)" value={formatUSD(metrics.commissionLiabilityYtd)} hint="Accrued + approved, year to date" icon={Wallet} />
         </div>
       </FadeIn>
 

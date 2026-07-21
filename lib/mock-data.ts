@@ -168,7 +168,12 @@ export const MOCK_ADMIN = {
     countriesCovered: 63,
     revenueToday: 5980,
     openClaims: 32,
-    activeVisitors: 1382,
+    /** Cumulative visitors covered since 1 Jan of the current year. */
+    visitorsYtd: 18420,
+    /** Total claims filed since 1 Jan of the current year. */
+    claimsYtd: 214,
+    /** Total commission accrued + approved across all agents, year to date. */
+    commissionLiabilityYtd: 6840,
     conversionRatePct: 34,
   },
   policiesByCountry: [

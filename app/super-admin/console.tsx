@@ -21,8 +21,11 @@ import {
   Flag,
   KeyRound,
   LayoutDashboard,
+  MessageSquareText,
   Package,
+  Plug,
   Save,
+  Send,
   ServerCog,
   Settings,
   ShieldCheck,
@@ -37,6 +40,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { FadeIn } from "@/components/motion";
 import { PRODUCTS } from "@/lib/mock-data";
 import { cn, formatUSD } from "@/lib/utils";
@@ -49,6 +54,8 @@ type SectionId =
   | "users"
   | "organizations"
   | "apikeys"
+  | "integrations"
+  | "messaging"
   | "audit"
   | "health"
   | "settings";
@@ -61,6 +68,8 @@ const SECTIONS: { id: SectionId; label: string; icon: LucideIcon }[] = [
   { id: "users", label: "Users & Roles", icon: Users },
   { id: "organizations", label: "Organizations", icon: Building2 },
   { id: "apikeys", label: "API Keys", icon: KeyRound },
+  { id: "integrations", label: "Integrations", icon: Plug },
+  { id: "messaging", label: "Messaging (SMS)", icon: MessageSquareText },
   { id: "audit", label: "Audit Logs", icon: FileClock },
   { id: "health", label: "System Health", icon: Activity },
   { id: "settings", label: "Settings", icon: Settings },
@@ -110,6 +119,35 @@ const API_KEYS = [
   { name: "University of Zimbabwe", key: "zvig_test_••••••••g7h8", scopes: "quote", status: "Test" },
 ];
 
+/**
+ * External systems Travelmate Zim connects to or can connect to. Distinct
+ * from partner API Keys (inbound access we grant); these are outbound /
+ * two-way integrations the platform itself depends on.
+ */
+const INTEGRATIONS = [
+  { name: "WhatsApp Business Cloud API", category: "Messaging", status: "Available", desc: "Purchases, verification and support over WhatsApp" },
+  { name: "SMS Gateway (bulk & transactional)", category: "Messaging", status: "Connected", desc: "Thank-you, reminder and alert messages" },
+  { name: "Airline Partner API", category: "Travel", status: "Connected", desc: "Air Zimbabwe itinerary lookups for quote pre-fill" },
+  { name: "Immigration / ZTA Verification", category: "Government", status: "Available", desc: "Border and Zimbabwe Tourism Authority policy checks" },
+  { name: "Hospital & Clinic EMR Sync", category: "Healthcare", status: "Available", desc: "Direct billing with partner hospitals on claims" },
+  { name: "Accounting Export (Xero / QuickBooks)", category: "Finance", status: "Not connected", desc: "Revenue and commission ledger sync" },
+];
+
+/** Automated SMS triggers, same on/off pattern as feature flags. */
+const INITIAL_SMS_FLAGS = [
+  { id: "sms_thank_you", label: "Thank-you SMS on purchase", desc: "Sent automatically the moment a policy activates", on: true },
+  { id: "sms_lapse_reminder", label: "Policy lapse reminder", desc: "Sent 48 hours before a policy's cover ends", on: true },
+  { id: "sms_claim_updates", label: "Claim status updates", desc: "Sent on every claim status change", on: true },
+];
+
+const SMS_LOG = [
+  { to: "John Smith · +44 7700 900123", type: "Thank you", when: "2 min ago", status: "Delivered" },
+  { to: "Chloé Dubois · +33 6 12 34 56 78", type: "Thank you", when: "31 min ago", status: "Delivered" },
+  { to: "214 recipients", type: "Bulk · promo", when: "Yesterday, 09:00", status: "Delivered" },
+  { to: "Anna Müller · +49 151 234 5678", type: "Lapse reminder", when: "Yesterday, 07:00", status: "Delivered" },
+  { to: "Marco Rossi · +39 320 123 4567", type: "Claim update", when: "2 days ago", status: "Delivered" },
+];
+
 const SERVICES = [
   { name: "Web application (Vercel)", ok: true, note: "42 ms p50" },
   { name: "Supabase PostgreSQL", ok: true, note: "12 ms p50" },
@@ -157,11 +195,38 @@ export function SuperAdminConsole() {
   const [section, setSection] = useState<SectionId>("overview");
   const [flags, setFlags] = useState(INITIAL_FLAGS);
   const [gateways, setGateways] = useState(GATEWAYS);
+  const [smsFlags, setSmsFlags] = useState(INITIAL_SMS_FLAGS);
+  const [smsRecipients, setSmsRecipients] = useState("active");
+  const [smsMessage, setSmsMessage] = useState("");
+  const [smsSending, setSmsSending] = useState(false);
+  const [smsLog, setSmsLog] = useState(SMS_LOG);
 
   const toggleFlag = (id: string) =>
     setFlags((f) => f.map((x) => (x.id === id ? { ...x, on: !x.on } : x)));
   const toggleGateway = (name: string) =>
     setGateways((g) => g.map((x) => (x.name === name ? { ...x, enabled: !x.enabled } : x)));
+  const toggleSmsFlag = (id: string) =>
+    setSmsFlags((f) => f.map((x) => (x.id === id ? { ...x, on: !x.on } : x)));
+
+  const RECIPIENT_GROUPS: Record<string, string> = {
+    active: "All active policyholders (1,382)",
+    expiring: "Expiring within 7 days (46)",
+    agents: "All agents (42)",
+    custom: "Custom number",
+  };
+
+  const sendSms = () => {
+    if (!smsMessage.trim()) return;
+    setSmsSending(true);
+    setTimeout(() => {
+      setSmsLog((log) => [
+        { to: RECIPIENT_GROUPS[smsRecipients], type: "Manual · bulk", when: "Just now", status: "Delivered" },
+        ...log,
+      ]);
+      setSmsMessage("");
+      setSmsSending(false);
+    }, 900);
+  };
 
   const maintenance = flags.find((f) => f.id === "maintenance")?.on;
   const current = SECTIONS.find((s) => s.id === section)!;
@@ -386,6 +451,158 @@ export function SuperAdminConsole() {
     </Card>
   );
 
+  const integrationsCard = (
+    <Card>
+      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+        <div>
+          <CardTitle>System integrations</CardTitle>
+          <CardDescription>
+            External systems Travelmate Zim connects to, beyond payments and
+            partner API keys
+          </CardDescription>
+        </div>
+        <Button variant="outline" size="sm">Request integration</Button>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-1">
+          {INTEGRATIONS.map((i) => (
+            <li
+              key={i.name}
+              className="flex items-center justify-between gap-4 rounded-xl px-3 py-3 transition-colors hover:bg-stone-50"
+            >
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-stone-900">{i.name}</p>
+                  <Badge variant="outline">{i.category}</Badge>
+                </div>
+                <p className="mt-0.5 text-xs text-stone-500">{i.desc}</p>
+              </div>
+              <Badge
+                variant={
+                  i.status === "Connected" ? "success" : i.status === "Available" ? "warning" : "outline"
+                }
+              >
+                {i.status}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-xs text-stone-400">
+          New integrations are built as authenticated Next.js API routes /
+          Supabase Edge Functions, documented in the integration blueprint.
+        </p>
+      </CardContent>
+    </Card>
+  );
+
+  const messagingCard = (
+    <>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Automated SMS</CardTitle>
+            <CardDescription>Triggered messages sent without any manual action</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-1">
+              {smsFlags.map((f) => (
+                <li
+                  key={f.id}
+                  className="flex items-center justify-between gap-4 rounded-xl px-3 py-3 transition-colors hover:bg-stone-50"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-stone-900">{f.label}</p>
+                    <p className="mt-0.5 text-xs text-stone-500">{f.desc}</p>
+                  </div>
+                  <Toggle on={f.on} onClick={() => toggleSmsFlag(f.id)} />
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 rounded-xl bg-stone-50 px-4 py-3 text-xs leading-relaxed text-stone-500">
+              Gateway: Bulk &amp; transactional SMS provider, connected. Delivery
+              reports feed the log on the right.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>Send SMS</CardTitle>
+            <CardDescription>Manual, one-off or bulk, to any recipient group</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="smsRecipients">Recipients</Label>
+                <Select
+                  id="smsRecipients"
+                  value={smsRecipients}
+                  onChange={(e) => setSmsRecipients(e.target.value)}
+                >
+                  {Object.entries(RECIPIENT_GROUPS).map(([id, label]) => (
+                    <option key={id} value={id}>{label}</option>
+                  ))}
+                </Select>
+              </div>
+              {smsRecipients === "custom" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="smsCustomNumber">Phone number</Label>
+                  <Input id="smsCustomNumber" type="tel" placeholder="+263 78 000 1111" />
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="smsMessage">Message</Label>
+                <Textarea
+                  id="smsMessage"
+                  placeholder="Type your message…"
+                  value={smsMessage}
+                  onChange={(e) => setSmsMessage(e.target.value)}
+                  maxLength={320}
+                />
+                <p className="text-right text-xs text-stone-400">{smsMessage.length}/320</p>
+              </div>
+              <Button onClick={sendSms} disabled={!smsMessage.trim() || smsSending}>
+                <Send className="size-4" />
+                {smsSending ? "Sending…" : "Send SMS"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Message log</CardTitle>
+          <CardDescription>Automatic and manual sends, most recent first</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wider text-stone-400">
+                  <th className="pb-3 pr-4 font-semibold">Recipient</th>
+                  <th className="pb-3 pr-4 font-semibold">Type</th>
+                  <th className="pb-3 pr-4 font-semibold">Sent</th>
+                  <th className="pb-3 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {smsLog.map((m, i) => (
+                  <tr key={i} className="border-b border-stone-100 last:border-0">
+                    <td className="py-3.5 pr-4 font-medium text-stone-900">{m.to}</td>
+                    <td className="py-3.5 pr-4 text-stone-600">{m.type}</td>
+                    <td className="py-3.5 pr-4 text-stone-500">{m.when}</td>
+                    <td className="py-3.5"><Badge variant="success">{m.status}</Badge></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+
   const healthCard = (
     <Card className="h-full">
       <CardHeader>
@@ -442,7 +659,7 @@ export function SuperAdminConsole() {
         <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="siteName">Platform name</Label>
-            <Input id="siteName" defaultValue="Hola Amigo Travelmate" />
+            <Input id="siteName" defaultValue="Travelmate Zim" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="supportEmail">Support email</Label>
@@ -492,6 +709,8 @@ export function SuperAdminConsole() {
     users: <div className="grid gap-6 lg:grid-cols-2">{usersCard}{apiKeysCard}</div>,
     organizations: orgsCard,
     apikeys: <div className="grid gap-6 lg:grid-cols-2">{apiKeysCard}{usersCard}</div>,
+    integrations: integrationsCard,
+    messaging: messagingCard,
     audit: auditCard(),
     health: (
       <>

@@ -10,6 +10,8 @@ import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { CertificateFooter } from "@/components/certificate-footer";
+import { ZimRibbon } from "@/components/zim-ribbon";
 import { FadeIn } from "@/components/motion";
 import { MOCK_POLICIES } from "@/lib/mock-data";
 import { CLIENT_NAV } from "../nav";
@@ -33,7 +35,7 @@ export default function MyPoliciesPage() {
         </Link>
       }
     >
-      <FadeIn y={16}>
+      <FadeIn y={16} className="print:hidden">
         <div className="grid gap-4 sm:grid-cols-3">
           <StatTile accent label="Active" value={String(active)} hint="Currently covering you" icon={ShieldCheck} />
           <StatTile label="Expired" value={String(expired)} hint="Past trips" icon={FileText} />
@@ -45,6 +47,7 @@ export default function MyPoliciesPage() {
         {MOCK_POLICIES.map((p, i) => (
           <FadeIn key={p.policyNumber} y={16} delay={i * 0.06}>
             <Card className="overflow-hidden">
+              <ZimRibbon />
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 bg-stone-50/60 px-6 py-4">
                 <div className="flex items-center gap-3">
                   <span className="grid size-9 place-items-center rounded-lg bg-safari-950 text-sunset-300">
@@ -77,7 +80,7 @@ export default function MyPoliciesPage() {
                     <dd className="mt-1 text-sm font-semibold text-stone-900">{formatUSD(p.premium)} USD</dd>
                   </div>
                 </dl>
-                <div className="mt-5 flex flex-wrap gap-3 border-t border-stone-100 pt-5">
+                <div className="mt-5 flex flex-wrap gap-3 border-t border-stone-100 pt-5 print:hidden">
                   <Button size="sm" variant={p.status === "active" ? "default" : "outline"} onClick={() => window.print()}>
                     <Download className="size-4" /> Certificate
                   </Button>
@@ -86,6 +89,7 @@ export default function MyPoliciesPage() {
                   </Button>
                 </div>
               </CardContent>
+              <CertificateFooter />
             </Card>
           </FadeIn>
         ))}

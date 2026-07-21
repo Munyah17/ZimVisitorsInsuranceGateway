@@ -13,13 +13,19 @@ import {
   Hospital,
   Phone,
   MessageCircle,
+  Siren,
 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
 import { MOCK_CUSTOMER } from "@/lib/mock-data";
+import { PARTNERS } from "@/lib/partners-data";
 import { CLIENT_NAV } from "../nav";
+
+const MEDICAL_EMERGENCY_PROVIDERS = PARTNERS.filter(
+  (p) => p.category === "Ambulance Services" || p.category === "Emergency Care"
+);
 
 const EMERGENCY = [
   { icon: HeartPulse, label: "Medical Emergency", note: "Direct line to our medical team" },
@@ -79,6 +85,43 @@ export default function EmergencyPage() {
             </button>
           ))}
         </div>
+      </FadeIn>
+
+      <FadeIn y={16}>
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Medical emergency providers</CardTitle>
+            <CardDescription>
+              Ambulance and emergency response companies that accept your cover
+              directly, nationwide
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {MEDICAL_EMERGENCY_PROVIDERS.map((p) => (
+                <li key={p.name}>
+                  <a
+                    href={`tel:${p.phone.replace(/\s/g, "")}`}
+                    className="flex items-center gap-3.5 rounded-xl border border-stone-200 bg-white p-4 transition-all hover:border-red-300 hover:bg-red-50"
+                  >
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600">
+                      <Siren className="size-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-stone-900">
+                        {p.name}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-stone-500">
+                        {p.city} · {p.phone}
+                      </span>
+                    </span>
+                    {p.open24h && <Badge variant="destructive">24/7</Badge>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       </FadeIn>
 
       <FadeIn y={16}>

@@ -1,16 +1,17 @@
 "use client";
 
 /**
- * Service Partners directory — the care network accepting Hola Amigo
- * Travelmate cover. Built to scale past 100 providers: searchable,
- * filterable by category, rendered from one data array.
+ * Service Partners directory — the care network accepting Travelmate Zim
+ * cover. Built to scale past 100 providers: searchable, filterable by
+ * category, rendered from the shared partners data in lib/partners-data.ts
+ * (also used by the quote wizard's "near you" panel).
  *
  * Live version: reads `organizations` (types hospital, ambulance_service,
  * emergency_assistance...) from Supabase; logos come from Storage and
  * replace the initials placeholder on each card.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Clock,
   Handshake,
@@ -24,75 +25,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { FadeIn } from "@/components/motion";
+import { CATEGORIES, CATEGORY_BADGE, PARTNERS, partnerInitials } from "@/lib/partners-data";
 import { cn } from "@/lib/utils";
-
-const CATEGORIES = [
-  "All",
-  "Hospitals & Clinics",
-  "Medical Practices",
-  "Ambulance Services",
-  "Emergency Care",
-  "Pharmacies",
-] as const;
-
-type Category = Exclude<(typeof CATEGORIES)[number], "All">;
-
-interface Partner {
-  name: string;
-  category: Category;
-  city: string;
-  phone: string;
-  open24h?: boolean;
-}
-
-const PARTNERS: Partner[] = [
-  // Hospitals & clinics
-  { name: "Victoria Falls Private Hospital", category: "Hospitals & Clinics", city: "Victoria Falls", phone: "+263 83 284 4764", open24h: true },
-  { name: "Avenues Clinic", category: "Hospitals & Clinics", city: "Harare", phone: "+263 24 251 0666", open24h: true },
-  { name: "Mater Dei Hospital", category: "Hospitals & Clinics", city: "Bulawayo", phone: "+263 29 224 0000", open24h: true },
-  { name: "West End Hospital", category: "Hospitals & Clinics", city: "Harare", phone: "+263 24 279 1500", open24h: true },
-  { name: "Manica Medical Centre", category: "Hospitals & Clinics", city: "Mutare", phone: "+263 20 606 4420" },
-  { name: "Hwange Medical Clinic", category: "Hospitals & Clinics", city: "Hwange", phone: "+263 81 382 2110" },
-  { name: "Kariba Heights Clinic", category: "Hospitals & Clinics", city: "Kariba", phone: "+263 61 214 6330" },
-  // Medical practices
-  { name: "Falls Medical Practice", category: "Medical Practices", city: "Victoria Falls", phone: "+263 83 284 2077" },
-  { name: "Baines Medical Group", category: "Medical Practices", city: "Harare", phone: "+263 24 270 5011" },
-  { name: "Matobo Family Practice", category: "Medical Practices", city: "Bulawayo", phone: "+263 29 226 3350" },
-  { name: "Great Zimbabwe Medical Rooms", category: "Medical Practices", city: "Masvingo", phone: "+263 39 226 4180" },
-  // Ambulance services
-  { name: "MARS Ambulance Zimbabwe", category: "Ambulance Services", city: "Nationwide", phone: "+263 24 277 1221", open24h: true },
-  { name: "EMRAS Emergency Medical", category: "Ambulance Services", city: "Harare", phone: "+263 24 279 7478", open24h: true },
-  { name: "Falls Rescue Response", category: "Ambulance Services", city: "Victoria Falls", phone: "+263 83 284 6119", open24h: true },
-  // Emergency care
-  { name: "ACE Air & Ambulance", category: "Emergency Care", city: "Nationwide", phone: "+263 78 004 4747", open24h: true },
-  { name: "Health International Emergency", category: "Emergency Care", city: "Harare", phone: "+263 24 270 4674", open24h: true },
-  { name: "SkyMed Evacuation", category: "Emergency Care", city: "Nationwide", phone: "+263 77 216 0160", open24h: true },
-  // Pharmacies
-  { name: "Greenwood Pharmacy", category: "Pharmacies", city: "Harare", phone: "+263 24 270 0355" },
-  { name: "QV Pharmacy", category: "Pharmacies", city: "Bulawayo", phone: "+263 29 226 0344" },
-  { name: "Falls Pharmacy", category: "Pharmacies", city: "Victoria Falls", phone: "+263 83 284 3529" },
-];
-
-const CATEGORY_BADGE: Record<Category, "default" | "info" | "destructive" | "warning" | "success"> = {
-  "Hospitals & Clinics": "default",
-  "Medical Practices": "info",
-  "Ambulance Services": "destructive",
-  "Emergency Care": "warning",
-  Pharmacies: "success",
-};
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter((w) => /^[A-Z]/.test(w))
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("");
-}
 
 export function PartnersDirectory() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("All");
+
+  // Arriving from the quote wizard's "near you" panel pre-fills the city.
+  // Read after mount rather than via useSearchParams(), which forces
+  // Next.js to statically prerender this whole directory as an empty
+  // placeholder with no partner cards until the JS bundle hydrates.
+  useEffect(() => {
+    const city = new URLSearchParams(window.location.search).get("city");
+    if (city) setQuery(city);
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -117,8 +64,8 @@ export function PartnersDirectory() {
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-stone-500">
               Over 100 clinics, medical practices, ambulance services and
-              emergency care providers across Zimbabwe accept your Hola Amigo
-              Travelmate cover directly, with no upfront payment.
+              emergency care providers across Zimbabwe accept your Travelmate
+              Zim cover directly, with no upfront payment.
             </p>
           </div>
         </FadeIn>
@@ -170,7 +117,7 @@ export function PartnersDirectory() {
               {/* Logo placeholder: swapped for the provider's uploaded logo when live */}
               <div className="flex items-start justify-between">
                 <span className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-safari-700 to-safari-950 text-lg font-bold text-sunset-300">
-                  {initials(p.name)}
+                  {partnerInitials(p.name)}
                 </span>
                 {p.open24h && (
                   <Badge variant="success">

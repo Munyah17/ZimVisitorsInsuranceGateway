@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppButton } from "@/components/whatsapp-button";
+import { ZimRibbon } from "@/components/zim-ribbon";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +18,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Hola Amigo Travelmate",
-    template: "%s · Hola Amigo Travelmate",
+    default: "Travelmate Zim",
+    template: "%s · Travelmate Zim",
   },
   description:
     "Travel Zimbabwe with confidence. Instant visitor medical and emergency insurance, issued in minutes and verified anywhere.",
@@ -58,6 +59,7 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
 }catch(e){}})();`,
           }}
         />
+        <ZimRibbon className="print:hidden" />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

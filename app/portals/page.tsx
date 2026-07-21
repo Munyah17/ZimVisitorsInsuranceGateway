@@ -3,7 +3,7 @@ import { AuthPage } from "./auth-page";
 
 export const metadata: Metadata = {
   title: "Login / Signup",
-  description: "Sign in to your Hola Amigo Travelmate portal.",
+  description: "Sign in to your Travelmate Zim portal.",
 };
 
 export default function PortalsPage() {

@@ -32,7 +32,7 @@ export default function GlobalError({
             Something went wrong
           </h1>
           <p style={{ fontSize: 14, color: "#78716c", lineHeight: 1.6 }}>
-            An unexpected error stopped Hola Amigo Travelmate from loading.
+            An unexpected error stopped Travelmate Zim from loading.
             Please reload the page. If it keeps happening, WhatsApp us on
             +263 78 000 1111.
           </p>

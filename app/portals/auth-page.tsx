@@ -51,7 +51,7 @@ const DEMO_ACCOUNTS = [
     email: "admin@zvig.co.zw",
     password: "admin123",
     dest: "/admin",
-    hint: "Hola Amigo operations team",
+    hint: "Travelmate Zim operations team",
   },
 ];
 
@@ -199,7 +199,7 @@ export function AuthPage() {
                 {tab === "signup" && (
                   <p className="text-center text-xs text-stone-400">
                     New accounts start as Client accounts. Agents are approved by
-                    the Hola Amigo team after applying.
+                    the Travelmate Zim team after applying.
                   </p>
                 )}
               </form>

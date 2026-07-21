@@ -47,7 +47,7 @@ export function SiteHeader() {
   // Session header for dashboard portals: logo + Back to Site only.
   if (inDashboard) {
     return (
-      <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white">
+      <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white print:hidden">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Logo />
           <Link href="/">
@@ -63,7 +63,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-stone-200/60 bg-white/80 backdrop-blur-xl print:hidden">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Logo />
 

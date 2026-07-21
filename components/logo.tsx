@@ -15,7 +15,7 @@ export function Logo({ light = false, className }: { light?: boolean; className?
             light ? "text-white" : "text-stone-900"
           )}
         >
-          Hola Amigo
+          Travelmate
         </span>
         <span
           className={cn(
@@ -23,7 +23,7 @@ export function Logo({ light = false, className }: { light?: boolean; className?
             light ? "text-sunset-300" : "text-safari-600"
           )}
         >
-          Travelmate
+          Zim
         </span>
       </span>
     </Link>

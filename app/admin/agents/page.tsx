@@ -37,7 +37,7 @@ export default function AdminAgentsPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <StatTile accent label="Active agents" value="42" hint="Across 18 partner organizations" icon={Users} />
           <StatTile label="Agent-sold share" value="38%" hint="Of all policies this month" icon={BadgeCheck} />
-          <StatTile label="Commission liability" value={formatUSD(1442)} hint="Accrued + approved" icon={Wallet} />
+          <StatTile label="Commission liability (YTD)" value={formatUSD(MOCK_ADMIN.metrics.commissionLiabilityYtd)} hint="Accrued + approved, year to date" icon={Wallet} />
         </div>
       </FadeIn>
 

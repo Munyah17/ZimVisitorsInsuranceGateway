@@ -1,17 +1,17 @@
 /**
  * Floating WhatsApp button — official emblem on WhatsApp brand green,
- * fixed bottom right on every page. Links to the Hola Amigo Travelmate
+ * fixed bottom right on every page. Links to the Travelmate Zim
  * WhatsApp line (the future chatbot channel).
  */
 
 export function WhatsAppButton() {
   return (
     <a
-      href="https://wa.me/263780250962?text=Hello%20Hola%20Amigo%20Travelmate"
+      href="https://wa.me/263780250962?text=Hello%20Travelmate%20Zim"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
-      className="group fixed bottom-5 right-5 z-40 grid size-14 place-items-center rounded-full bg-[#25D366] shadow-xl shadow-black/25 transition-transform hover:scale-110 active:scale-95"
+      className="group fixed bottom-5 right-5 z-40 grid size-14 place-items-center rounded-full bg-[#25D366] shadow-xl shadow-black/25 transition-transform hover:scale-110 active:scale-95 print:hidden"
     >
       {/* Pulse ring */}
       <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-[#25D366]/40 [animation-duration:2.2s]" />

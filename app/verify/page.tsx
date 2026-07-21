@@ -163,7 +163,7 @@ export default function VerifyPage() {
                     </div>
                   </dl>
                   <p className="mt-5 text-xs text-stone-400">
-                    Verified against the Hola Amigo Travelmate policy registry.
+                    Verified against the Travelmate Zim policy registry.
                     This check discloses only the fields shown and reveals no
                     contact or passport data.
                   </p>
