@@ -467,9 +467,14 @@ create table payments (
   amount                numeric(10,2) not null,
   currency              text not null default 'USD',
   provider              payment_provider not null,
-  transaction_reference text unique,                   -- provider-side id (Stripe pi_..., Paynow ref)
+  transaction_reference text unique,                   -- OUR merchant reference sent to the provider
   status                payment_status not null default 'initiated',
-  -- Raw webhook payload snapshot for reconciliation/disputes.
+  -- Paynow (and similar hosted-checkout providers) return a poll URL at
+  -- initiation time that the merchant can re-query independently of the
+  -- webhook — the source of truth when a resulturl callback is delayed
+  -- or lost. Stored so /api/checkout/{provider}/status can fall back to it.
+  poll_url              text,
+  -- Raw webhook/poll payload snapshot for reconciliation/disputes.
   provider_payload      jsonb,
   created_at            timestamptz not null default now(),
   updated_at            timestamptz not null default now()

@@ -8,7 +8,7 @@
  * the JWT routing each session to its portal automatically.
  *
  * Admin and Super Admin are separate, independent roles. The Super Admin
- * console is not listed here; platform owners sign in at /super-admin.
+ * console is not listed here; platform owners sign in at /private.
  */
 
 import { useState } from "react";
@@ -51,7 +51,7 @@ const DEMO_ACCOUNTS = [
     email: "admin@zvig.co.zw",
     password: "admin123",
     dest: "/admin",
-    hint: "Travelmate Zim operations team",
+    hint: "Zim Travelmate operations team",
   },
 ];
 
@@ -199,7 +199,7 @@ export function AuthPage() {
                 {tab === "signup" && (
                   <p className="text-center text-xs text-stone-400">
                     New accounts start as Client accounts. Agents are approved by
-                    the Travelmate Zim team after applying.
+                    the Zim Travelmate team after applying.
                   </p>
                 )}
               </form>

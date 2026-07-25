@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Super Admin Console (hidden at /super-admin, never linked publicly).
+ * Super Admin Console (hidden at /private, never linked publicly).
  * Platform-owner workspace with total control. The sidebar switches
  * between sections client side so the whole console stays behind the
  * single passcode gate.
@@ -89,7 +89,7 @@ const INITIAL_FLAGS = [
 const GATEWAYS = [
   { name: "Stripe", region: "International cards", mode: "Live", enabled: true },
   { name: "PayPal", region: "International wallets", mode: "Live", enabled: true },
-  { name: "Paynow", region: "Zimbabwe", mode: "Sandbox", enabled: true },
+  { name: "Paynow", region: "Zimbabwe", mode: "Live", enabled: true },
   { name: "EcoCash", region: "Zimbabwe mobile money", mode: "Sandbox", enabled: false },
   { name: "Adyen", region: "International cards", mode: "Not configured", enabled: false },
 ];
@@ -120,7 +120,7 @@ const API_KEYS = [
 ];
 
 /**
- * External systems Travelmate Zim connects to or can connect to. Distinct
+ * External systems Zim Travelmate connects to or can connect to. Distinct
  * from partner API Keys (inbound access we grant); these are outbound /
  * two-way integrations the platform itself depends on.
  */
@@ -457,7 +457,7 @@ export function SuperAdminConsole() {
         <div>
           <CardTitle>System integrations</CardTitle>
           <CardDescription>
-            External systems Travelmate Zim connects to, beyond payments and
+            External systems Zim Travelmate connects to, beyond payments and
             partner API keys
           </CardDescription>
         </div>
@@ -659,7 +659,7 @@ export function SuperAdminConsole() {
         <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="siteName">Platform name</Label>
-            <Input id="siteName" defaultValue="Travelmate Zim" />
+            <Input id="siteName" defaultValue="Zim Travelmate" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="supportEmail">Support email</Label>

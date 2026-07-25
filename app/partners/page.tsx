@@ -4,7 +4,7 @@ import { PartnersDirectory } from "./partners-directory";
 export const metadata: Metadata = {
   title: "Service Partners",
   description:
-    "Clinics, medical practices, ambulance services and emergency care providers accepting Travelmate Zim cover across Zimbabwe.",
+    "Clinics, medical practices, ambulance services and emergency care providers accepting Zim Travelmate cover across Zimbabwe.",
 };
 
 export default function PartnersPage() {

@@ -1,4 +1,4 @@
-# Travelmate Zim Integration Blueprint
+# Zim Travelmate Integration Blueprint
 
 How the three prototype parts — the Next.js frontend (mock data), the Supabase
 schema (`supabase/schema.sql`) and future channels (WhatsApp, SMS, payments,
@@ -27,7 +27,7 @@ Foreign Visitor ──▶ Web app (Next.js on Vercel)
                       Hospitals · Ambulances · Tourism operators
 ```
 
-The customer always sees **one brand** — "Travelmate Zim". The
+The customer always sees **one brand** — "Zim Travelmate". The
 underwriter, agency split, premium allocation and claims routing are resolved
 internally via `policies.underwriter_id`, `agents`, and `commissions`.
 
@@ -98,19 +98,68 @@ page which calls `GET /api/policy/{number}`.
 
 ## 4. Payments
 
-One `payments` table, many rails:
+One `payments` table, many rails. **Paynow Zimbabwe is live** (gateway 1 of
+several planned); Stripe/Adyen/PayPal/agent-cash remain future work.
 
-- **Stripe / Adyen / PayPal** — international cards & wallets. Checkout creates
-  a `payments` row (`status = initiated`) + provider session; webhook flips it
-  to `succeeded`.
-- **Paynow / EcoCash** — regional mobile money, same lifecycle via Paynow's
-  poll/result URL.
+### 4.1 Paynow — live, hosted-checkout, full redirect
+
+This app never collects or processes card/EcoCash/OneMoney details. The flow:
+
+```
+Quote wizard (browser)
+  │  POST /api/checkout/paynow  { traveller(s), trip, pricing, reference }
+  ▼
+lib/payment-gateways/fulfillment.ts (service-role Supabase)
+  │  writes customers + travel_details + one quotes row +
+  │  one `pending_payment` policies row PER traveller +
+  │  one `initiated` payments row — BEFORE any redirect
+  ▼
+lib/payment-gateways/paynow.ts → Paynow /interface/initiatetransaction
+  │  (official `paynow` npm SDK — SHA512 request signing)
+  ▼
+Browser is FULL-REDIRECTED to Paynow's own hosted page (browserurl)
+  │  customer enters card/EcoCash/OneMoney details on paynow.co.zw — never here
+  ▼
+Paynow → POST /api/webhooks/paynow (resulturl, server-to-server)
+  │  hash-verified; on "Paid" → policies.status = active, quotes.status =
+  │  converted, payments.status = succeeded. On cancel/other → status = failed.
+  ▼
+Customer's browser → GET /quote/return?reference=... (returnurl)
+  │  polls GET /api/checkout/paynow/status, which falls back to Paynow's own
+  │  pollUrl if the webhook hasn't landed yet (resulturl delivery isn't
+  │  guaranteed — pollUrl is Paynow's recommended source of truth)
+  ▼
+Certificate summary rendered from the now-active policies
+```
+
+- **Credentials**: `PAYNOW_INTEGRATION_ID` / `PAYNOW_INTEGRATION_KEY`
+  (server-only env vars — Enpasent Multiple Agent's integration). The
+  quote wizard falls back to a simulated demo checkout (no real charge) if
+  either these or `SUPABASE_SERVICE_ROLE_KEY` are unset, so the prototype
+  never dead-ends without live credentials configured.
+- **Multiple merchant accounts / split payments**: out of scope for the
+  classic hosted-checkout API used here — Paynow settles a transaction
+  entirely to whichever integration ID created it. Routing part of a
+  transaction to a second merchant account would require either accepting
+  two separate customer-facing charges (poor UX, and Paynow/EcoCash notify
+  the customer of each separately — impossible to hide) or Paynow's
+  separate disbursement product ("Paynow Send"), which needs to be enabled
+  by Paynow support and a registered payout destination. Not implemented.
+- **Idempotency**: both the webhook and the status-poll fallback can
+  activate the same payment; `activatePaidPayment()` is a no-op if the
+  payment is already `succeeded`.
+
+### 4.2 Future rails
+
+- **Stripe / Adyen / PayPal** — international cards & wallets, same
+  `payments` row lifecycle (`initiated` → webhook → `succeeded`).
+- **EcoCash direct** (outside Paynow) — regional mobile money.
 - **Agent-collected cash** — `provider = manual`, recorded by agents, settled
   against their commission statement.
 
-Policy activation is *always* webhook-driven (`pending_payment → active`),
-never trusted from the browser. `provider_payload` stores the raw webhook for
-reconciliation and disputes.
+Policy activation is *always* webhook/poll-driven (`pending_payment → active`),
+never trusted from the browser. `provider_payload` stores the raw
+webhook/poll payload for reconciliation and disputes.
 
 ---
 

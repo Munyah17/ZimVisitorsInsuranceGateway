@@ -1,4 +1,4 @@
-# Travelmate Zim (Zimbabwe Visitor Insurance Gateway)
+# Zim Travelmate (Zimbabwe Visitor Insurance Gateway)
 
 Digital insurance distribution and administration platform for foreign
 visitors to Zimbabwe, operated by Hola Amigo Multiple Agent and underwritten
@@ -6,7 +6,8 @@ by a licensed Microinsurance Company. The customer sees one brand, **Travelmate
 Zim**; the platform manages the underwriter, product ownership, premium
 allocation and claims routing underneath.
 
-> **Prototype** — the frontend runs entirely on mock data; the SQL file is a
+> **Prototype** — most screens run on mock data. Paynow Zimbabwe checkout is
+> a real, live server-side integration (see below); the SQL file is a
 > complete, commented Supabase schema ready to deploy. Not an offer of insurance.
 
 ## What's in this repo
@@ -20,7 +21,11 @@ allocation and claims routing underneath.
 ## Screens
 
 - `/` — Landing page (hero slider, why-insurance, coverage plans, trust)
-- `/quote` — 6-step quote wizard: visitor → travel → coverage → premium → checkout → certificate
+- `/quote` — 6-step quote wizard: visitor → travel → coverage → premium → checkout → certificate.
+  Checkout does a full redirect to Paynow's hosted page (live); falls back to
+  a simulated demo flow if `PAYNOW_*` / `SUPABASE_SERVICE_ROLE_KEY` aren't set.
+- `/quote/return` — where Paynow sends the customer back; polls payment
+  status and shows the issued certificate(s)
 - `/portals` — Login/Signup with demo credentials (client, agent, admin)
 - `/portal` — Client portal (active policy, days left, coverage, emergency assistance)
 - `/verify` — Public policy verification (try `ZVIG-2026-00001`)
@@ -30,7 +35,7 @@ allocation and claims routing underneath.
   countries, agents, claims queue)
 - `/partners` — Service Partners directory (clinics, ambulances, emergency
   care), searchable and filterable by category
-- `/super-admin` — hidden Super Admin console (owner username + PIN): feature
+- `/private` — hidden Super Admin console (owner username + PIN): feature
   flags, gateways, pricing, users & roles, API keys, integrations, SMS
   messaging, audit, system health
 
@@ -41,8 +46,11 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-No backend needed. To prepare the live connection, copy `.env.local.example`
-to `.env.local` and fill in your Supabase project URL + anon key.
+Most screens need no backend. For live Paynow checkout, copy
+`.env.local.example` to `.env.local` and fill in `PAYNOW_INTEGRATION_ID`,
+`PAYNOW_INTEGRATION_KEY` and `SUPABASE_SERVICE_ROLE_KEY` (after running
+`supabase/schema.sql` on your project) — without these, checkout falls back
+to a simulated flow automatically.
 
 ## Deploy
 

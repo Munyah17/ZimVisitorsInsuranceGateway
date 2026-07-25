@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Travelmate Zim",
-    template: "%s · Travelmate Zim",
+    default: "Zim Travelmate",
+    template: "%s · Zim Travelmate",
   },
   description:
     "Travel Zimbabwe with confidence. Instant visitor medical and emergency insurance, issued in minutes and verified anywhere.",

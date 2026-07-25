@@ -22,7 +22,7 @@ const NAV = [
   { href: "/claims", label: "Claims" },
 ];
 
-const DASHBOARD_PREFIXES = ["/portal", "/agent", "/admin", "/super-admin"];
+const DASHBOARD_PREFIXES = ["/portal", "/agent", "/admin", "/private"];
 
 function isDashboardRoute(pathname: string) {
   return DASHBOARD_PREFIXES.some(

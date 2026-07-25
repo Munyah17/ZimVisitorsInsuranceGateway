@@ -1,13 +1,13 @@
 /**
  * Floating WhatsApp button — official emblem on WhatsApp brand green,
- * fixed bottom right on every page. Links to the Travelmate Zim
+ * fixed bottom right on every page. Links to the Zim Travelmate
  * WhatsApp line (the future chatbot channel).
  */
 
 export function WhatsAppButton() {
   return (
     <a
-      href="https://wa.me/263780250962?text=Hello%20Travelmate%20Zim"
+      href="https://wa.me/263780250962?text=Hello%20Zim%20Travelmate"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"

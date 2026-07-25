@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * /super-admin — unlinked, unlisted entry point for the platform owner.
+ * /private — unlinked, unlisted entry point for the platform owner.
  *
  * Owner account (prototype):
  *   Munyah Griezmann · username "Munyah" · munyamuzvidziwa19@gmail.com
@@ -24,7 +24,7 @@ const SUPER_ADMIN = {
   pin: "3743",
 };
 
-export default function SuperAdminPage() {
+export default function PrivatePage() {
   const [unlocked, setUnlocked] = useState(false);
   const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");

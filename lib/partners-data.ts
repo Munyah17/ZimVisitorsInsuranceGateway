@@ -1,6 +1,6 @@
 /**
  * Shared Service Partners data — clinics, medical practices, ambulance
- * services and emergency care providers accepting Travelmate Zim cover.
+ * services and emergency care providers accepting Zim Travelmate cover.
  * Used by the public /partners directory AND the quote wizard's
  * "service providers near you" panel, so a traveller who picks a
  * destination sees the relevant network immediately.

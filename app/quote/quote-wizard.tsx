@@ -38,7 +38,6 @@ import {
   UploadCloud,
   User,
   Users,
-  Wallet,
 } from "lucide-react";
 import { motion, AnimatePresence } from "@/components/motion";
 import { Button } from "@/components/ui/button";
@@ -155,7 +154,6 @@ interface FormState {
   finalDestination: string;
   // Coverage & payment
   productId: string;
-  paymentMethod: "card" | "paypal" | "mobile";
 }
 
 function travellerValid(t: Traveller) {
@@ -172,6 +170,7 @@ function travellerValid(t: Traveller) {
 export function QuoteWizard() {
   const [step, setStep] = useState(0);
   const [paying, setPaying] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   // Generated on payment success (not during render) so the prerendered
   // HTML and the hydrated client tree always match.
   const [policyNumber, setPolicyNumber] = useState("");
@@ -200,7 +199,6 @@ export function QuoteWizard() {
     programme: "",
     finalDestination: "",
     productId: PRODUCTS[0].id,
-    paymentMethod: "card",
   });
 
   // A ?product= link (e.g. from the landing page plan cards) preselects a
@@ -306,6 +304,7 @@ export function QuoteWizard() {
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
+  /** Demo fallback — used only when live payments aren't configured yet. */
   const simulatePayment = () => {
     setPaying(true);
     setTimeout(() => {
@@ -313,6 +312,65 @@ export function QuoteWizard() {
       setPaying(false);
       next();
     }, 1800);
+  };
+
+  /**
+   * Requests a Paynow hosted checkout session and does a full browser
+   * redirect. This app never collects card or mobile money details —
+   * Paynow's own page does, and we only learn the outcome afterwards via
+   * /quote/return (the customer's browser) and a server-to-server webhook.
+   */
+  const handlePayment = async () => {
+    setPaying(true);
+    setPaymentError(null);
+
+    const toTraveller = (t: { fullName: string; nationality: string; dateOfBirth: string; passportNumber: string; email?: string; phone?: string }) => ({
+      fullName: t.fullName,
+      nationality: t.nationality,
+      dateOfBirth: t.dateOfBirth,
+      passportNumber: t.passportNumber,
+      email: t.email ?? form.email,
+      phone: t.phone ?? form.phone,
+    });
+
+    try {
+      const res = await fetch("/api/checkout/paynow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reference: `ZVIG-Q-${Date.now()}`,
+          productId: form.productId,
+          arrivalDate: form.arrivalDate,
+          departureDate: form.departureDate,
+          purpose: form.purpose,
+          destination: form.destination,
+          activities: form.activities,
+          leader: toTraveller(form),
+          travellers: form.tripType === "group" ? form.travellers.map(toTraveller) : [],
+          pricingBreakdown: pricing,
+          totalAmount: pricing.total,
+        }),
+      });
+
+      if (res.status === 503) {
+        // Live payments aren't wired up yet in this environment — fall
+        // back to the existing simulated flow rather than dead-ending.
+        simulatePayment();
+        return;
+      }
+
+      const data = await res.json();
+      if (!res.ok || !data.redirectUrl) {
+        setPaying(false);
+        setPaymentError(data.message ?? "We couldn't start checkout. Please try again.");
+        return;
+      }
+
+      window.location.href = data.redirectUrl;
+    } catch {
+      setPaying(false);
+      setPaymentError("We couldn't reach the payment service. Please try again.");
+    }
   };
 
   const toggleActivity = (id: ActivityId) =>
@@ -1015,58 +1073,32 @@ export function QuoteWizard() {
               </Card>
             )}
 
-            {/* ==================== STEP 5: CHECKOUT SIMULATION ==================== */}
+            {/* ==================== STEP 5: CHECKOUT ==================== */}
             {step === 4 && (
               <Card>
                 <CardContent className="p-7 sm:p-9">
                   <h1 className="text-2xl font-bold tracking-tight text-stone-900">Payment</h1>
                   <p className="mt-1.5 text-sm text-stone-500">
-                    This checkout is a simulation and no real charge is made. Live
-                    payments will run through Stripe, PayPal and Paynow.
+                    You&apos;ll be securely redirected to Paynow to complete payment.
+                    We never see or store your card or mobile money details —
+                    Paynow handles that entirely.
                   </p>
 
-                  <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                    {(
-                      [
-                        { id: "card", label: "Card", icon: CreditCard, hint: "Visa · Mastercard · Amex" },
-                        { id: "paypal", label: "PayPal", icon: Wallet, hint: "Pay with your account" },
-                        { id: "mobile", label: "Mobile money", icon: Smartphone, hint: "EcoCash · Paynow" },
-                      ] as const
-                    ).map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => set("paymentMethod", m.id)}
-                        className={cn(
-                          "rounded-xl border p-4 text-left transition-all",
-                          form.paymentMethod === m.id
-                            ? "border-safari-600 bg-safari-50 ring-1 ring-safari-600"
-                            : "border-stone-200 bg-white hover:border-stone-300"
-                        )}
-                      >
-                        <m.icon className="size-5 text-safari-700" />
-                        <span className="mt-2 block text-sm font-semibold text-stone-900">{m.label}</span>
-                        <span className="mt-0.5 block text-xs text-stone-400">{m.hint}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {form.paymentMethod === "card" && (
-                    <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-1.5 sm:col-span-2">
-                        <Label>Card number</Label>
-                        <Input placeholder="4242 4242 4242 4242" inputMode="numeric" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label>Expiry</Label>
-                        <Input placeholder="MM / YY" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label>CVC</Label>
-                        <Input placeholder="123" inputMode="numeric" />
-                      </div>
+                  <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl border border-stone-200 bg-white p-4">
+                      <CreditCard className="size-5 text-safari-700" />
+                      <span className="mt-2 block text-sm font-semibold text-stone-900">Card</span>
+                      <span className="mt-0.5 block text-xs text-stone-400">Visa · Mastercard</span>
                     </div>
-                  )}
+                    <div className="rounded-xl border border-stone-200 bg-white p-4">
+                      <Smartphone className="size-5 text-safari-700" />
+                      <span className="mt-2 block text-sm font-semibold text-stone-900">Mobile money</span>
+                      <span className="mt-0.5 block text-xs text-stone-400">EcoCash · OneMoney</span>
+                    </div>
+                  </div>
+                  <p className="mt-2.5 text-center text-xs text-stone-400">
+                    Choose exactly how to pay on Paynow&apos;s secure checkout page.
+                  </p>
 
                   <div className="mt-7 flex items-center justify-between rounded-xl bg-stone-50 px-5 py-4">
                     <span className="text-sm text-stone-500">
@@ -1076,26 +1108,32 @@ export function QuoteWizard() {
                     <span className="text-xl font-bold text-stone-900">{formatUSD(pricing.total)}</span>
                   </div>
 
+                  {paymentError && (
+                    <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                      {paymentError}
+                    </p>
+                  )}
+
                   <Button
                     className="mt-6 w-full"
                     size="lg"
-                    onClick={simulatePayment}
+                    onClick={handlePayment}
                     disabled={paying}
                   >
                     {paying ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        Processing payment…
+                        Redirecting to Paynow…
                       </>
                     ) : (
                       <>
                         <Lock className="size-4" />
-                        Pay {formatUSD(pricing.total)} securely
+                        Pay {formatUSD(pricing.total)} with Paynow
                       </>
                     )}
                   </Button>
                   <p className="mt-3 text-center text-xs text-stone-400">
-                    256-bit encrypted · PCI-DSS compliant · Instant certificate on success
+                    Secured by Paynow Zimbabwe · Instant certificate on confirmed payment
                   </p>
                 </CardContent>
               </Card>
@@ -1132,7 +1170,7 @@ export function QuoteWizard() {
                   <div className="flex items-center justify-between bg-safari-950 px-6 py-4">
                     <div className="flex items-center gap-2 text-white">
                       <ShieldCheck className="size-5 text-sunset-300" />
-                      <span className="text-sm font-bold">Travelmate Zim</span>
+                      <span className="text-sm font-bold">Zim Travelmate</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {totalTravellers > 1 && (

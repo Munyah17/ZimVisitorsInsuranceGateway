@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Service Partners directory — the care network accepting Travelmate Zim
+ * Service Partners directory — the care network accepting Zim Travelmate
  * cover. Built to scale past 100 providers: searchable, filterable by
  * category, rendered from the shared partners data in lib/partners-data.ts
  * (also used by the quote wizard's "near you" panel).
@@ -64,8 +64,8 @@ export function PartnersDirectory() {
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-stone-500">
               Over 100 clinics, medical practices, ambulance services and
-              emergency care providers across Zimbabwe accept your Travelmate
-              Zim cover directly, with no upfront payment.
+              emergency care providers across Zimbabwe accept your Zim
+              Travelmate cover directly, with no upfront payment.
             </p>
           </div>
         </FadeIn>

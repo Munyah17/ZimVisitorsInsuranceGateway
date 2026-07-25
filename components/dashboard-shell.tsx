@@ -56,7 +56,7 @@ export function DashboardShell({
             <span className="grid size-8 place-items-center rounded-lg bg-white/10 text-sunset-300">
               <ShieldCheck className="size-4" />
             </span>
-            <span className="text-sm font-bold text-white">Travelmate Zim</span>
+            <span className="text-sm font-bold text-white">Zim Travelmate</span>
           </div>
           <nav className="space-y-1 overflow-y-auto">
             {nav.map((item) => {
@@ -108,7 +108,7 @@ export function DashboardShell({
             <p className="mt-3 px-2 text-[10px] leading-relaxed text-safari-200/40">
               © 2026 Hola Amigo Multiple Agent
               <br />
-              trading as Travelmate Zim
+              trading as Zim Travelmate
             </p>
           </div>
         </div>

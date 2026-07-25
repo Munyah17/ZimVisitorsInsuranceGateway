@@ -265,7 +265,7 @@ export default function ClaimsPage() {
               )}
             </Button>
             <p className="mt-3 text-center text-xs text-stone-400">
-              Claims are triaged by Travelmate Zim and assessed by our licensed
+              Claims are triaged by Zim Travelmate and assessed by our licensed
               underwriting partner. You&apos;ll receive updates by email and WhatsApp.
             </p>
           </CardContent>

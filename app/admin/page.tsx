@@ -48,7 +48,7 @@ export default function AdminPage() {
   return (
     <DashboardShell
       title="Admin Command Centre"
-      subtitle="Travelmate Zim · live operations"
+      subtitle="Zim Travelmate · live operations"
       nav={ADMIN_NAV}
       badge={
         <Badge variant="success" className="px-3 py-1.5">
