@@ -670,6 +670,16 @@ create policy "users update own record"
 -- handlers) bypass RLS and perform issuance, payments and claims writes.
 
 -- ===========================================================================
+-- STORAGE
+-- ===========================================================================
+-- Private bucket for claim documents/photos, written by app/api/claims
+-- (service role only — no public policies, so the anon key cannot read or
+-- write here; the app always serves these files back through a signed URL).
+insert into storage.buckets (id, name, public)
+values ('claims', 'claims', false)
+on conflict (id) do nothing;
+
+-- ===========================================================================
 -- SAMPLE MOCK DATA
 -- Mirrors the frontend prototype's mock data so the two halves can be merged
 -- without reshaping anything.

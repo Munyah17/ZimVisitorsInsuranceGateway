@@ -12,7 +12,6 @@ import {
   Download,
   Eye,
   ShieldCheck,
-  QrCode,
   Check,
   CalendarDays,
   FileText,
@@ -23,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
+import { QrCodeImage, policyVerifyUrl } from "@/components/qr-code";
 import { MOCK_CUSTOMER, MOCK_POLICIES, PRODUCTS } from "@/lib/mock-data";
 import { CLIENT_NAV } from "./nav";
 import { formatDate, formatUSD } from "@/lib/utils";
@@ -114,9 +114,11 @@ export default function PortalPage() {
               </dl>
 
               <div className="mt-6 flex flex-wrap gap-3 border-t border-stone-100 pt-6">
-                <Button onClick={() => window.print()}>
-                  <Download className="size-4" /> Download Certificate
-                </Button>
+                <a href={`/api/certificate/${encodeURIComponent(policy.policyNumber)}`}>
+                  <Button>
+                    <Download className="size-4" /> Download Certificate
+                  </Button>
+                </a>
                 <Link href="/portal/policies">
                   <Button variant="outline">
                     <Eye className="size-4" /> View Coverage
@@ -142,8 +144,8 @@ export default function PortalPage() {
           <div className="grid gap-6">
             <Card>
               <CardContent className="flex items-center gap-5 p-6">
-                <span className="grid size-24 shrink-0 place-items-center rounded-xl border border-dashed border-stone-300">
-                  <QrCode className="size-14 text-stone-800" />
+                <span className="grid size-24 shrink-0 place-items-center rounded-xl border border-stone-200 bg-white p-2">
+                  <QrCodeImage value={policyVerifyUrl(policy.policyNumber)} size={80} />
                 </span>
                 <div>
                   <p className="font-semibold text-stone-900">Verification QR</p>

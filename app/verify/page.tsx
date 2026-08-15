@@ -1,12 +1,16 @@
 "use client";
 
 /**
- * Public Policy Verification.
- * Live version: GET /api/policy/{number} — the same endpoint borders,
- * hotels and airlines will call (limited fields, rate-limited, no auth).
+ * Public Policy Verification — live against Supabase via
+ * GET /api/policy/{number} (app/api/policy/[number]/route.ts).
+ *
+ * Reads ?number= from window.location.search after mount (not
+ * useSearchParams(), which forces this to prerender as an empty
+ * placeholder) so scanning a certificate QR code opens this page with
+ * the result pre-filled and auto-verified.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BadgeCheck,
   CircleX,
@@ -20,30 +24,59 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { findPolicy, type MockPolicy } from "@/lib/mock-data";
 import { formatDate } from "@/lib/utils";
+
+interface LivePolicy {
+  policyNumber: string;
+  status: string;
+  holderName: string;
+  nationality: string;
+  startDate: string;
+  endDate: string;
+  coverageSummary: string;
+}
 
 type Result =
   | { state: "idle" }
   | { state: "loading" }
-  | { state: "valid"; policy: MockPolicy }
-  | { state: "expired"; policy: MockPolicy }
-  | { state: "invalid" };
+  | { state: "valid"; policy: LivePolicy }
+  | { state: "expired"; policy: LivePolicy }
+  | { state: "invalid" }
+  | { state: "unavailable" };
 
 export default function VerifyPage() {
   const [number, setNumber] = useState("");
   const [result, setResult] = useState<Result>({ state: "idle" });
 
-  const verify = () => {
-    if (!number.trim()) return;
+  const verify = async (value: string) => {
+    if (!value.trim()) return;
     setResult({ state: "loading" });
-    setTimeout(() => {
-      const policy = findPolicy(number);
-      if (!policy) setResult({ state: "invalid" });
-      else if (policy.status === "active") setResult({ state: "valid", policy });
-      else setResult({ state: "expired", policy });
-    }, 700);
+    try {
+      const res = await fetch(`/api/policy/${encodeURIComponent(value.trim())}`);
+      if (res.status === 503) {
+        setResult({ state: "unavailable" });
+        return;
+      }
+      const body = await res.json();
+      if (!body.found) {
+        setResult({ state: "invalid" });
+        return;
+      }
+      const policy = body.policy as LivePolicy;
+      setResult({ state: policy.status === "active" ? "valid" : "expired", policy });
+    } catch {
+      setResult({ state: "unavailable" });
+    }
   };
+
+  useEffect(() => {
+    const fromQr = new URLSearchParams(window.location.search).get("number");
+    if (fromQr) {
+      setNumber(fromQr);
+      verify(fromQr);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="bg-gradient-to-b from-safari-50/60 to-transparent">
@@ -66,7 +99,7 @@ export default function VerifyPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                verify();
+                verify(number);
               }}
               className="flex flex-col gap-3 sm:flex-row"
             >
@@ -90,7 +123,6 @@ export default function VerifyPage() {
             <p className="mt-3 flex items-center gap-1.5 text-xs text-stone-400">
               <QrCode className="size-3.5" />
               Scanning a certificate QR code opens this page with the result pre-filled.
-              Try <button type="button" className="font-mono underline" onClick={() => setNumber("ZVIG-2026-00001")}>ZVIG-2026-00001</button>.
             </p>
           </CardContent>
         </Card>
@@ -187,6 +219,27 @@ export default function VerifyPage() {
                     <p className="mt-1 text-sm text-stone-500">
                       No policy matches that number. Check the number and try again, or
                       contact support on +263 78 000 1111.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {result.state === "unavailable" && (
+            <motion.div
+              key="unavailable"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+            >
+              <Card className="mt-6 border-stone-300 bg-stone-50">
+                <CardContent className="flex items-center gap-3 p-6 sm:p-8">
+                  <CircleX className="size-8 shrink-0 text-stone-500" />
+                  <div>
+                    <p className="text-xl font-bold text-stone-800">Verification unavailable</p>
+                    <p className="mt-1 text-sm text-stone-500">
+                      We couldn&apos;t reach the policy registry. Please try again shortly.
                     </p>
                   </div>
                 </CardContent>

@@ -1,16 +1,17 @@
 "use client";
 
 /**
- * Insurance Quote Flow — 6-step wizard (mock simulation).
+ * Insurance Quote Flow — 5-step wizard.
  *
- * Step 1  Traveller details    -> writes `customers` when live
+ * Step 1  Traveller details    -> writes `customers` on checkout
  *         Individual or group: a group leader fills in every traveller.
  * Step 2  Trip & itinerary     -> writes `travel_details`
  *         Includes accommodation, transport and ZTA document uploads.
  * Step 3  Coverage selection   -> reads `insurance_products`
- * Step 4  Premium calculation  -> creates a `quotes` row (Edge Function)
- * Step 5  Checkout simulation  -> creates a `payments` row
- * Step 6  Certificate          -> `policies` row + PDF in Supabase Storage
+ * Step 4  Premium calculation  -> creates a `quotes` row
+ * Step 5  Payment              -> real Paynow checkout; on confirmed
+ *         payment the customer is redirected to /quote/return, which is
+ *         where the issued policy, certificate and QR code are shown.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -18,11 +19,9 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
-  BadgeCheck,
   BedDouble,
   Check,
   CreditCard,
-  Download,
   FileText,
   Loader2,
   Lock,
@@ -31,7 +30,6 @@ import {
   Phone,
   Plane,
   Plus,
-  QrCode,
   ShieldCheck,
   Smartphone,
   Trash2,
@@ -46,8 +44,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { CertificateFooter } from "@/components/certificate-footer";
-import { ZimRibbon } from "@/components/zim-ribbon";
 import {
   ACTIVITIES,
   NATIONALITIES,
@@ -57,7 +53,6 @@ import {
 } from "@/lib/mock-data";
 import {
   calculatePremium,
-  nextPolicyNumber,
   tripDays,
   STAMP_DUTY_RATE,
   ZTA_LEVY_RATE,
@@ -71,7 +66,6 @@ const STEPS = [
   "Coverage",
   "Your quote",
   "Payment",
-  "Certificate",
 ];
 
 /**
@@ -171,9 +165,6 @@ export function QuoteWizard() {
   const [step, setStep] = useState(0);
   const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  // Generated on payment success (not during render) so the prerendered
-  // HTML and the hydrated client tree always match.
-  const [policyNumber, setPolicyNumber] = useState("");
   const [form, setForm] = useState<FormState>({
     tripType: "individual",
     fullName: "",
@@ -304,16 +295,6 @@ export function QuoteWizard() {
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
-  /** Demo fallback — used only when live payments aren't configured yet. */
-  const simulatePayment = () => {
-    setPaying(true);
-    setTimeout(() => {
-      setPolicyNumber(nextPolicyNumber());
-      setPaying(false);
-      next();
-    }, 1800);
-  };
-
   /**
    * Requests a Paynow hosted checkout session and does a full browser
    * redirect. This app never collects card or mobile money details —
@@ -353,9 +334,8 @@ export function QuoteWizard() {
       });
 
       if (res.status === 503) {
-        // Live payments aren't wired up yet in this environment — fall
-        // back to the existing simulated flow rather than dead-ending.
-        simulatePayment();
+        setPaying(false);
+        setPaymentError("Payments aren't available right now. Please try again shortly or contact support.");
         return;
       }
 
@@ -1139,132 +1119,6 @@ export function QuoteWizard() {
               </Card>
             )}
 
-            {/* ==================== STEP 6: CERTIFICATE ==================== */}
-            {step === 5 && (
-              <div>
-                <div className="text-center">
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 16 }}
-                    className="mx-auto grid size-16 place-items-center rounded-full bg-safari-100 text-safari-700"
-                  >
-                    <BadgeCheck className="size-9" />
-                  </motion.span>
-                  <h1 className="mt-5 text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
-                    {totalTravellers > 1
-                      ? `Your group of ${totalTravellers} is covered!`
-                      : `You're covered, ${form.fullName.split(" ")[0] || "traveller"}!`}
-                  </h1>
-                  <p className="mx-auto mt-2 max-w-md text-sm text-stone-500">
-                    {totalTravellers > 1
-                      ? "Every traveller in your group has been emailed their own certificate."
-                      : `Your certificate has been emailed to ${form.email || "your inbox"}.`}{" "}
-                    Show the QR code at borders, hotels or hospitals.
-                  </p>
-                </div>
-
-                {/* Certificate */}
-                <div className="mt-8 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl">
-                  <ZimRibbon />
-                  <div className="flex items-center justify-between bg-safari-950 px-6 py-4">
-                    <div className="flex items-center gap-2 text-white">
-                      <ShieldCheck className="size-5 text-sunset-300" />
-                      <span className="text-sm font-bold">Zim Travelmate</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {totalTravellers > 1 && (
-                        <Badge variant="dark" className="bg-white/10 text-safari-100">
-                          <Users className="size-3" /> Group of {totalTravellers}
-                        </Badge>
-                      )}
-                      <Badge variant="success" className="bg-emerald-400/20 text-emerald-300">
-                        ACTIVE ✓
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="grid gap-6 p-6 sm:grid-cols-[1fr_auto] sm:p-8">
-                    <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-stone-400">Policy number</dt>
-                        <dd className="mt-0.5 font-mono font-bold text-stone-900">{policyNumber}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-stone-400">
-                          {totalTravellers > 1 ? "Group leader" : "Policyholder"}
-                        </dt>
-                        <dd className="mt-0.5 font-semibold text-stone-900">{form.fullName}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-stone-400">Plan</dt>
-                        <dd className="mt-0.5 font-semibold text-stone-900">{product.name}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-stone-400">Valid</dt>
-                        <dd className="mt-0.5 font-semibold text-stone-900">
-                          {form.arrivalDate && formatDate(form.arrivalDate)} to{" "}
-                          {form.departureDate && formatDate(form.departureDate)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-stone-400">Total paid</dt>
-                        <dd className="mt-0.5 font-semibold text-stone-900">{formatUSD(pricing.total)} USD</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs uppercase tracking-wider text-stone-400">Underwritten by</dt>
-                        <dd className="mt-0.5 font-semibold text-stone-900">Licensed Zimbabwean insurer</dd>
-                      </div>
-                    </dl>
-                    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-stone-300 p-4">
-                      <QrCode className="size-20 text-stone-800" />
-                      <span className="text-[10px] text-stone-400">Scan to verify</span>
-                    </div>
-                  </div>
-                  {totalTravellers > 1 && (
-                    <div className="border-t border-stone-100 px-6 py-5 sm:px-8">
-                      <p className="text-xs uppercase tracking-wider text-stone-400">
-                        Covered travellers · each sent their own certificate
-                      </p>
-                      <ul className="mt-3 space-y-2">
-                        <li className="flex items-center justify-between gap-3 rounded-lg bg-safari-50 px-3.5 py-2.5 text-sm">
-                          <span className="font-semibold text-safari-900">
-                            {form.fullName} <span className="font-normal text-safari-700/70">(leader)</span>
-                          </span>
-                          <span className="text-xs text-safari-700/70">{form.email}</span>
-                        </li>
-                        {form.travellers.map((t, i) => (
-                          <li
-                            key={i}
-                            className="flex items-center justify-between gap-3 rounded-lg bg-stone-50 px-3.5 py-2.5 text-sm"
-                          >
-                            <span className="font-semibold text-stone-800">{t.fullName}</span>
-                            <span className="text-xs text-stone-400">{t.email}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  <CertificateFooter />
-                </div>
-
-                <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center print:hidden">
-                  <Button size="lg" onClick={() => window.print()}>
-                    <Download className="size-4" />
-                    Download certificate
-                  </Button>
-                  <Link href="/portal">
-                    <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                      Go to my portal
-                      <ArrowRight className="size-4" />
-                    </Button>
-                  </Link>
-                </div>
-                <p className="mt-3 text-center text-xs text-stone-400 print:hidden">
-                  Tip: in the print dialog, choose &quot;Save as PDF&quot; as the
-                  destination to download it.
-                </p>
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
 

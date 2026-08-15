@@ -19,13 +19,13 @@ import {
   CircleX,
   Download,
   Loader2,
-  QrCode,
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CertificateFooter } from "@/components/certificate-footer";
 import { ZimRibbon } from "@/components/zim-ribbon";
+import { QrCodeImage, policyVerifyUrl } from "@/components/qr-code";
 import { formatDate } from "@/lib/utils";
 
 interface IssuedPolicy {
@@ -112,7 +112,7 @@ export function PaymentReturn() {
           </div>
         )}
 
-        {outcome.state === "succeeded" && (
+        {outcome.state === "succeeded" && outcome.policies.length > 0 && (
           <div>
             <div className="text-center">
               <span className="mx-auto grid size-16 place-items-center rounded-full bg-safari-100 text-safari-700">
@@ -149,25 +149,36 @@ export function PaymentReturn() {
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-stone-900">{p.holderName}</p>
                       <p className="mt-0.5 font-mono text-xs text-stone-400">{p.policyNumber}</p>
+                      <p className="mt-0.5 text-xs text-stone-500">
+                        {formatDate(p.startDate)} to {formatDate(p.endDate)}
+                      </p>
                     </div>
-                    <p className="shrink-0 text-xs text-stone-500">
-                      {formatDate(p.startDate)} to {formatDate(p.endDate)}
-                    </p>
+                    <a href={`/api/certificate/${encodeURIComponent(p.policyNumber)}`} className="shrink-0">
+                      <Button size="sm" variant="outline">
+                        <Download className="size-4" /> PDF
+                      </Button>
+                    </a>
                   </div>
                 ))}
-                <div className="flex items-center justify-center gap-2 pt-2 text-xs text-stone-400">
-                  <QrCode className="size-4" />
-                  Scan your certificate QR at borders, hotels or hospitals
+                <div className="flex flex-col items-center gap-2 pt-2 text-center">
+                  <span className="rounded-xl border border-stone-200 bg-white p-2">
+                    <QrCodeImage value={policyVerifyUrl(outcome.policies[0].policyNumber)} size={96} />
+                  </span>
+                  <p className="text-xs text-stone-400">
+                    Scan your certificate QR at borders, hotels or hospitals
+                  </p>
                 </div>
               </div>
               <CertificateFooter />
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Button size="lg" onClick={() => window.print()}>
-                <Download className="size-4" />
-                Download certificate
-              </Button>
+              <a href={`/api/certificate/${encodeURIComponent(outcome.policies[0].policyNumber)}`}>
+                <Button size="lg">
+                  <Download className="size-4" />
+                  Download certificate
+                </Button>
+              </a>
               <Link href="/portal">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   Go to my portal

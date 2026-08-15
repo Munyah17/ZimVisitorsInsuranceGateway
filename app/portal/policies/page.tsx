@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CertificateFooter } from "@/components/certificate-footer";
 import { ZimRibbon } from "@/components/zim-ribbon";
 import { FadeIn } from "@/components/motion";
+import { QrCodeImage, policyVerifyUrl } from "@/components/qr-code";
 import { MOCK_POLICIES } from "@/lib/mock-data";
 import { CLIENT_NAV } from "../nav";
 import { formatDate, formatUSD } from "@/lib/utils";
@@ -59,35 +60,42 @@ export default function MyPoliciesPage() {
                   {p.status === "active" ? "ACTIVE ✓" : "Expired"}
                 </Badge>
               </div>
-              <CardContent className="p-6">
-                <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-stone-400">Plan</dt>
-                    <dd className="mt-1 text-sm font-semibold text-stone-900">{p.productName}</dd>
+              <CardContent className="flex flex-wrap items-start justify-between gap-6 p-6">
+                <div className="min-w-0 flex-1">
+                  <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                      <dt className="text-xs uppercase tracking-wider text-stone-400">Plan</dt>
+                      <dd className="mt-1 text-sm font-semibold text-stone-900">{p.productName}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase tracking-wider text-stone-400">Coverage</dt>
+                      <dd className="mt-1 text-sm font-semibold text-stone-900">{p.coverageSummary}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase tracking-wider text-stone-400">Valid</dt>
+                      <dd className="mt-1 text-sm font-semibold text-stone-900">
+                        {formatDate(p.startDate)} to {formatDate(p.endDate)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase tracking-wider text-stone-400">Premium</dt>
+                      <dd className="mt-1 text-sm font-semibold text-stone-900">{formatUSD(p.premium)} USD</dd>
+                    </div>
+                  </dl>
+                  <div className="mt-5 flex flex-wrap gap-3 border-t border-stone-100 pt-5">
+                    <a href={`/api/certificate/${encodeURIComponent(p.policyNumber)}`}>
+                      <Button size="sm" variant={p.status === "active" ? "default" : "outline"}>
+                        <Download className="size-4" /> Certificate
+                      </Button>
+                    </a>
+                    <Button size="sm" variant="outline">
+                      <Eye className="size-4" /> Details
+                    </Button>
                   </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-stone-400">Coverage</dt>
-                    <dd className="mt-1 text-sm font-semibold text-stone-900">{p.coverageSummary}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-stone-400">Valid</dt>
-                    <dd className="mt-1 text-sm font-semibold text-stone-900">
-                      {formatDate(p.startDate)} to {formatDate(p.endDate)}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-stone-400">Premium</dt>
-                    <dd className="mt-1 text-sm font-semibold text-stone-900">{formatUSD(p.premium)} USD</dd>
-                  </div>
-                </dl>
-                <div className="mt-5 flex flex-wrap gap-3 border-t border-stone-100 pt-5 print:hidden">
-                  <Button size="sm" variant={p.status === "active" ? "default" : "outline"} onClick={() => window.print()}>
-                    <Download className="size-4" /> Certificate
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Eye className="size-4" /> Details
-                  </Button>
                 </div>
+                <span className="hidden shrink-0 rounded-xl border border-stone-200 bg-white p-2 sm:block">
+                  <QrCodeImage value={policyVerifyUrl(p.policyNumber)} size={88} />
+                </span>
               </CardContent>
               <CertificateFooter />
             </Card>
