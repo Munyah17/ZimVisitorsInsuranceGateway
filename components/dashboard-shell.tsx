@@ -106,9 +106,7 @@ export function DashboardShell({
               Logout
             </button>
             <p className="mt-3 px-2 text-[10px] leading-relaxed text-safari-200/40">
-              © 2026 Hola Amigo Multiple Agent
-              <br />
-              trading as Zim Travelmate
+              © 2026 Zim Travel Mate
             </p>
           </div>
         </div>

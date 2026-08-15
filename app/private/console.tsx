@@ -103,7 +103,7 @@ const USERS = [
 ];
 
 const ORGS = [
-  { name: "Hola Amigo Multiple Agent", type: "Multiple agent", license: "IPEC-MA-2026-041", status: "active" },
+  { name: "Zim Travel Mate", type: "Multiple agent", license: "IPEC-MA-2026-041", status: "active" },
   { name: "Horizon Microinsurance Company", type: "Microinsurer", license: "IPEC-MI-2024-007", status: "active" },
   { name: "Savanna Specialty Insurers", type: "Partner insurer", license: "IPEC-IN-2023-019", status: "active" },
   { name: "Victoria Falls Private Hospital", type: "Hospital", license: "HSP-2032-778", status: "active" },

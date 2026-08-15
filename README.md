@@ -1,9 +1,9 @@
 # Zim Travelmate (Zimbabwe Visitor Insurance Gateway)
 
 Digital insurance distribution and administration platform for foreign
-visitors to Zimbabwe, operated by Hola Amigo Multiple Agent and underwritten
-by a licensed Microinsurance Company. The customer sees one brand, **Travelmate
-Zim**; the platform manages the underwriter, product ownership, premium
+visitors to Zimbabwe, operated by Zim Travel Mate and underwritten
+by a licensed Microinsurance Company. The customer sees one brand, **Zim
+Travelmate**; the platform manages the underwriter, product ownership, premium
 allocation and claims routing underneath.
 
 > **Prototype** — most screens run on mock data. Paynow Zimbabwe checkout is

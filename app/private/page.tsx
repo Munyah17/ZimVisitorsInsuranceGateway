@@ -3,10 +3,12 @@
 /**
  * /private — unlinked, unlisted entry point for the platform owner.
  *
- * Owner account (prototype):
+ * Owner account:
  *   Munyah Griezmann · username "Munyah" · munyamuzvidziwa19@gmail.com
- * The gate asks for username + PIN. Live version: dedicated Supabase Auth
- * login + role = 'super_admin' enforced in middleware and RLS, with 2FA.
+ * The gate asks for username + password, checked server side against
+ * SUPER_ADMIN_PASSWORD (never shipped to the browser). Live version: this
+ * becomes a dedicated Supabase Auth login with role = 'super_admin'
+ * enforced in middleware and RLS, with 2FA.
  */
 
 import { useState } from "react";
@@ -17,13 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SuperAdminConsole } from "./console";
 
-const SUPER_ADMIN = {
-  name: "Munyah Griezmann",
-  username: "Munyah",
-  email: "munyamuzvidziwa19@gmail.com",
-  pin: "3743",
-};
-
 export default function PrivatePage() {
   const [unlocked, setUnlocked] = useState(false);
   const [username, setUsername] = useState("");
@@ -31,21 +26,26 @@ export default function PrivatePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     setError(false);
-    setTimeout(() => {
-      const nameOk =
-        username.trim().toLowerCase() === SUPER_ADMIN.username.toLowerCase() ||
-        username.trim().toLowerCase() === SUPER_ADMIN.email.toLowerCase();
-      if (nameOk && pin.trim() === SUPER_ADMIN.pin) {
+    try {
+      const res = await fetch("/api/private/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim(), password: pin }),
+      });
+      if (res.ok) {
         setUnlocked(true);
       } else {
         setError(true);
-        setBusy(false);
       }
-    }, 700);
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (unlocked) return <SuperAdminConsole />;
@@ -62,7 +62,7 @@ export default function PrivatePage() {
           </h1>
           <p className="mt-2 text-center text-sm text-safari-200/60">
             Restricted area for the platform owner. Sign in with your username
-            and PIN.
+            and password.
           </p>
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div className="space-y-1.5">
@@ -81,14 +81,13 @@ export default function PrivatePage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="pin" className="text-safari-200/80">
-                PIN
+                Password
               </Label>
               <Input
                 id="pin"
                 type="password"
-                inputMode="numeric"
                 autoComplete="current-password"
-                placeholder="••••"
+                placeholder="••••••••"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 className="border-white/15 bg-white/10 text-white placeholder:text-safari-200/30"
@@ -96,7 +95,7 @@ export default function PrivatePage() {
             </div>
             {error && (
               <p className="rounded-xl bg-red-500/15 px-4 py-2.5 text-sm text-red-300">
-                Incorrect username or PIN. Access to this console is logged.
+                Incorrect username or password. Access to this console is logged.
               </p>
             )}
             <Button

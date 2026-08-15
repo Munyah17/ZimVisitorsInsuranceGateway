@@ -1,13 +1,5 @@
 import Link from "next/link";
-import { LockKeyhole, Landmark, Wallet, Headset } from "lucide-react";
 import { Logo } from "@/components/logo";
-
-const STRIP = [
-  { icon: LockKeyhole, title: "Secure & Encrypted", body: "Your data is protected" },
-  { icon: Landmark, title: "Licensed & Regulated", body: "By the Insurance & Pensions Commission of Zimbabwe" },
-  { icon: Wallet, title: "Global Payment Options", body: "Cards, wallets, bank transfer & more" },
-  { icon: Headset, title: "24/7 Support", body: "We are here to help" },
-];
 
 const COLUMNS = [
   {
@@ -41,25 +33,6 @@ const COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-safari-900/10 bg-safari-950 text-safari-100 print:hidden">
-      {/* Trust strip (per UI mockup) */}
-      <div className="border-b border-white/10">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
-          {STRIP.map((s) => (
-            <div key={s.title} className="flex items-start gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/5 text-sunset-300">
-                <s.icon className="size-5" />
-              </span>
-              <span>
-                <span className="block text-sm font-semibold text-white">{s.title}</span>
-                <span className="mt-0.5 block text-xs leading-relaxed text-safari-200/60">{s.body}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-        <p className="pb-6 text-center font-serif text-lg italic text-sunset-300/90">
-          Explore Zimbabwe. We&apos;ve got you covered.
-        </p>
-      </div>
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
@@ -97,7 +70,7 @@ export function SiteFooter() {
             title="+263 77 390 9307"
             className="group inline-block text-safari-200/50 transition-colors hover:text-sunset-300"
           >
-            © 2026 Hola Amigo Multiple Agent. All Rights Reserved · Powered By{" "}
+            © 2026 Zim Travel Mate. All Rights Reserved · Powered By{" "}
             <span className="font-semibold underline decoration-sunset-400/40 underline-offset-2 group-hover:decoration-sunset-300">
               Global Space Web
             </span>

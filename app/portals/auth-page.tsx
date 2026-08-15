@@ -1,11 +1,13 @@
 "use client";
 
 /**
- * Login / Signup — mock authentication for the prototype.
+ * Login / Signup — real Supabase Auth.
  *
- * Demo credentials sign users into the Client, Agent or Admin portal.
- * Live version: Supabase Auth (email OTP + Google), with the role claim in
- * the JWT routing each session to its portal automatically.
+ * Login calls supabase.auth.signInWithPassword directly (safe with the anon
+ * key) then reads the caller's role from `users` (RLS: "users read own
+ * record" restricts this to their own row) to route to the right portal.
+ * Signup goes through /api/auth/signup because inserting the `users` row
+ * needs the service-role key — there's no client-side insert policy.
  *
  * Admin and Super Admin are separate, independent roles. The Super Admin
  * console is not listed here; platform owners sign in at /private.
@@ -13,47 +15,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Briefcase,
-  Eye,
-  EyeOff,
-  Loader2,
-  LogIn,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { getSupabase } from "@/lib/supabase";
 
-const DEMO_ACCOUNTS = [
-  {
-    role: "Client Portal",
-    icon: UserRound,
-    email: "john.smith@example.com",
-    password: "client123",
-    dest: "/portal",
-    hint: "Policyholders and visitors",
-  },
-  {
-    role: "Agent Portal",
-    icon: Briefcase,
-    email: "tendai@shearwater.co.zw",
-    password: "agent123",
-    dest: "/agent",
-    hint: "Travel agents, operators and hotels",
-  },
-  {
-    role: "Admin Portal",
-    icon: ShieldCheck,
-    email: "admin@zvig.co.zw",
-    password: "admin123",
-    dest: "/admin",
-    hint: "Zim Travelmate operations team",
-  },
-];
+const ROLE_DEST: Record<string, string> = {
+  customer: "/portal",
+  agent: "/agent",
+  admin: "/admin",
+  underwriter_staff: "/admin",
+  support: "/admin",
+};
 
 export function AuthPage() {
   const router = useRouter();
@@ -65,37 +40,52 @@ export function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  const fill = (acc: (typeof DEMO_ACCOUNTS)[number]) => {
-    setTab("login");
-    setEmail(acc.email);
-    setPassword(acc.password);
-    setError("");
-  };
-
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setBusy(true);
-    setTimeout(() => {
+    try {
       if (tab === "signup") {
-        router.push("/portal");
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setError(body.error || "Could not create your account. Please try again.");
+          setBusy(false);
+          return;
+        }
+      }
+
+      const supabase = getSupabase();
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError || !data.user) {
+        setError(signInError?.message || "No account matches those details.");
+        setBusy(false);
         return;
       }
-      const acc = DEMO_ACCOUNTS.find(
-        (a) => a.email.toLowerCase() === email.trim().toLowerCase() && a.password === password
-      );
-      if (acc) {
-        router.push(acc.dest);
-      } else {
-        setBusy(false);
-        setError("No account matches those details. Try one of the demo accounts below.");
-      }
-    }, 900);
+
+      const { data: profile } = await supabase
+        .from("users")
+        .select("role")
+        .eq("auth_user_id", data.user.id)
+        .single();
+
+      router.push(ROLE_DEST[profile?.role ?? "customer"] ?? "/portal");
+    } catch {
+      setError("Sign-in is not available right now. Please contact support.");
+      setBusy(false);
+    }
   };
 
   return (
     <div className="bg-gradient-to-b from-safari-50/60 to-transparent">
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <div className="mx-auto max-w-lg px-4 py-12 sm:px-6 sm:py-16">
         <div className="text-center">
           <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-safari-950 text-sunset-300 shadow-lg">
             <LogIn className="size-7" />
@@ -109,11 +99,9 @@ export function AuthPage() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.1fr]">
-          {/* Auth card */}
-          <Card className="h-fit">
+        <div className="mt-10">
+          <Card>
             <CardContent className="p-6 sm:p-8">
-              {/* Tabs */}
               <div className="grid grid-cols-2 rounded-xl bg-stone-100 p-1">
                 {(["login", "signup"] as const).map((t) => (
                   <button
@@ -123,10 +111,12 @@ export function AuthPage() {
                       setTab(t);
                       setError("");
                     }}
-                    className={cn(
-                      "rounded-lg py-2 text-sm font-semibold transition-all",
-                      tab === t ? "bg-white text-safari-900 shadow-sm" : "text-stone-500 hover:text-stone-700"
-                    )}
+                    className={
+                      "rounded-lg py-2 text-sm font-semibold transition-all " +
+                      (tab === t
+                        ? "bg-white text-safari-900 shadow-sm"
+                        : "text-stone-500 hover:text-stone-700")
+                    }
                   >
                     {t === "login" ? "Login" : "Sign up"}
                   </button>
@@ -167,6 +157,7 @@ export function AuthPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      minLength={8}
                       className="pr-11"
                     />
                     <button
@@ -205,45 +196,6 @@ export function AuthPage() {
               </form>
             </CardContent>
           </Card>
-
-          {/* Demo credentials */}
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-stone-400">
-              Demo accounts
-            </h2>
-            <p className="mt-1 text-sm text-stone-500">
-              Tap an account to fill the login form, then press Login.
-            </p>
-            <div className="mt-4 space-y-3">
-              {DEMO_ACCOUNTS.map((acc) => (
-                <button
-                  key={acc.role}
-                  type="button"
-                  onClick={() => fill(acc)}
-                  className="group flex w-full items-center gap-4 rounded-2xl border border-stone-200/80 bg-white p-5 text-left shadow-sm transition-all hover:border-safari-300 hover:shadow-md"
-                >
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-safari-950 text-sunset-300">
-                    <acc.icon className="size-5" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold text-stone-900">{acc.role}</span>
-                    <span className="block text-xs text-stone-400">{acc.hint}</span>
-                    <span className="mt-1.5 block truncate font-mono text-xs text-stone-500">
-                      {acc.email} · {acc.password}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-xs font-semibold text-safari-700 opacity-0 transition-opacity group-hover:opacity-100">
-                    Use →
-                  </span>
-                </button>
-              ))}
-            </div>
-            <p className="mt-4 text-xs leading-relaxed text-stone-400">
-              Admin and Super Admin are independent roles. The Admin portal runs
-              day to day operations; platform configuration lives in a separate
-              console reserved for the platform owner.
-            </p>
-          </div>
         </div>
       </div>
     </div>
