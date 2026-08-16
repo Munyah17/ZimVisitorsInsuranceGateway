@@ -210,7 +210,7 @@ export default function LandingPage() {
                       <span className="text-4xl font-bold tracking-tight text-stone-900">
                         {formatUSD(p.basePriceUsd)}
                       </span>
-                      <span className="text-sm text-stone-400">from / trip</span>
+                      <span className="text-sm text-stone-400">one-time premium</span>
                     </div>
                     <ul className="mt-6 flex-1 space-y-3">
                       {p.features.map((f) => (
