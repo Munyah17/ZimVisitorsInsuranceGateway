@@ -56,7 +56,6 @@ import {
   tripDays,
   STAMP_DUTY_RATE,
   ZTA_LEVY_RATE,
-  PROCESSING_FEE_RATE,
 } from "@/lib/quote-engine";
 import { DESTINATIONS, partnersNear } from "@/lib/partners-data";
 import { cn, formatDate, formatUSD } from "@/lib/utils";
@@ -1051,9 +1050,7 @@ export function QuoteWizard() {
                       <dd className="font-semibold text-stone-900">{formatUSD(pricing.total)}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-stone-500">
-                        Platform processing fee ($1 + {(PROCESSING_FEE_RATE * 100).toFixed(0)}%)
-                      </dt>
+                      <dt className="text-stone-500">Processing fee</dt>
                       <dd className="font-medium text-stone-900">{formatUSD(pricing.platformFee)}</dd>
                     </div>
                     <div className="flex justify-between border-t border-stone-200 pt-3 text-base">
