@@ -56,6 +56,7 @@ import {
   tripDays,
   STAMP_DUTY_RATE,
   ZTA_LEVY_RATE,
+  PROCESSING_FEE_RATE,
 } from "@/lib/quote-engine";
 import { DESTINATIONS, partnersNear } from "@/lib/partners-data";
 import { cn, formatDate, formatUSD } from "@/lib/utils";
@@ -329,7 +330,7 @@ export function QuoteWizard() {
           leader: toTraveller(form),
           travellers: form.tripType === "group" ? form.travellers.map(toTraveller) : [],
           pricingBreakdown: pricing,
-          totalAmount: pricing.total,
+          totalAmount: pricing.grandTotal,
         }),
       });
 
@@ -1017,7 +1018,7 @@ export function QuoteWizard() {
                       <ShieldCheck className="size-6 text-sunset-300" />
                     </div>
                     <p className="mt-6 text-4xl font-bold tracking-tight">
-                      {formatUSD(pricing.total)}
+                      {formatUSD(pricing.grandTotal)}
                       <span className="ml-2 text-sm font-medium text-safari-200/70">USD total</span>
                     </p>
                   </div>
@@ -1044,9 +1045,19 @@ export function QuoteWizard() {
                       </dt>
                       <dd className="font-medium text-stone-900">{formatUSD(pricing.stampDuty)}</dd>
                     </div>
+                    <div className="flex justify-between border-t border-stone-200 pt-3">
+                      <dt className="font-semibold text-stone-900">Total Due</dt>
+                      <dd className="font-semibold text-stone-900">{formatUSD(pricing.total)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-stone-500">
+                        Platform processing fee ($1 + {(PROCESSING_FEE_RATE * 100).toFixed(0)}%)
+                      </dt>
+                      <dd className="font-medium text-stone-900">{formatUSD(pricing.platformFee)}</dd>
+                    </div>
                     <div className="flex justify-between border-t border-stone-200 pt-3 text-base">
-                      <dt className="font-bold text-stone-900">Total Due</dt>
-                      <dd className="font-bold text-safari-800">{formatUSD(pricing.total)}</dd>
+                      <dt className="font-bold text-stone-900">Grand Total</dt>
+                      <dd className="font-bold text-safari-800">{formatUSD(pricing.grandTotal)}</dd>
                     </div>
                   </dl>
                 </CardContent>

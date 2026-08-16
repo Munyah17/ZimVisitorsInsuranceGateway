@@ -9,7 +9,6 @@ import {
   LockKeyhole,
   Check,
   ArrowRight,
-  MessageCircle,
   QrCode,
   Zap,
 } from "lucide-react";
@@ -304,17 +303,13 @@ export default function LandingPage() {
               Get your certificate in minutes, or message us on WhatsApp and buy
               cover without ever opening a browser.
             </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <div className="mt-8 flex justify-center">
               <Link href="/quote">
                 <Button variant="accent" size="lg" className="w-full sm:w-auto">
                   Get Started Now!
                   <ArrowRight className="size-4" />
                 </Button>
               </Link>
-              <Button variant="outline-light" size="lg" className="w-full sm:w-auto">
-                <MessageCircle className="size-4" />
-                WhatsApp us (coming soon)
-              </Button>
             </div>
           </div>
         </FadeIn>

@@ -6,10 +6,12 @@
  * priced per traveller (each with their own age loading and the product
  * minimum premium), then statutory charges apply to the combined premium:
  *
- *   Premium      = sum of per-traveller premiums
- *   ZTA Levy     = 2% of premium   (Zimbabwe Tourism Authority)
- *   Stamp Duty   = 5% of premium
- *   Total Due    = premium + ZTA levy + stamp duty
+ *   Premium         = sum of per-traveller premiums
+ *   ZTA Levy        = 2% of premium   (Zimbabwe Tourism Authority)
+ *   Stamp Duty      = 5% of premium
+ *   Total Due       = premium + ZTA levy + stamp duty
+ *   Processing Fee  = $1 flat + 5% of Total Due (platform fee, every transaction)
+ *   Grand Total     = Total Due + Processing Fee — the amount actually charged
  *
  * When the backend goes live this logic moves to a Supabase Edge Function
  * (POST /api/quote) so rates can change without redeploying the frontend.
@@ -19,6 +21,8 @@ import type { ActivityId, InsuranceProduct } from "./mock-data";
 
 export const ZTA_LEVY_RATE = 0.02;
 export const STAMP_DUTY_RATE = 0.05;
+export const PROCESSING_FEE_FLAT_USD = 1;
+export const PROCESSING_FEE_RATE = 0.05;
 
 export interface PricingBreakdown {
   days: number;
@@ -30,7 +34,12 @@ export interface PricingBreakdown {
   premium: number;
   ztaLevy: number;
   stampDuty: number;
+  /** Premium + ZTA levy + stamp duty, before the platform processing fee. */
   total: number;
+  /** $1 + 5% of `total` — the platform's processing fee, charged on every transaction. */
+  platformFee: number;
+  /** `total` + `platformFee` — the amount actually charged at checkout. */
+  grandTotal: number;
 }
 
 const ACTIVITY_LOADINGS: Record<ActivityId, number> = {
@@ -94,6 +103,8 @@ export function calculatePremium(params: {
   const ztaLevy = round2(premium * ZTA_LEVY_RATE);
   const stampDuty = round2(premium * STAMP_DUTY_RATE);
   const total = round2(premium + ztaLevy + stampDuty);
+  const platformFee = round2(PROCESSING_FEE_FLAT_USD + total * PROCESSING_FEE_RATE);
+  const grandTotal = round2(total + platformFee);
 
   return {
     days,
@@ -104,6 +115,8 @@ export function calculatePremium(params: {
     ztaLevy,
     stampDuty,
     total,
+    platformFee,
+    grandTotal,
   };
 }
 

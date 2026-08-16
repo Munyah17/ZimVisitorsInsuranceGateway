@@ -19,6 +19,7 @@ import {
   Database,
   FileClock,
   Flag,
+  Handshake,
   KeyRound,
   LayoutDashboard,
   MessageSquareText,
@@ -45,6 +46,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FadeIn } from "@/components/motion";
 import { PRODUCTS } from "@/lib/mock-data";
 import { cn, formatUSD } from "@/lib/utils";
+import { ServicePartnersSection } from "./service-partners-section";
 
 type SectionId =
   | "overview"
@@ -53,6 +55,7 @@ type SectionId =
   | "products"
   | "users"
   | "organizations"
+  | "partners"
   | "apikeys"
   | "integrations"
   | "messaging"
@@ -67,6 +70,7 @@ const SECTIONS: { id: SectionId; label: string; icon: LucideIcon }[] = [
   { id: "products", label: "Products & Pricing", icon: Package },
   { id: "users", label: "Users & Roles", icon: Users },
   { id: "organizations", label: "Organizations", icon: Building2 },
+  { id: "partners", label: "Service Partners", icon: Handshake },
   { id: "apikeys", label: "API Keys", icon: KeyRound },
   { id: "integrations", label: "Integrations", icon: Plug },
   { id: "messaging", label: "Messaging (SMS)", icon: MessageSquareText },
@@ -708,6 +712,7 @@ export function SuperAdminConsole() {
     products: productsCard,
     users: <div className="grid gap-6 lg:grid-cols-2">{usersCard}{apiKeysCard}</div>,
     organizations: orgsCard,
+    partners: <ServicePartnersSection />,
     apikeys: <div className="grid gap-6 lg:grid-cols-2">{apiKeysCard}{usersCard}</div>,
     integrations: integrationsCard,
     messaging: messagingCard,

@@ -2,13 +2,9 @@
 
 /**
  * Service Partners directory — the care network accepting Zim Travelmate
- * cover. Built to scale past 100 providers: searchable, filterable by
- * category, rendered from the shared partners data in lib/partners-data.ts
- * (also used by the quote wizard's "near you" panel).
- *
- * Live version: reads `organizations` (types hospital, ambulance_service,
- * emergency_assistance...) from Supabase; logos come from Storage and
- * replace the initials placeholder on each card.
+ * cover. Searchable, filterable by category, live from `service_partners`
+ * via GET /api/partners — managed from the Super Admin console (also used
+ * by the quote wizard's "near you" panel, which reads the same endpoint).
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -16,6 +12,7 @@ import {
   Clock,
   Handshake,
   Hospital,
+  Loader2,
   MapPin,
   Phone,
   Search,
@@ -25,12 +22,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { FadeIn } from "@/components/motion";
-import { CATEGORIES, CATEGORY_BADGE, PARTNERS, partnerInitials } from "@/lib/partners-data";
+import { CATEGORIES, CATEGORY_BADGE, partnerInitials, type Partner } from "@/lib/partners-data";
 import { cn } from "@/lib/utils";
 
 export function PartnersDirectory() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("All");
+  const [partners, setPartners] = useState<Partner[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/partners")
+      .then((r) => r.json())
+      .then((data) => setPartners(data.partners ?? []))
+      .catch(() => setPartners([]));
+  }, []);
 
   // Arriving from the quote wizard's "near you" panel pre-fills the city.
   // Read after mount rather than via useSearchParams(), which forces
@@ -43,12 +48,12 @@ export function PartnersDirectory() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return PARTNERS.filter(
+    return (partners ?? []).filter(
       (p) =>
         (category === "All" || p.category === category) &&
         (!q || p.name.toLowerCase().includes(q) || p.city.toLowerCase().includes(q))
     );
-  }, [query, category]);
+  }, [query, category, partners]);
 
   return (
     <div className="bg-gradient-to-b from-safari-50/60 to-transparent">
@@ -101,11 +106,19 @@ export function PartnersDirectory() {
               ))}
             </div>
             <p className="mt-3 text-center text-xs text-stone-400">
-              Showing {filtered.length} of {PARTNERS.length} listed partners.
-              More join the network every month.
+              {partners === null
+                ? "Loading partners…"
+                : `Showing ${filtered.length} of ${partners.length} listed partners.`}
+              {" "}More join the network every month.
             </p>
           </div>
         </FadeIn>
+
+        {partners === null && (
+          <div className="mt-16 flex justify-center text-stone-400">
+            <Loader2 className="size-6 animate-spin" />
+          </div>
+        )}
 
         {/* Cards */}
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -155,7 +168,7 @@ export function PartnersDirectory() {
           ))}
         </div>
 
-        {filtered.length === 0 && (
+        {partners !== null && filtered.length === 0 && (
           <p className="mt-12 text-center text-sm text-stone-500">
             No partners match your search. Try a different name, city or
             category.

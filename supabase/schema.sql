@@ -38,6 +38,7 @@
 -- ---------------------------------------------------------------------------
 -- 0. CLEAN SLATE (prototype convenience — remove for production migrations)
 -- ---------------------------------------------------------------------------
+drop table if exists service_partners cascade;
 drop table if exists audit_logs cascade;
 drop table if exists commissions cascade;
 drop table if exists claims cascade;
@@ -784,6 +785,55 @@ insert into audit_logs (user_id, action, entity, entity_id, old_value, new_value
    '{"status": "initiated"}', '{"status": "succeeded", "provider": "stripe"}'),
   (null, 'claim.status_changed', 'claims', null,
    '{"status": "submitted"}', '{"status": "under_review"}');
+
+-- ===========================================================================
+-- SERVICE PARTNERS
+-- ===========================================================================
+-- The public /partners directory and the quote wizard's "near you" panel.
+-- Managed from the Super Admin console (add/edit/remove) — service role
+-- only for writes; anyone may read active partners.
+create table service_partners (
+  id         uuid primary key default gen_random_uuid(),
+  name       text not null,
+  category   text not null check (
+    category in ('Hospitals & Clinics', 'Medical Practices', 'Ambulance Services', 'Emergency Care', 'Pharmacies')
+  ),
+  city       text not null,
+  phone      text not null,
+  open_24h   boolean not null default false,
+  active     boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table service_partners enable row level security;
+
+create policy "public read active service_partners"
+  on service_partners for select
+  using (active = true);
+
+insert into service_partners (name, category, city, phone, open_24h) values
+  ('Victoria Falls Private Hospital', 'Hospitals & Clinics', 'Victoria Falls', '+263 83 284 4764', true),
+  ('Avenues Clinic', 'Hospitals & Clinics', 'Harare', '+263 24 251 0666', true),
+  ('Mater Dei Hospital', 'Hospitals & Clinics', 'Bulawayo', '+263 29 224 0000', true),
+  ('West End Hospital', 'Hospitals & Clinics', 'Harare', '+263 24 279 1500', true),
+  ('Manica Medical Centre', 'Hospitals & Clinics', 'Mutare', '+263 20 606 4420', false),
+  ('Hwange Medical Clinic', 'Hospitals & Clinics', 'Hwange', '+263 81 382 2110', false),
+  ('Kariba Heights Clinic', 'Hospitals & Clinics', 'Kariba', '+263 61 214 6330', false),
+  ('Great Zimbabwe Medical Centre', 'Hospitals & Clinics', 'Masvingo', '+263 39 226 2210', false),
+  ('Falls Medical Practice', 'Medical Practices', 'Victoria Falls', '+263 83 284 2077', false),
+  ('Baines Medical Group', 'Medical Practices', 'Harare', '+263 24 270 5011', false),
+  ('Matobo Family Practice', 'Medical Practices', 'Bulawayo', '+263 29 226 3350', false),
+  ('Great Zimbabwe Medical Rooms', 'Medical Practices', 'Masvingo', '+263 39 226 4180', false),
+  ('MARS Ambulance Zimbabwe', 'Ambulance Services', 'Nationwide', '+263 24 277 1221', true),
+  ('EMRAS Emergency Medical', 'Ambulance Services', 'Harare', '+263 24 279 7478', true),
+  ('Falls Rescue Response', 'Ambulance Services', 'Victoria Falls', '+263 83 284 6119', true),
+  ('ACE Air & Ambulance', 'Emergency Care', 'Nationwide', '+263 78 004 4747', true),
+  ('Health International Emergency', 'Emergency Care', 'Harare', '+263 24 270 4674', true),
+  ('SkyMed Evacuation', 'Emergency Care', 'Nationwide', '+263 77 216 0160', true),
+  ('Greenwood Pharmacy', 'Pharmacies', 'Harare', '+263 24 270 0355', false),
+  ('QV Pharmacy', 'Pharmacies', 'Bulawayo', '+263 29 226 0344', false),
+  ('Falls Pharmacy', 'Pharmacies', 'Victoria Falls', '+263 83 284 3529', false);
 
 -- ============================================================================
 -- END OF SCHEMA
