@@ -11,6 +11,8 @@ const buttonVariants = cva(
           "bg-safari-900 text-white shadow-lg shadow-safari-900/20 hover:bg-safari-800 active:scale-[0.98]",
         accent:
           "bg-sunset-500 text-white shadow-lg shadow-sunset-500/30 hover:bg-sunset-400 active:scale-[0.98]",
+        flag:
+          "bg-gradient-to-r from-zim-green to-zim-green/90 text-white shadow-lg shadow-zim-green/30 hover:from-zim-green/90 hover:to-zim-green active:scale-[0.98]",
         outline:
           "border border-stone-300 bg-white text-stone-800 hover:border-safari-400 hover:text-safari-800 hover:bg-safari-50",
         "outline-light":

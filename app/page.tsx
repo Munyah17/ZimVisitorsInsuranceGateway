@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
 import { HeroSlider } from "@/components/hero-slider";
+import { ZimRibbon } from "@/components/zim-ribbon";
 import { FEATURED_PRODUCTS } from "@/lib/mock-data";
 import { formatUSD } from "@/lib/utils";
 
@@ -293,19 +294,19 @@ export default function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
         <FadeIn>
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-safari-800 via-safari-900 to-safari-950 px-8 py-14 text-center sm:px-14 lg:py-20">
+            <ZimRibbon className="absolute inset-x-0 top-0" />
             <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-sunset-400/20 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-safari-500/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-zim-green/20 blur-3xl" />
             <ShieldCheck className="mx-auto size-10 text-sunset-300" />
             <h2 className="mx-auto mt-5 max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Your Zimbabwean adventure starts protected
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-safari-100/70">
-              Get your certificate in minutes, or message us on WhatsApp and buy
-              cover without ever opening a browser.
+              Get your certificate in minutes and travel with confidence.
             </p>
             <div className="mt-8 flex justify-center">
               <Link href="/quote">
-                <Button variant="accent" size="lg" className="w-full sm:w-auto">
+                <Button variant="flag" size="lg" className="w-full sm:w-auto">
                   Get Started Now!
                   <ArrowRight className="size-4" />
                 </Button>

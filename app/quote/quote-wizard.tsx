@@ -166,6 +166,7 @@ export function QuoteWizard() {
   const [step, setStep] = useState(0);
   const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "mobile">("card");
   const [form, setForm] = useState<FormState>({
     tripType: "individual",
     fullName: "",
@@ -1076,19 +1077,37 @@ export function QuoteWizard() {
                   </p>
 
                   <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl border border-stone-200 bg-white p-4">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("card")}
+                      className={cn(
+                        "rounded-xl border p-4 text-left transition-colors",
+                        paymentMethod === "card"
+                          ? "border-safari-500 bg-safari-50 ring-1 ring-safari-500"
+                          : "border-stone-200 bg-white hover:border-safari-300"
+                      )}
+                    >
                       <CreditCard className="size-5 text-safari-700" />
                       <span className="mt-2 block text-sm font-semibold text-stone-900">Card</span>
                       <span className="mt-0.5 block text-xs text-stone-400">Visa · Mastercard</span>
-                    </div>
-                    <div className="rounded-xl border border-stone-200 bg-white p-4">
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("mobile")}
+                      className={cn(
+                        "rounded-xl border p-4 text-left transition-colors",
+                        paymentMethod === "mobile"
+                          ? "border-safari-500 bg-safari-50 ring-1 ring-safari-500"
+                          : "border-stone-200 bg-white hover:border-safari-300"
+                      )}
+                    >
                       <Smartphone className="size-5 text-safari-700" />
                       <span className="mt-2 block text-sm font-semibold text-stone-900">Mobile money</span>
                       <span className="mt-0.5 block text-xs text-stone-400">EcoCash · OneMoney</span>
-                    </div>
+                    </button>
                   </div>
                   <p className="mt-2.5 text-center text-xs text-stone-400">
-                    Choose exactly how to pay on Paynow&apos;s secure checkout page.
+                    You&apos;ll confirm {paymentMethod === "card" ? "your card" : "EcoCash or OneMoney"} on Paynow&apos;s secure checkout page.
                   </p>
 
                   <div className="mt-7 flex items-center justify-between rounded-xl bg-stone-50 px-5 py-4">
