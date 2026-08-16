@@ -29,12 +29,19 @@ export function PartnersDirectory() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("All");
   const [partners, setPartners] = useState<Partner[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     fetch("/api/partners")
-      .then((r) => r.json())
-      .then((data) => setPartners(data.partners ?? []))
-      .catch(() => setPartners([]));
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error("failed");
+        setPartners(data.partners ?? []);
+      })
+      .catch(() => {
+        setLoadError(true);
+        setPartners([]);
+      });
   }, []);
 
   // Arriving from the quote wizard's "near you" panel pre-fills the city.
@@ -108,8 +115,9 @@ export function PartnersDirectory() {
             <p className="mt-3 text-center text-xs text-stone-400">
               {partners === null
                 ? "Loading partners…"
-                : `Showing ${filtered.length} of ${partners.length} listed partners.`}
-              {" "}More join the network every month.
+                : loadError
+                  ? "Partners are temporarily unavailable."
+                  : `Showing ${filtered.length} of ${partners.length} listed partners. More join the network every month.`}
             </p>
           </div>
         </FadeIn>
@@ -170,8 +178,9 @@ export function PartnersDirectory() {
 
         {partners !== null && filtered.length === 0 && (
           <p className="mt-12 text-center text-sm text-stone-500">
-            No partners match your search. Try a different name, city or
-            category.
+            {loadError
+              ? "We couldn't load the partner directory right now. Please try again shortly."
+              : "No partners match your search. Try a different name, city or category."}
           </p>
         )}
       </div>
