@@ -6,7 +6,7 @@ const COLUMNS = [
     title: "Product",
     links: [
       { label: "Get Started Now!", href: "/quote" },
-      { label: "Coverage Plans", href: "/#plans" },
+      { label: "Coverage Plans", href: "/coverage" },
       { label: "Verify a Policy", href: "/verify" },
       { label: "Submit a Claim", href: "/claims" },
     ],

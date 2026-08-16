@@ -175,6 +175,12 @@ export default function LandingPage() {
                 Backed by our licensed Zimbabwean underwriting partner. One
                 simple plan covers your whole visit, and your whole group.
               </p>
+              <Link
+                href="/coverage"
+                className="mt-3 inline-block text-sm font-semibold text-safari-700 underline underline-offset-4 hover:text-safari-900"
+              >
+                See full coverage details
+              </Link>
             </div>
           </FadeIn>
 
