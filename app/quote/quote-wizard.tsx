@@ -43,10 +43,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { CountrySelect } from "@/components/ui/country-select";
 import { Badge } from "@/components/ui/badge";
 import {
   ACTIVITIES,
-  NATIONALITIES,
   PRODUCTS,
   TRAVEL_PURPOSES,
   type ActivityId,
@@ -478,16 +478,12 @@ export function QuoteWizard() {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="nationality">Nationality (as shown in passport)</Label>
-                      <Select
+                      <CountrySelect
                         id="nationality"
                         value={form.nationality}
-                        onChange={(e) => set("nationality", e.target.value)}
-                      >
-                        <option value="">Select nationality</option>
-                        {NATIONALITIES.map((n) => (
-                          <option key={n} value={n}>{n}</option>
-                        ))}
-                      </Select>
+                        onChange={(v) => set("nationality", v)}
+                        placeholder="Select nationality"
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="passportNumber">Passport number</Label>
@@ -512,16 +508,13 @@ export function QuoteWizard() {
                         Country of residence{" "}
                         <span className="font-normal text-stone-400">(if different)</span>
                       </Label>
-                      <Select
+                      <CountrySelect
                         id="residence"
                         value={form.residenceCountry}
-                        onChange={(e) => set("residenceCountry", e.target.value)}
-                      >
-                        <option value="">Same as nationality</option>
-                        {NATIONALITIES.map((n) => (
-                          <option key={n} value={n}>{n}</option>
-                        ))}
-                      </Select>
+                        onChange={(v) => set("residenceCountry", v)}
+                        placeholder="Same as nationality"
+                        emptyLabel="Same as nationality"
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="email">Email</Label>
@@ -586,15 +579,11 @@ export function QuoteWizard() {
                               </div>
                               <div className="space-y-1.5">
                                 <Label>Nationality</Label>
-                                <Select
+                                <CountrySelect
                                   value={t.nationality}
-                                  onChange={(e) => setTraveller(i, { nationality: e.target.value })}
-                                >
-                                  <option value="">Select nationality</option>
-                                  {NATIONALITIES.map((n) => (
-                                    <option key={n} value={n}>{n}</option>
-                                  ))}
-                                </Select>
+                                  onChange={(v) => setTraveller(i, { nationality: v })}
+                                  placeholder="Select nationality"
+                                />
                               </div>
                               <div className="space-y-1.5">
                                 <Label>Date of birth</Label>

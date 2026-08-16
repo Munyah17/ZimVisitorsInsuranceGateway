@@ -112,9 +112,7 @@ export default function CoveragePage() {
 
                 <div className="mt-6 flex flex-wrap items-baseline gap-2 rounded-2xl bg-safari-950 px-6 py-5 text-white">
                   <span className="text-3xl font-bold tracking-tight">{formatUSD(p.basePriceUsd)}</span>
-                  <span className="text-sm text-safari-200/70">
-                    from · {formatUSD(p.baseRatePerDayUsd)}/day · {formatUSD(p.minPremiumUsd)} minimum premium
-                  </span>
+                  <span className="text-sm text-safari-200/70">per trip</span>
                 </div>
 
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">

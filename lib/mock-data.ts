@@ -205,13 +205,6 @@ export const MOCK_ADMIN = {
   ],
 };
 
-export const NATIONALITIES = [
-  "United Kingdom", "United States", "Germany", "France", "South Africa",
-  "Australia", "Canada", "China", "Japan", "India", "Italy", "Netherlands",
-  "Spain", "Brazil", "Nigeria", "Kenya", "Botswana", "Zambia", "Norway",
-  "Sweden", "Switzerland", "United Arab Emirates", "Other",
-];
-
 export const ACTIVITIES = [
   { id: "general", label: "General Travel", hint: "Sightseeing, city visits, cultural tours" },
   { id: "safari", label: "Safari", hint: "Game drives, walking safaris, national parks" },
