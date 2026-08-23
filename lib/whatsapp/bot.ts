@@ -419,6 +419,7 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
         travellers: [],
         pricingBreakdown: { ...pricing },
         totalAmount: pricing.grandTotal,
+        channel: "whatsapp",
       };
 
       try {
@@ -561,6 +562,7 @@ async function handleClaimFlow(
       const { error } = await admin.from("claims").insert({
         claim_number: claimNumber,
         policy_id: policyId,
+        incident_type: draft.claimIncidentType,
         incident_date: draft.claimIncidentDate,
         description: draft.claimDescription,
         location: draft.claimLocation,

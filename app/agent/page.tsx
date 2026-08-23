@@ -1,36 +1,46 @@
 "use client";
 
 /**
- * Agent Portal — for travel agents, tour operators and hotels.
- * Live version: `agents` + `policies` + `commissions` filtered by the
- * authenticated agent's user_id (RLS).
+ * Agent Portal — dashboard. Live data from /api/agent/data, scoped to
+ * the signed-in agent's own sales.
  */
 
 import Link from "next/link";
-import {
-  Users,
-  FileText,
-  Wallet,
-  Plus,
-  TrendingUp,
-  BadgeCheck,
-} from "lucide-react";
+import { Users, FileText, Wallet, Plus, BadgeCheck, Loader2 } from "lucide-react";
 import { AGENT_NAV } from "./nav";
 import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
-import { MOCK_AGENT } from "@/lib/mock-data";
+import { useRoleData } from "@/lib/use-role-data";
 import { formatDate, formatUSD } from "@/lib/utils";
 
+interface AgentData {
+  profile: { name: string; agentCode: string; organization: string | null; commissionRate: number };
+  stats: { visitorsInsured: number; policiesSold: number; commissionEarned: number };
+  policies: { policyNumber: string; name: string; country: string; premium: number; status: string; date: string }[];
+}
+
 export default function AgentPage() {
-  const { stats } = MOCK_AGENT;
+  const { data, loading } = useRoleData<AgentData>("/api/agent/data");
+
+  if (loading || !data) {
+    return (
+      <DashboardShell title="Agent dashboard" nav={AGENT_NAV}>
+        <div className="flex justify-center py-24 text-stone-400">
+          <Loader2 className="size-6 animate-spin" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  const { profile, stats } = data;
 
   return (
     <DashboardShell
-      title={`Agent dashboard`}
-      subtitle={`${MOCK_AGENT.name} · ${MOCK_AGENT.organization} · ${MOCK_AGENT.agentCode}`}
+      title="Agent dashboard"
+      subtitle={`${profile.name}${profile.organization ? ` · ${profile.organization}` : ""} · ${profile.agentCode}`}
       nav={AGENT_NAV}
       badge={
         <Link href="/quote">
@@ -41,32 +51,15 @@ export default function AgentPage() {
       }
     >
       <FadeIn y={16}>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatTile
-            accent
-            label="Policies sold"
-            value={String(stats.policiesSold)}
-            hint="This month"
-            icon={FileText}
-          />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <StatTile accent label="Policies sold" value={String(stats.policiesSold)} hint="All time" icon={FileText} />
           <StatTile
             label="Commission earned"
             value={formatUSD(stats.commissionEarned)}
-            hint={`${(MOCK_AGENT.commissionRate * 100).toFixed(0)}% of premium`}
+            hint={`${(profile.commissionRate * 100).toFixed(0)}% of premium`}
             icon={Wallet}
           />
-          <StatTile
-            label="Active visitors"
-            value={String(stats.visitorsInsured)}
-            hint="Currently insured"
-            icon={Users}
-          />
-          <StatTile
-            label="Growth"
-            value={`+${stats.monthGrowthPct}%`}
-            hint="vs last month"
-            icon={TrendingUp}
-          />
+          <StatTile label="Visitors insured" value={String(stats.visitorsInsured)} hint="All time" icon={Users} />
         </div>
       </FadeIn>
 
@@ -82,36 +75,40 @@ export default function AgentPage() {
             </Link>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-sm">
-                <thead>
-                  <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wider text-stone-400">
-                    <th className="pb-3 pr-4 font-semibold">Visitor</th>
-                    <th className="pb-3 pr-4 font-semibold">Country</th>
-                    <th className="pb-3 pr-4 font-semibold">Plan</th>
-                    <th className="pb-3 pr-4 font-semibold">Premium</th>
-                    <th className="pb-3 pr-4 font-semibold">Date</th>
-                    <th className="pb-3 font-semibold">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {MOCK_AGENT.recentCustomers.map((c) => (
-                    <tr key={c.name} className="border-b border-stone-100 last:border-0">
-                      <td className="py-3.5 pr-4 font-medium text-stone-900">{c.name}</td>
-                      <td className="py-3.5 pr-4 text-stone-600">{c.country}</td>
-                      <td className="py-3.5 pr-4 text-stone-600">{c.product}</td>
-                      <td className="py-3.5 pr-4 font-medium text-stone-900">{formatUSD(c.premium)}</td>
-                      <td className="py-3.5 pr-4 text-stone-500">{formatDate(c.date)}</td>
-                      <td className="py-3.5">
-                        <Badge variant={c.status === "active" ? "success" : "warning"}>
-                          {c.status === "active" ? "Active" : "Pending payment"}
-                        </Badge>
-                      </td>
+            {data.policies.length === 0 ? (
+              <p className="py-8 text-center text-sm text-stone-400">
+                No sales yet. Policies bought with your agent code will show up here.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] text-sm">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wider text-stone-400">
+                      <th className="pb-3 pr-4 font-semibold">Visitor</th>
+                      <th className="pb-3 pr-4 font-semibold">Country</th>
+                      <th className="pb-3 pr-4 font-semibold">Premium</th>
+                      <th className="pb-3 pr-4 font-semibold">Date</th>
+                      <th className="pb-3 font-semibold">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {data.policies.slice(0, 10).map((c) => (
+                      <tr key={c.policyNumber} className="border-b border-stone-100 last:border-0">
+                        <td className="py-3.5 pr-4 font-medium text-stone-900">{c.name}</td>
+                        <td className="py-3.5 pr-4 text-stone-600">{c.country}</td>
+                        <td className="py-3.5 pr-4 font-medium text-stone-900">{formatUSD(c.premium)}</td>
+                        <td className="py-3.5 pr-4 text-stone-500">{formatDate(c.date.slice(0, 10))}</td>
+                        <td className="py-3.5">
+                          <Badge variant={c.status === "active" ? "success" : "warning"}>
+                            {c.status === "active" ? "Active" : "Pending payment"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </CardContent>
         </Card>
       </FadeIn>
@@ -121,8 +118,9 @@ export default function AgentPage() {
           <BadgeCheck className="size-6 shrink-0 text-safari-700" />
           <p className="text-sm text-safari-900">
             <strong>Sell in seconds:</strong> generate a quote for a walk-in visitor and
-            they pay on their own phone. Your commission is credited automatically
-            when the policy activates.
+            they pay on their own phone. Commission attribution for agent-assisted
+            sales is coming soon — for now, sales here reflect policies already
+            linked to your agent code.
           </p>
           <Link href="/quote" className="ml-auto">
             <Button size="sm">Start a quote</Button>

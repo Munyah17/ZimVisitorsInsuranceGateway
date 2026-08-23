@@ -1,42 +1,52 @@
 "use client";
 
 /**
- * Agent Portal — Visitors. Everyone currently insured through this agent.
+ * Agent Portal — Visitors. Everyone currently insured through this agent,
+ * live from /api/agent/data.
  */
 
-import { Globe2, ShieldCheck, Users } from "lucide-react";
+import { Globe2, Loader2, Users } from "lucide-react";
 import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
-import { MOCK_AGENT } from "@/lib/mock-data";
+import { useRoleData } from "@/lib/use-role-data";
 import { AGENT_NAV } from "../nav";
 import { formatDate } from "@/lib/utils";
 
-const VISITORS = [
-  { name: "John Smith", country: "United Kingdom", policy: "ZVIG-2026-00001", until: "2026-08-20", activity: "Safari" },
-  { name: "Chloé Dubois", country: "France", policy: "ZVIG-2026-01792", until: "2026-07-28", activity: "Adventure" },
-  { name: "Marco Rossi", country: "Italy", policy: "ZVIG-2026-01788", until: "2026-07-24", activity: "General" },
-  { name: "Yuki Tanaka", country: "Japan", policy: "ZVIG-2026-01760", until: "2026-07-21", activity: "Safari" },
-  { name: "Emma Wilson", country: "Australia", policy: "ZVIG-2026-01741", until: "2026-07-30", activity: "General" },
-  { name: "Tom Becker", country: "Germany", policy: "ZVIG-2026-01710", until: "2026-08-02", activity: "Adventure" },
-];
+interface AgentData {
+  profile: { agentCode: string };
+  policies: { policyNumber: string; name: string; country: string; status: string; startDate: string; endDate: string }[];
+}
 
 export default function AgentVisitorsPage() {
-  const countries = new Set(VISITORS.map((v) => v.country)).size;
+  const { data, loading } = useRoleData<AgentData>("/api/agent/data");
+
+  if (loading || !data) {
+    return (
+      <DashboardShell title="Visitors" nav={AGENT_NAV}>
+        <div className="flex justify-center py-24 text-stone-400">
+          <Loader2 className="size-6 animate-spin" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const active = data.policies.filter((v) => v.status === "active" && v.endDate >= today);
+  const countries = new Set(active.map((v) => v.country)).size;
 
   return (
     <DashboardShell
       title="Visitors"
       subtitle="Everyone currently covered through your desk"
       nav={AGENT_NAV}
-      badge={<Badge variant="success" className="px-3 py-1.5">{MOCK_AGENT.stats.visitorsInsured} insured now</Badge>}
+      badge={<Badge variant="success" className="px-3 py-1.5">{active.length} insured now</Badge>}
     >
       <FadeIn y={16}>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <StatTile accent label="Active visitors" value={String(MOCK_AGENT.stats.visitorsInsured)} hint="Currently in country" icon={Users} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <StatTile accent label="Active visitors" value={String(active.length)} hint="Currently in country" icon={Users} />
           <StatTile label="Nationalities" value={String(countries)} hint="Among your active visitors" icon={Globe2} />
-          <StatTile label="Cover ending this week" value="3" hint="Renewal opportunity" icon={ShieldCheck} />
         </div>
       </FadeIn>
 
@@ -44,28 +54,31 @@ export default function AgentVisitorsPage() {
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Currently insured</CardTitle>
-            <CardDescription>Live policies attributed to {MOCK_AGENT.agentCode}</CardDescription>
+            <CardDescription>Live policies attributed to {data.profile.agentCode}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {VISITORS.map((v) => (
-                <div
-                  key={v.policy}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-stone-100 bg-stone-50/60 px-4 py-3.5"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-stone-900">
-                      {v.name} <span className="font-normal text-stone-400">· {v.country}</span>
-                    </p>
-                    <p className="mt-0.5 font-mono text-xs text-stone-400">{v.policy}</p>
+            {active.length === 0 ? (
+              <p className="py-8 text-center text-sm text-stone-400">No active visitors right now.</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {active.map((v) => (
+                  <div
+                    key={v.policyNumber}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-stone-100 bg-stone-50/60 px-4 py-3.5"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-stone-900">
+                        {v.name} <span className="font-normal text-stone-400">· {v.country}</span>
+                      </p>
+                      <p className="mt-0.5 font-mono text-xs text-stone-400">{v.policyNumber}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-xs text-stone-500">until {formatDate(v.endDate)}</p>
+                    </div>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <Badge variant="success">{v.activity}</Badge>
-                    <p className="mt-1 text-xs text-stone-500">until {formatDate(v.until)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </FadeIn>

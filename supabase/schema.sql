@@ -422,6 +422,7 @@ create table policies (
   premium          numeric(10,2) not null,
   currency         text not null default 'USD',
   status           policy_status not null default 'pending_payment',
+  channel          text not null default 'web' check (channel in ('web', 'whatsapp', 'ai_chat')),
   certificate_url  text,                              -- Supabase Storage path to the generated PDF
   qr_code          text,                              -- payload encoded in the certificate QR (verification URL)
   created_at       timestamptz not null default now(),
@@ -514,6 +515,7 @@ create table claims (
   id             uuid primary key default gen_random_uuid(),
   claim_number   text not null unique,                -- e.g. 'ZVIG-C-2026-0001'
   policy_id      uuid not null references policies (id),
+  incident_type  text,                                -- 'Medical expense' | 'Accident' | 'Travel disruption' | 'Other'
   incident_date  date not null,
   description    text not null,
   location       text,                                -- where the incident happened

@@ -10,6 +10,13 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
 import { generateClaimNumber } from "@/lib/claims";
 
+const INCIDENT_TYPE_LABELS: Record<string, string> = {
+  medical: "Medical expense",
+  accident: "Accident",
+  travel: "Travel disruption",
+  other: "Other",
+};
+
 export async function POST(request: Request) {
   if (!isSupabaseAdminConfigured()) {
     return NextResponse.json(
@@ -20,6 +27,8 @@ export async function POST(request: Request) {
 
   const form = await request.formData();
   const policyNumber = String(form.get("policyNumber") ?? "").trim().toUpperCase();
+  const incidentTypeRaw = String(form.get("incidentType") ?? "");
+  const incidentType = INCIDENT_TYPE_LABELS[incidentTypeRaw] ?? (incidentTypeRaw || null);
   const incidentDate = String(form.get("incidentDate") ?? "");
   const location = String(form.get("location") ?? "").trim();
   const description = String(form.get("description") ?? "").trim();
@@ -69,6 +78,7 @@ export async function POST(request: Request) {
   const { error: insertError } = await admin.from("claims").insert({
     claim_number: claimNumber,
     policy_id: policy.id,
+    incident_type: incidentType,
     incident_date: incidentDate,
     description,
     location,

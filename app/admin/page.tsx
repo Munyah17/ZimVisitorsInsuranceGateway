@@ -2,8 +2,8 @@
 
 /**
  * Admin Command Centre — enterprise operations dashboard.
- * Live version: aggregate queries over `policies`, `payments`, `claims`,
- * `agents` and `audit_logs` (admin role via RLS / service role).
+ * Live aggregate queries over `policies`, `payments`, `claims`, `agents`
+ * via /api/admin/data (service-role, requires an admin session).
  */
 
 import {
@@ -15,17 +15,23 @@ import {
   Activity,
   MessageCircle,
   MonitorSmartphone,
-  UserRound,
+  Bot,
+  Loader2,
 } from "lucide-react";
 import { ADMIN_NAV } from "./nav";
 import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
-import { MOCK_ADMIN, type ClaimStatus } from "@/lib/mock-data";
+import { useRoleData } from "@/lib/use-role-data";
 import { formatUSD } from "@/lib/utils";
 
-const CLAIM_BADGE: Record<ClaimStatus, { label: string; variant: "success" | "warning" | "info" | "outline" | "destructive" }> = {
+interface ClaimStatusInfo {
+  label: string;
+  variant: "success" | "warning" | "info" | "outline" | "destructive";
+}
+
+const CLAIM_BADGE: Record<string, ClaimStatusInfo> = {
   submitted: { label: "Submitted", variant: "info" },
   under_review: { label: "Under review", variant: "warning" },
   forwarded_to_underwriter: { label: "With underwriter", variant: "info" },
@@ -36,14 +42,42 @@ const CLAIM_BADGE: Record<ClaimStatus, { label: string; variant: "success" | "wa
 };
 
 const CHANNEL_ICON = {
-  Web: MonitorSmartphone,
-  WhatsApp: MessageCircle,
-  Agent: UserRound,
+  web: MonitorSmartphone,
+  whatsapp: MessageCircle,
+  ai_chat: Bot,
 } as const;
 
+interface AdminData {
+  metrics: {
+    policiesToday: number;
+    revenueToday: number;
+    openClaims: number;
+    countriesCovered: number;
+    visitorsYtd: number;
+    claimsYtd: number;
+    commissionLiabilityYtd: number;
+  };
+  policiesByCountry: { country: string; policies: number }[];
+  agents: { code: string; name: string; org: string; status: string; policies: number; commission: number }[];
+  recentClaims: { claimNumber: string; holder: string; type: string; amount: number | null; status: string; date: string }[];
+  recentPolicies: { policyNumber: string; holder: string; country: string; premium: number; channel: string; status: string; date: string }[];
+}
+
 export default function AdminPage() {
-  const { metrics } = MOCK_ADMIN;
-  const maxPolicies = Math.max(...MOCK_ADMIN.policiesByCountry.map((c) => c.policies));
+  const { data, loading } = useRoleData<AdminData>("/api/admin/data");
+  const maxPolicies = Math.max(1, ...(data?.policiesByCountry ?? []).map((c) => c.policies));
+
+  if (loading || !data) {
+    return (
+      <DashboardShell title="Admin Command Centre" subtitle="Zim Travelmate · live operations" nav={ADMIN_NAV}>
+        <div className="flex justify-center py-24 text-stone-400">
+          <Loader2 className="size-6 animate-spin" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  const { metrics } = data;
 
   return (
     <DashboardShell
@@ -59,13 +93,13 @@ export default function AdminPage() {
       {/* KPI row */}
       <FadeIn y={16}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatTile accent label="Policies today" value={String(metrics.policiesToday)} hint="+12% vs yesterday" icon={FileText} />
+          <StatTile accent label="Policies today" value={String(metrics.policiesToday)} hint="Since midnight" icon={FileText} />
           <StatTile label="Revenue today" value={formatUSD(metrics.revenueToday)} hint="Gross written premium" icon={Wallet} />
           <StatTile label="Open claims" value={String(metrics.openClaims)} hint="Awaiting action now" icon={ShieldAlert} />
           <StatTile label="Countries covered" value={String(metrics.countriesCovered)} hint="Visitor nationalities" icon={Globe2} />
-          <StatTile label="Visitors (YTD)" value={metrics.visitorsYtd.toLocaleString()} hint="Since 1 Jan 2026" icon={Users} />
-          <StatTile label="Claims (YTD)" value={String(metrics.claimsYtd)} hint="Filed since 1 Jan 2026" icon={ShieldAlert} />
-          <StatTile label="Commission liability (YTD)" value={formatUSD(metrics.commissionLiabilityYtd)} hint="Accrued + approved, year to date" icon={Wallet} />
+          <StatTile label="Visitors (YTD)" value={metrics.visitorsYtd.toLocaleString()} hint={`Since 1 Jan ${new Date().getFullYear()}`} icon={Users} />
+          <StatTile label="Claims (YTD)" value={String(metrics.claimsYtd)} hint={`Filed since 1 Jan ${new Date().getFullYear()}`} icon={ShieldAlert} />
+          <StatTile label="Commission liability (YTD)" value={formatUSD(metrics.commissionLiabilityYtd)} hint="Accrued, not yet paid" icon={Wallet} />
         </div>
       </FadeIn>
 
@@ -75,25 +109,29 @@ export default function AdminPage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle>Policies by country</CardTitle>
-              <CardDescription>Active policies by visitor nationality, last 90 days</CardDescription>
+              <CardDescription>Every policy on record, by visitor nationality</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-4">
-                {MOCK_ADMIN.policiesByCountry.map((c) => (
-                  <li key={c.country}>
-                    <div className="mb-1.5 flex items-baseline justify-between text-sm">
-                      <span className="font-medium text-stone-700">{c.country}</span>
-                      <span className="font-semibold tabular-nums text-stone-900">{c.policies}</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-stone-100">
-                      <div
-                        className="h-full rounded-full bg-safari-600"
-                        style={{ width: `${(c.policies / maxPolicies) * 100}%` }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              {data.policiesByCountry.length === 0 ? (
+                <p className="py-6 text-center text-sm text-stone-400">No policies yet.</p>
+              ) : (
+                <ul className="space-y-4">
+                  {data.policiesByCountry.map((c) => (
+                    <li key={c.country}>
+                      <div className="mb-1.5 flex items-baseline justify-between text-sm">
+                        <span className="font-medium text-stone-700">{c.country}</span>
+                        <span className="font-semibold tabular-nums text-stone-900">{c.policies}</span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-stone-100">
+                        <div
+                          className="h-full rounded-full bg-safari-600"
+                          style={{ width: `${(c.policies / maxPolicies) * 100}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </FadeIn>
@@ -103,34 +141,36 @@ export default function AdminPage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle>Agent performance</CardTitle>
-              <CardDescription>Top distribution partners this month</CardDescription>
+              <CardDescription>Distribution partners, by policies sold</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[420px] text-sm">
-                  <thead>
-                    <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wider text-stone-400">
-                      <th className="pb-3 pr-4 font-semibold">Agent</th>
-                      <th className="pb-3 pr-4 font-semibold">Policies</th>
-                      <th className="pb-3 font-semibold">Commission</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MOCK_ADMIN.agentPerformance.map((a) => (
-                      <tr key={a.agent} className="border-b border-stone-100 last:border-0">
-                        <td className="py-3.5 pr-4">
-                          <p className="font-medium text-stone-900">{a.agent}</p>
-                          <p className="text-xs text-stone-400">{a.org}</p>
-                        </td>
-                        <td className="py-3.5 pr-4 tabular-nums text-stone-700">{a.policies}</td>
-                        <td className="py-3.5 font-medium tabular-nums text-stone-900">
-                          {formatUSD(a.commission)}
-                        </td>
+              {data.agents.length === 0 ? (
+                <p className="py-6 text-center text-sm text-stone-400">No agents yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[420px] text-sm">
+                    <thead>
+                      <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wider text-stone-400">
+                        <th className="pb-3 pr-4 font-semibold">Agent</th>
+                        <th className="pb-3 pr-4 font-semibold">Policies</th>
+                        <th className="pb-3 font-semibold">Commission</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {data.agents.slice(0, 6).map((a) => (
+                        <tr key={a.code} className="border-b border-stone-100 last:border-0">
+                          <td className="py-3.5 pr-4">
+                            <p className="font-medium text-stone-900">{a.name}</p>
+                            <p className="text-xs text-stone-400">{a.org}</p>
+                          </td>
+                          <td className="py-3.5 pr-4 tabular-nums text-stone-700">{a.policies}</td>
+                          <td className="py-3.5 font-medium tabular-nums text-stone-900">{formatUSD(a.commission)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </FadeIn>
@@ -145,30 +185,36 @@ export default function AdminPage() {
               <CardDescription>Latest claims across all policies</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
-                {MOCK_ADMIN.recentClaims.map((c) => {
-                  const badge = CLAIM_BADGE[c.status];
-                  return (
-                    <li
-                      key={c.claimNumber}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-stone-100 bg-stone-50/60 px-4 py-3"
-                    >
-                      <div>
-                        <p className="font-mono text-xs text-stone-400">{c.claimNumber}</p>
-                        <p className="mt-0.5 text-sm font-medium text-stone-900">
-                          {c.holder} · {c.type}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant={badge.variant}>{badge.label}</Badge>
-                        <p className="mt-1 text-xs font-semibold tabular-nums text-stone-600">
-                          {formatUSD(c.amount)}
-                        </p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+              {data.recentClaims.length === 0 ? (
+                <p className="py-6 text-center text-sm text-stone-400">No claims yet.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {data.recentClaims.slice(0, 6).map((c) => {
+                    const badge = CLAIM_BADGE[c.status] ?? { label: c.status, variant: "outline" as const };
+                    return (
+                      <li
+                        key={c.claimNumber}
+                        className="flex items-center justify-between gap-3 rounded-xl border border-stone-100 bg-stone-50/60 px-4 py-3"
+                      >
+                        <div>
+                          <p className="font-mono text-xs text-stone-400">{c.claimNumber}</p>
+                          <p className="mt-0.5 text-sm font-medium text-stone-900">
+                            {c.holder} · {c.type}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant={badge.variant}>{badge.label}</Badge>
+                          {c.amount !== null && (
+                            <p className="mt-1 text-xs font-semibold tabular-nums text-stone-600">
+                              {formatUSD(c.amount)}
+                            </p>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </FadeIn>
@@ -178,36 +224,38 @@ export default function AdminPage() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle>Recent policies</CardTitle>
-              <CardDescription>Issued across web, WhatsApp and agent channels</CardDescription>
+              <CardDescription>Issued across web, WhatsApp and AI chat</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
-                {MOCK_ADMIN.recentPolicies.map((p) => {
-                  const Icon = CHANNEL_ICON[p.channel as keyof typeof CHANNEL_ICON] ?? MonitorSmartphone;
-                  return (
-                    <li
-                      key={p.policyNumber}
-                      className="flex items-center gap-3.5 rounded-xl border border-stone-100 bg-stone-50/60 px-4 py-3"
-                    >
-                      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-safari-100 text-safari-700">
-                        <Icon className="size-4" />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-stone-900">
-                          {p.holder} <span className="text-stone-400">· {p.country}</span>
-                        </p>
-                        <p className="font-mono text-xs text-stone-400">{p.policyNumber}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold tabular-nums text-stone-900">
-                          {formatUSD(p.premium)}
-                        </p>
-                        <p className="text-xs text-stone-400">{p.channel}</p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+              {data.recentPolicies.length === 0 ? (
+                <p className="py-6 text-center text-sm text-stone-400">No policies yet.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {data.recentPolicies.slice(0, 6).map((p) => {
+                    const Icon = CHANNEL_ICON[p.channel as keyof typeof CHANNEL_ICON] ?? MonitorSmartphone;
+                    return (
+                      <li
+                        key={p.policyNumber}
+                        className="flex items-center gap-3.5 rounded-xl border border-stone-100 bg-stone-50/60 px-4 py-3"
+                      >
+                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-safari-100 text-safari-700">
+                          <Icon className="size-4" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-stone-900">
+                            {p.holder} <span className="text-stone-400">· {p.country}</span>
+                          </p>
+                          <p className="font-mono text-xs text-stone-400">{p.policyNumber}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold tabular-nums text-stone-900">{formatUSD(p.premium)}</p>
+                          <p className="text-xs capitalize text-stone-400">{p.channel}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </FadeIn>

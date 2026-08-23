@@ -44,6 +44,8 @@ export interface CheckoutRequest {
   travellers: CheckoutTraveller[];
   pricingBreakdown: Record<string, unknown> & { premium: number };
   totalAmount: number;
+  /** Which surface this checkout started from. Defaults to "web". */
+  channel?: "web" | "whatsapp";
 }
 
 function generatePolicyNumber(): string {
@@ -103,6 +105,7 @@ async function insertPolicy(
     startDate: string;
     endDate: string;
     premium: number;
+    channel: "web" | "whatsapp";
   }
 ): Promise<{ id: string; policy_number: string }> {
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -119,6 +122,7 @@ async function insertPolicy(
         end_date: args.endDate,
         premium: args.premium,
         status: "pending_payment",
+        channel: args.channel,
       })
       .select("id, policy_number")
       .single();
@@ -177,6 +181,7 @@ export async function createPendingCheckout(req: CheckoutRequest): Promise<Pendi
       startDate: req.arrivalDate,
       endDate: req.departureDate,
       premium: perTravellerPremium,
+      channel: req.channel ?? "web",
     });
     policyIds.push(policy.id);
     if (isLeader) leaderPolicyId = policy.id;
