@@ -437,7 +437,8 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
         await saveSession(session);
 
         return [
-          `Tap this secure link to pay ${formatUSD(pricing.grandTotal)} by card, EcoCash or OneMoney:\n${redirectUrl}\n\n` +
+          `Tap this secure link to pay ${formatUSD(pricing.grandTotal)}:\n${redirectUrl}\n\n` +
+            "International Visa/Mastercard is fastest. EcoCash and OneMoney are also available there (mainly for Zimbabwean travel agents booking on a client's behalf).\n\n" +
             "As soon as Paynow confirms your payment, I'll message you here with your certificate.",
         ];
       } catch (err) {

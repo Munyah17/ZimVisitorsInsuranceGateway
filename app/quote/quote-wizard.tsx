@@ -1062,36 +1062,49 @@ export function QuoteWizard() {
                     Paynow handles that entirely.
                   </p>
 
-                  <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("card")}
-                      className={cn(
-                        "rounded-xl border p-4 text-left transition-colors",
-                        paymentMethod === "card"
-                          ? "border-safari-500 bg-safari-50 ring-1 ring-safari-500"
-                          : "border-stone-200 bg-white hover:border-safari-300"
-                      )}
-                    >
-                      <CreditCard className="size-5 text-safari-700" />
-                      <span className="mt-2 block text-sm font-semibold text-stone-900">Card</span>
-                      <span className="mt-0.5 block text-xs text-stone-400">Visa · Mastercard</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("mobile")}
-                      className={cn(
-                        "rounded-xl border p-4 text-left transition-colors",
-                        paymentMethod === "mobile"
-                          ? "border-safari-500 bg-safari-50 ring-1 ring-safari-500"
-                          : "border-stone-200 bg-white hover:border-safari-300"
-                      )}
-                    >
-                      <Smartphone className="size-5 text-safari-700" />
-                      <span className="mt-2 block text-sm font-semibold text-stone-900">Mobile money</span>
-                      <span className="mt-0.5 block text-xs text-stone-400">EcoCash · OneMoney</span>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("card")}
+                    className={cn(
+                      "mt-7 flex w-full items-center gap-4 rounded-xl border p-5 text-left transition-colors",
+                      paymentMethod === "card"
+                        ? "border-safari-500 bg-safari-50 ring-1 ring-safari-500"
+                        : "border-stone-200 bg-white hover:border-safari-300"
+                    )}
+                  >
+                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-safari-950 text-sunset-300">
+                      <CreditCard className="size-5" />
+                    </span>
+                    <span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-stone-900">International Card</span>
+                        <Badge variant="success">Recommended</Badge>
+                      </span>
+                      <span className="mt-0.5 block text-xs text-stone-400">Visa, Mastercard and other major cards</span>
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("mobile")}
+                    className={cn(
+                      "mt-3 flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-colors",
+                      paymentMethod === "mobile"
+                        ? "border-safari-500 bg-safari-50 ring-1 ring-safari-500"
+                        : "border-stone-200 bg-white hover:border-safari-300"
+                    )}
+                  >
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-stone-100 text-stone-600">
+                      <Smartphone className="size-4" />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold text-stone-900">Local mobile money</span>
+                      <span className="mt-0.5 block text-xs text-stone-400">
+                        EcoCash · OneMoney — for Zimbabwean travel agents booking on a client&apos;s behalf
+                      </span>
+                    </span>
+                  </button>
+
                   <p className="mt-2.5 text-center text-xs text-stone-400">
                     You&apos;ll confirm {paymentMethod === "card" ? "your card" : "EcoCash or OneMoney"} on Paynow&apos;s secure checkout page.
                   </p>
