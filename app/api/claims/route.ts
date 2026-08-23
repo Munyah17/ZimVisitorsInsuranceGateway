@@ -8,12 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admin";
-
-function generateClaimNumber(): string {
-  const year = new Date().getFullYear();
-  const seq = Math.floor(1000 + Math.random() * 8999);
-  return `ZVIG-C-${year}-${seq}`;
-}
+import { generateClaimNumber } from "@/lib/claims";
 
 export async function POST(request: Request) {
   if (!isSupabaseAdminConfigured()) {

@@ -16,6 +16,8 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { findSessionByPendingReference, saveSession } from "@/lib/whatsapp/session";
+import { sendWhatsAppText, isWhatsAppConfigured } from "@/lib/whatsapp/client";
 
 /** Horizon Microinsurance Company — seeded primary underwriter (schema.sql). */
 const UNDERWRITER_ORG_ID = "22222222-2222-2222-2222-222222222222";
@@ -258,7 +260,8 @@ export async function getCheckoutStatus(reference: string): Promise<CheckoutStat
 export async function activatePaidPayment(
   reference: string,
   paynowReference: string,
-  rawPayload: Record<string, unknown>
+  rawPayload: Record<string, unknown>,
+  baseUrl?: string
 ) {
   const sb = getSupabaseAdmin();
   const { data: payment } = await sb
@@ -287,6 +290,35 @@ export async function activatePaidPayment(
     entity_id: payment.id,
     new_value: { status: "succeeded", reference, paynowReference },
   });
+
+  if (baseUrl) await notifyWhatsAppOfPayment(reference, payment.quote_id, baseUrl);
+}
+
+/**
+ * If this payment was started from the WhatsApp bot (a whatsapp_sessions
+ * row has pending_reference = reference), message the buyer back with
+ * their certificate the moment Paynow confirms payment — the same
+ * activation this function just did, just also surfaced where they asked
+ * for it, without them having to check back on the site.
+ */
+async function notifyWhatsAppOfPayment(reference: string, quoteId: string, baseUrl: string) {
+  if (!isWhatsAppConfigured()) return;
+  const session = await findSessionByPendingReference(reference);
+  if (!session) return;
+
+  const sb = getSupabaseAdmin();
+  const policies = await fetchPoliciesForQuote(sb, quoteId);
+
+  const lines = policies.map(
+    (p) => `• ${p.policyNumber} (${p.holderName})\n  Certificate: ${baseUrl}/api/certificate/${encodeURIComponent(p.policyNumber)}`
+  );
+
+  await sendWhatsAppText(
+    session.waId,
+    `✅ Payment confirmed — you're covered!\n\n${lines.join("\n\n")}\n\nType MENU for other options.`
+  ).catch((err) => console.error("WhatsApp payment notification failed", err));
+
+  await saveSession({ ...session, state: "MAIN_MENU", pendingReference: null, draft: {} }).catch(() => {});
 }
 
 /** Idempotent — never downgrades an already-succeeded payment. */

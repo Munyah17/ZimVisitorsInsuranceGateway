@@ -38,6 +38,7 @@
 -- ---------------------------------------------------------------------------
 -- 0. CLEAN SLATE (prototype convenience — remove for production migrations)
 -- ---------------------------------------------------------------------------
+drop table if exists whatsapp_sessions cascade;
 drop table if exists service_partners cascade;
 drop table if exists audit_logs cascade;
 drop table if exists commissions cascade;
@@ -834,6 +835,24 @@ insert into service_partners (name, category, city, phone, open_24h) values
   ('Greenwood Pharmacy', 'Pharmacies', 'Harare', '+263 24 270 0355', false),
   ('QV Pharmacy', 'Pharmacies', 'Bulawayo', '+263 29 226 0344', false),
   ('Falls Pharmacy', 'Pharmacies', 'Victoria Falls', '+263 83 284 3529', false);
+
+-- ===========================================================================
+-- WHATSAPP BOT SESSIONS
+-- ===========================================================================
+-- Conversation memory for the WhatsApp bot (app/api/webhooks/whatsapp).
+-- Purely internal bot state — service role only, no anon access at all.
+create table whatsapp_sessions (
+  id                   uuid primary key default gen_random_uuid(),
+  wa_id                text not null unique,   -- sender's WhatsApp id (phone number, no '+')
+  state                text not null default 'MAIN_MENU',
+  draft                jsonb not null default '{}'::jsonb,
+  pending_reference    text,                   -- checkout reference awaiting Paynow payment
+  active_claim_number  text,                   -- claim currently accepting more documents
+  created_at           timestamptz not null default now(),
+  updated_at           timestamptz not null default now()
+);
+
+alter table whatsapp_sessions enable row level security;
 
 -- ============================================================================
 -- END OF SCHEMA

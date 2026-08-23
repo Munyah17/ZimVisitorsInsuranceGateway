@@ -26,7 +26,8 @@ export async function POST(request: Request) {
       await activatePaidPayment(
         status.reference,
         status.paynowReference,
-        status as unknown as Record<string, unknown>
+        status as unknown as Record<string, unknown>,
+        baseUrl
       );
     } else {
       await markPaymentFailed(status.reference, status as unknown as Record<string, unknown>);

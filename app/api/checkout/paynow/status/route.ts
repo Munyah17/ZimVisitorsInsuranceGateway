@@ -35,7 +35,8 @@ export async function GET(request: Request) {
           await activatePaidPayment(
             live.reference,
             live.paynowReference,
-            live as unknown as Record<string, unknown>
+            live as unknown as Record<string, unknown>,
+            getBaseUrl(request)
           );
           result = await getCheckoutStatus(reference);
         } else if (["cancelled", "disputed"].includes(live.status)) {
