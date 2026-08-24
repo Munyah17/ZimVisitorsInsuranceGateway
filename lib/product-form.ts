@@ -8,13 +8,12 @@ export const CATEGORIES = ["medical", "medical_plus_travel", "adventure", "trans
 export function buildCoverageDetails(body: Record<string, unknown>) {
   return {
     medical_limit_usd: Number(body.medicalLimitUsd) || 0,
-    emergency_assistance: Boolean(body.emergencyAssistance),
     accident_cover_usd: Number(body.accidentCoverUsd) || 0,
-    travel_protection: Boolean(body.travelProtection),
-    safari_assistance: Boolean(body.safariAssistance),
-    adventure_activities: Boolean(body.adventureActivities),
-    evacuation: Boolean(body.evacuation),
+    safari_assistance_usd: Number(body.safariAssistanceUsd) || 0,
+    emergency_evacuation_usd: Number(body.emergencyEvacuationUsd) || 0,
+    travel_protection_usd: Number(body.travelProtectionUsd) || 0,
     funeral_cover_usd: Number(body.funeralCoverUsd) || 0,
+    adventure_activities: Boolean(body.adventureActivities),
     base_rate_per_day_usd: Number(body.baseRatePerDayUsd) || 0,
     min_premium_usd: Number(body.minPremiumUsd) || 0,
   };

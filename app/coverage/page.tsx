@@ -32,48 +32,45 @@ const COVERAGE_ITEMS: {
 }[] = [
   {
     key: "medicalLimitUsd",
-    label: "Medical cover",
+    label: "Medical",
     icon: HeartPulse,
     describe: (p) => `Up to ${formatUSD(p.coverage.medicalLimitUsd)}`,
   },
   {
-    key: "emergencyAssistance",
-    label: "Emergency assistance",
-    icon: Siren,
-    describe: (p) =>
-      p.coverage.emergencyAssistance
-        ? "24/7 emergency response line, Air and Ground evacuation to the nearest service provider."
-        : "Not included",
-  },
-  {
     key: "accidentCoverUsd",
-    label: "Accident cover",
+    label: "Personal Accident cover",
     icon: ShieldCheck,
     describe: (p) => `Up to ${formatUSD(p.coverage.accidentCoverUsd)}`,
   },
   {
-    key: "travelProtection",
-    label: "Travel protection",
+    key: "safariAssistanceUsd",
+    label: "Safari Assistance",
+    icon: Mountain,
+    describe: (p) => `Up to ${formatUSD(p.coverage.safariAssistanceUsd)}, with roadside assistance and Air rescue`,
+  },
+  {
+    key: "emergencyEvacuationUsd",
+    label: "Emergency Assistance and Evacuation",
+    icon: Siren,
+    describe: (p) => `Up to ${formatUSD(p.coverage.emergencyEvacuationUsd)}`,
+  },
+  {
+    key: "travelProtectionUsd",
+    label: "Travel Protection",
     icon: PlaneTakeoff,
-    describe: (p) => (p.coverage.travelProtection ? "Delays, disruption and lost documents" : "Not included"),
-  },
-  {
-    key: "safariAssistance",
-    label: "Safari assistance",
-    icon: Mountain,
-    describe: (p) => (p.coverage.safariAssistance ? "Support across the national parks network" : "Not included"),
-  },
-  {
-    key: "adventureActivities",
-    label: "Adventure activities",
-    icon: Mountain,
-    describe: (p) => (p.coverage.adventureActivities ? "Rafting, bungee, gorge swing and more" : "Not included on this plan"),
+    describe: (p) => `Up to ${formatUSD(p.coverage.travelProtectionUsd)}`,
   },
   {
     key: "funeralCoverUsd",
     label: "Funeral Cover",
     icon: Ambulance,
     describe: (p) => `Covers cost of repatriation up to ${formatUSD(p.coverage.funeralCoverUsd)}`,
+  },
+  {
+    key: "adventureActivities",
+    label: "Adventure activities",
+    icon: Mountain,
+    describe: (p) => (p.coverage.adventureActivities ? "Rafting, bungee, gorge swing and more" : "Not included on this plan"),
   },
 ];
 

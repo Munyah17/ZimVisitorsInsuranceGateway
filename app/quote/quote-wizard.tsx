@@ -1,15 +1,14 @@
 "use client";
 
 /**
- * Insurance Quote Flow — 5-step wizard.
+ * Insurance Quote Flow — 4-step wizard.
  *
  * Step 1  Traveller details    -> writes `customers` on checkout
  *         Individual or group: a group leader fills in every traveller.
  * Step 2  Trip & itinerary     -> writes `travel_details`
  *         Includes accommodation, transport and ZTA document uploads.
- * Step 3  Coverage selection   -> reads `insurance_products`
- * Step 4  Premium calculation  -> creates a `quotes` row
- * Step 5  Payment              -> real Paynow checkout; on confirmed
+ * Step 3  Coverage & quote     -> reads `insurance_products`, creates a `quotes` row
+ * Step 4  Payment              -> real Paynow checkout; on confirmed
  *         payment the customer is redirected to /quote/return, which is
  *         where the issued policy, certificate and QR code are shown.
  */
@@ -58,13 +57,13 @@ import {
   ZTA_LEVY_RATE,
 } from "@/lib/quote-engine";
 import { DESTINATIONS, partnersNear } from "@/lib/partners-data";
+import { callingCodeFor } from "@/lib/calling-codes";
 import { cn, formatDate, formatUSD } from "@/lib/utils";
 
 const STEPS = [
   "Travellers",
   "Trip & itinerary",
-  "Coverage",
-  "Your quote",
+  "Coverage & quote",
   "Payment",
 ];
 
@@ -163,6 +162,7 @@ function travellerValid(t: Traveller) {
 
 export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
   const [step, setStep] = useState(0);
+  const [showErrors, setShowErrors] = useState(false);
   const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"card" | "mobile">("card");
@@ -214,6 +214,30 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
       travellers: f.travellers.map((t, idx) => (idx === i ? { ...t, ...patch } : t)),
     }));
 
+  /** Phone field is untouched (empty) or still just an auto-filled code — safe to overwrite. */
+  const isBarePhoneCode = (phone: string) => phone.trim() === "" || /^\+\d{1,4}$/.test(phone.trim());
+
+  const setLeaderNationality = (v: string) => {
+    const code = callingCodeFor(v);
+    setForm((f) => ({
+      ...f,
+      nationality: v,
+      phone: code && isBarePhoneCode(f.phone) ? `${code} ` : f.phone,
+    }));
+  };
+
+  const setTravellerNationality = (i: number, v: string) => {
+    const code = callingCodeFor(v);
+    setForm((f) => ({
+      ...f,
+      travellers: f.travellers.map((t, idx) =>
+        idx === i
+          ? { ...t, nationality: v, phone: code && isBarePhoneCode(t.phone) ? `${code} ` : t.phone }
+          : t
+      ),
+    }));
+  };
+
   const addTraveller = () =>
     setForm((f) => ({ ...f, travellers: [...f.travellers, { ...EMPTY_TRAVELLER }] }));
 
@@ -248,16 +272,36 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
 
   const days = tripDays(form.arrivalDate, form.departureDate);
 
+  const leaderErrors = {
+    fullName: form.fullName.trim().length > 2 ? "" : "Full name is required",
+    nationality: form.nationality ? "" : "Nationality is required",
+    passportNumber: form.passportNumber.trim().length > 4 ? "" : "Passport number is required",
+    dateOfBirth: form.dateOfBirth ? "" : "Date of birth is required",
+    email: /.+@.+\..+/.test(form.email) ? "" : "A valid email is required",
+    phone: form.phone.trim().length >= 7 ? "" : "Phone number is required",
+  };
+
+  const tripErrors = {
+    destination: form.destination ? "" : "Destination is required",
+    arrivalDate: form.arrivalDate ? "" : "Arrival date is required",
+    departureDate:
+      !form.departureDate ? "Departure date is required" : days > 0 ? "" : "Departure must be after arrival",
+    modeOfTransport: form.modeOfTransport ? "" : "Mode of transport is required",
+    accommodation:
+      form.purpose === "transit" || form.accommodation.trim() ? "" : "Accommodation is required",
+    company: form.purpose !== "business" || form.company.trim() ? "" : "Company / employer is required",
+    hostOrganization:
+      form.purpose !== "business" || form.hostOrganization.trim() ? "" : "Host organization is required",
+    institution: form.purpose !== "study" || form.institution.trim() ? "" : "Institution is required",
+    programme: form.purpose !== "study" || form.programme.trim() ? "" : "Programme / course is required",
+    finalDestination:
+      form.purpose !== "transit" || form.finalDestination.trim() ? "" : "Final destination is required",
+  };
+
   const stepValid = (() => {
     switch (step) {
       case 0: {
-        const leaderOk =
-          form.fullName.trim().length > 2 &&
-          form.nationality &&
-          form.passportNumber.trim().length > 4 &&
-          form.dateOfBirth &&
-          /.+@.+\..+/.test(form.email) &&
-          form.phone.trim().length >= 7;
+        const leaderOk = Object.values(leaderErrors).every((e) => !e);
         if (!leaderOk) return false;
         if (form.tripType === "group") {
           return form.travellers.length > 0 && form.travellers.every(travellerValid);
@@ -265,26 +309,8 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
         return true;
       }
       case 1: {
-        const purposeOk =
-          form.purpose === "business"
-            ? Boolean(form.company.trim() && form.hostOrganization.trim())
-            : form.purpose === "study"
-              ? Boolean(form.institution.trim() && form.programme.trim())
-              : form.purpose === "transit"
-                ? Boolean(form.finalDestination.trim())
-                : true;
-        const accommodationOk =
-          form.purpose === "transit" || Boolean(form.accommodation.trim());
-        return Boolean(
-          form.destination &&
-            form.arrivalDate &&
-            form.departureDate &&
-            days > 0 &&
-            form.activities.length > 0 &&
-            form.modeOfTransport &&
-            accommodationOk &&
-            purposeOk
-        );
+        const tripOk = Object.values(tripErrors).every((e) => !e);
+        return tripOk && form.activities.length > 0;
       }
       case 2:
         return Boolean(form.productId);
@@ -293,8 +319,22 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
     }
   })();
 
-  const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
-  const back = () => setStep((s) => Math.max(s - 1, 0));
+  const next = () => {
+    if (!stepValid) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  };
+  const back = () => {
+    setShowErrors(false);
+    setStep((s) => Math.max(s - 1, 0));
+  };
+
+  const showLeaderError = (key: keyof typeof leaderErrors) => (showErrors ? leaderErrors[key] : "");
+  const showTripError = (key: keyof typeof tripErrors) => (showErrors ? tripErrors[key] : "");
+  const errClass = (msg: string) => (msg ? "border-red-400 focus-visible:ring-red-400" : "");
 
   /**
    * Requests a Paynow hosted checkout session and does a full browser
@@ -420,10 +460,6 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                   <h1 className="text-2xl font-bold tracking-tight text-stone-900">
                     Who&apos;s travelling?
                   </h1>
-                  <p className="mt-1.5 text-sm text-stone-500">
-                    Names exactly as they appear in each passport. They go on the
-                    certificate.
-                  </p>
 
                   {/* Trip type */}
                   <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -471,37 +507,45 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                       <Label htmlFor="fullName">Full name</Label>
                       <Input
                         id="fullName"
+                        className={errClass(showLeaderError("fullName"))}
                         placeholder="e.g. John Smith"
                         value={form.fullName}
                         onChange={(e) => set("fullName", e.target.value)}
                       />
+                      {showLeaderError("fullName") && <p className="text-xs text-red-600">{showLeaderError("fullName")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="nationality">Nationality (as shown in passport)</Label>
                       <CountrySelect
                         id="nationality"
                         value={form.nationality}
-                        onChange={(v) => set("nationality", v)}
+                        onChange={setLeaderNationality}
                         placeholder="Select nationality"
+                        invalid={Boolean(showLeaderError("nationality"))}
                       />
+                      {showLeaderError("nationality") && <p className="text-xs text-red-600">{showLeaderError("nationality")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="passportNumber">Passport number</Label>
                       <Input
                         id="passportNumber"
+                        className={errClass(showLeaderError("passportNumber"))}
                         placeholder="e.g. P123456789"
                         value={form.passportNumber}
                         onChange={(e) => set("passportNumber", e.target.value)}
                       />
+                      {showLeaderError("passportNumber") && <p className="text-xs text-red-600">{showLeaderError("passportNumber")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="dob">Date of birth</Label>
                       <Input
                         id="dob"
                         type="date"
+                        className={errClass(showLeaderError("dateOfBirth"))}
                         value={form.dateOfBirth}
                         onChange={(e) => set("dateOfBirth", e.target.value)}
                       />
+                      {showLeaderError("dateOfBirth") && <p className="text-xs text-red-600">{showLeaderError("dateOfBirth")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="residence">
@@ -521,20 +565,24 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                       <Input
                         id="email"
                         type="email"
+                        className={errClass(showLeaderError("email"))}
                         placeholder="you@example.com"
                         value={form.email}
                         onChange={(e) => set("email", e.target.value)}
                       />
+                      {showLeaderError("email") && <p className="text-xs text-red-600">{showLeaderError("email")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="phone">Phone</Label>
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+44 7700 900123"
+                        className={errClass(showLeaderError("phone"))}
+                        placeholder={`${callingCodeFor(form.nationality) ?? "+44"} 7700 900123`}
                         value={form.phone}
                         onChange={(e) => set("phone", e.target.value)}
                       />
+                      {showLeaderError("phone") && <p className="text-xs text-red-600">{showLeaderError("phone")}</p>}
                     </div>
                   </div>
 
@@ -581,7 +629,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                                 <Label>Nationality</Label>
                                 <CountrySelect
                                   value={t.nationality}
-                                  onChange={(v) => setTraveller(i, { nationality: v })}
+                                  onChange={(v) => setTravellerNationality(i, v)}
                                   placeholder="Select nationality"
                                 />
                               </div>
@@ -614,7 +662,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                                 <Label>Phone</Label>
                                 <Input
                                   type="tel"
-                                  placeholder="+44 7700 900123"
+                                  placeholder={`${callingCodeFor(t.nationality) ?? "+44"} 7700 900123`}
                                   value={t.phone}
                                   onChange={(e) => setTraveller(i, { phone: e.target.value })}
                                 />
@@ -646,19 +694,17 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                   <h1 className="text-2xl font-bold tracking-tight text-stone-900">
                     Your trip to Zimbabwe
                   </h1>
-                  <p className="mt-1.5 text-sm text-stone-500">
-                    Dates and activities set your cover period and price. Itinerary
-                    details meet Zimbabwe Tourism Authority requirements.
-                  </p>
                   <div className="mt-7 grid gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <Label htmlFor="arrival">Arrival date</Label>
                       <Input
                         id="arrival"
                         type="date"
+                        className={errClass(showTripError("arrivalDate"))}
                         value={form.arrivalDate}
                         onChange={(e) => set("arrivalDate", e.target.value)}
                       />
+                      {showTripError("arrivalDate") && <p className="text-xs text-red-600">{showTripError("arrivalDate")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="departure">Departure date</Label>
@@ -666,14 +712,17 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                         id="departure"
                         type="date"
                         min={form.arrivalDate}
+                        className={errClass(showTripError("departureDate"))}
                         value={form.departureDate}
                         onChange={(e) => set("departureDate", e.target.value)}
                       />
+                      {showTripError("departureDate") && <p className="text-xs text-red-600">{showTripError("departureDate")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="destination">Destination</Label>
                       <Select
                         id="destination"
+                        className={errClass(showTripError("destination"))}
                         value={form.destination}
                         onChange={(e) => set("destination", e.target.value)}
                       >
@@ -682,6 +731,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                           <option key={d.value} value={d.value}>{d.label}</option>
                         ))}
                       </Select>
+                      {showTripError("destination") && <p className="text-xs text-red-600">{showTripError("destination")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="purpose">Purpose of visit</Label>
@@ -703,19 +753,23 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                           <Label htmlFor="company">Company / employer</Label>
                           <Input
                             id="company"
+                            className={errClass(showTripError("company"))}
                             placeholder="e.g. Acme Logistics Ltd"
                             value={form.company}
                             onChange={(e) => set("company", e.target.value)}
                           />
+                          {showTripError("company") && <p className="text-xs text-red-600">{showTripError("company")}</p>}
                         </div>
                         <div className="space-y-1.5">
                           <Label htmlFor="hostOrganization">Host organization in Zimbabwe</Label>
                           <Input
                             id="hostOrganization"
+                            className={errClass(showTripError("hostOrganization"))}
                             placeholder="Who you are visiting"
                             value={form.hostOrganization}
                             onChange={(e) => set("hostOrganization", e.target.value)}
                           />
+                          {showTripError("hostOrganization") && <p className="text-xs text-red-600">{showTripError("hostOrganization")}</p>}
                         </div>
                       </>
                     )}
@@ -725,19 +779,23 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                           <Label htmlFor="institution">Institution in Zimbabwe</Label>
                           <Input
                             id="institution"
+                            className={errClass(showTripError("institution"))}
                             placeholder="e.g. University of Zimbabwe"
                             value={form.institution}
                             onChange={(e) => set("institution", e.target.value)}
                           />
+                          {showTripError("institution") && <p className="text-xs text-red-600">{showTripError("institution")}</p>}
                         </div>
                         <div className="space-y-1.5">
                           <Label htmlFor="programme">Programme / course</Label>
                           <Input
                             id="programme"
+                            className={errClass(showTripError("programme"))}
                             placeholder="e.g. Semester exchange, BSc Biology"
                             value={form.programme}
                             onChange={(e) => set("programme", e.target.value)}
                           />
+                          {showTripError("programme") && <p className="text-xs text-red-600">{showTripError("programme")}</p>}
                         </div>
                       </>
                     )}
@@ -746,10 +804,12 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                         <Label htmlFor="finalDestination">Final destination</Label>
                         <Input
                           id="finalDestination"
+                          className={errClass(showTripError("finalDestination"))}
                           placeholder="Where you are headed after Zimbabwe"
                           value={form.finalDestination}
                           onChange={(e) => set("finalDestination", e.target.value)}
                         />
+                        {showTripError("finalDestination") && <p className="text-xs text-red-600">{showTripError("finalDestination")}</p>}
                       </div>
                     )}
                   </div>
@@ -797,6 +857,9 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
 
                   <div className="mt-7">
                     <Label>Planned activities</Label>
+                    {showErrors && form.activities.length === 0 && (
+                      <p className="mt-1 text-xs text-red-600">Select at least one activity</p>
+                    )}
                     <div className="mt-2.5 grid gap-3 sm:grid-cols-3">
                       {ACTIVITIES.map((a) => {
                         const selected = form.activities.includes(a.id);
@@ -841,17 +904,19 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                         <BedDouble className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-stone-400" />
                         <Input
                           id="accommodation"
-                          className="pl-10"
+                          className={cn("pl-10", errClass(showTripError("accommodation")))}
                           placeholder="e.g. Victoria Falls Hotel"
                           value={form.accommodation}
                           onChange={(e) => set("accommodation", e.target.value)}
                         />
                       </div>
+                      {showTripError("accommodation") && <p className="text-xs text-red-600">{showTripError("accommodation")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="modeOfTransport">Mode of transport</Label>
                       <Select
                         id="modeOfTransport"
+                        className={errClass(showTripError("modeOfTransport"))}
                         value={form.modeOfTransport}
                         onChange={(e) => set("modeOfTransport", e.target.value)}
                       >
@@ -860,6 +925,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                           <option key={m} value={m}>{m}</option>
                         ))}
                       </Select>
+                      {showTripError("modeOfTransport") && <p className="text-xs text-red-600">{showTripError("modeOfTransport")}</p>}
                     </div>
                     <div className="space-y-1.5 sm:col-span-2">
                       <Label htmlFor="transport">
@@ -919,7 +985,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
               </Card>
             )}
 
-            {/* ==================== STEP 3: COVERAGE SELECTION ==================== */}
+            {/* ==================== STEP 3: COVERAGE & QUOTE ==================== */}
             {step === 2 && (
               <div>
                 <h1 className="text-2xl font-bold tracking-tight text-stone-900">
@@ -955,7 +1021,6 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                           <div className="flex items-center gap-3">
                             <span className="text-2xl font-bold text-stone-900">
                               {formatUSD(p.basePriceUsd)}
-                              <span className="text-xs font-medium text-stone-400"> from</span>
                             </span>
                             <span
                               className={cn(
@@ -980,89 +1045,70 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                     );
                   })}
                 </div>
+
+                <Card className="mt-8">
+                  <CardContent className="p-7 sm:p-9">
+                    <h2 className="text-xl font-bold tracking-tight text-stone-900">Your quote</h2>
+
+                    <div className="rounded-2xl bg-safari-950 p-6 text-white">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.18em] text-sunset-300">
+                            {product.name}
+                          </p>
+                          <p className="mt-1 text-sm text-safari-200/80">
+                            {form.fullName || "Visitor"}
+                            {totalTravellers > 1 && ` + ${totalTravellers - 1} traveller${totalTravellers > 2 ? "s" : ""}`}
+                            {" "}· {days} day{days === 1 ? "" : "s"} ·{" "}
+                            {form.arrivalDate && formatDate(form.arrivalDate)} to{" "}
+                            {form.departureDate && formatDate(form.departureDate)}
+                          </p>
+                        </div>
+                        <ShieldCheck className="size-6 text-sunset-300" />
+                      </div>
+                      <p className="mt-6 text-4xl font-bold tracking-tight">
+                        {formatUSD(pricing.grandTotal)}
+                        <span className="ml-2 text-sm font-medium text-safari-200/70">USD total</span>
+                      </p>
+                    </div>
+
+                    <dl className="mt-6 space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <dt className="font-semibold text-stone-900">
+                          Premium
+                          {pricing.travellers > 1 && (
+                            <span className="font-normal text-stone-400"> · {pricing.travellers} travellers</span>
+                          )}
+                        </dt>
+                        <dd className="font-semibold text-stone-900">{formatUSD(pricing.premium)}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-stone-500">
+                          ZTA Levy ({(ZTA_LEVY_RATE * 100).toFixed(0)}% of premium)
+                        </dt>
+                        <dd className="font-medium text-stone-900">{formatUSD(pricing.ztaLevy)}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-stone-500">
+                          Stamp Duty ({(STAMP_DUTY_RATE * 100).toFixed(0)}% of premium)
+                        </dt>
+                        <dd className="font-medium text-stone-900">{formatUSD(pricing.stampDuty)}</dd>
+                      </div>
+                      <div className="flex justify-between border-t border-stone-200 pt-3 text-base">
+                        <dt className="font-bold text-stone-900">Total</dt>
+                        <dd className="font-bold text-safari-800">{formatUSD(pricing.grandTotal)}</dd>
+                      </div>
+                    </dl>
+                  </CardContent>
+                </Card>
               </div>
             )}
 
-            {/* ==================== STEP 4: PREMIUM CALCULATION ==================== */}
+            {/* ==================== STEP 4: CHECKOUT ==================== */}
             {step === 3 && (
               <Card>
                 <CardContent className="p-7 sm:p-9">
-                  <h1 className="text-2xl font-bold tracking-tight text-stone-900">Your quote</h1>
-                  <p className="mt-1.5 text-sm text-stone-500">
-                    Transparent pricing. This exact breakdown is stored with your policy.
-                  </p>
-
-                  <div className="mt-7 rounded-2xl bg-safari-950 p-6 text-white">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-sunset-300">
-                          {product.name}
-                        </p>
-                        <p className="mt-1 text-sm text-safari-200/80">
-                          {form.fullName || "Visitor"}
-                          {totalTravellers > 1 && ` + ${totalTravellers - 1} traveller${totalTravellers > 2 ? "s" : ""}`}
-                          {" "}· {days} day{days === 1 ? "" : "s"} ·{" "}
-                          {form.arrivalDate && formatDate(form.arrivalDate)} to{" "}
-                          {form.departureDate && formatDate(form.departureDate)}
-                        </p>
-                      </div>
-                      <ShieldCheck className="size-6 text-sunset-300" />
-                    </div>
-                    <p className="mt-6 text-4xl font-bold tracking-tight">
-                      {formatUSD(pricing.grandTotal)}
-                      <span className="ml-2 text-sm font-medium text-safari-200/70">USD total</span>
-                    </p>
-                  </div>
-
-                  <dl className="mt-6 space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <dt className="font-semibold text-stone-900">
-                        Premium
-                        {pricing.travellers > 1 && (
-                          <span className="font-normal text-stone-400"> · {pricing.travellers} travellers</span>
-                        )}
-                      </dt>
-                      <dd className="font-semibold text-stone-900">{formatUSD(pricing.premium)}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-stone-500">
-                        ZTA Levy ({(ZTA_LEVY_RATE * 100).toFixed(0)}% of premium)
-                      </dt>
-                      <dd className="font-medium text-stone-900">{formatUSD(pricing.ztaLevy)}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-stone-500">
-                        Stamp Duty ({(STAMP_DUTY_RATE * 100).toFixed(0)}% of premium)
-                      </dt>
-                      <dd className="font-medium text-stone-900">{formatUSD(pricing.stampDuty)}</dd>
-                    </div>
-                    <div className="flex justify-between border-t border-stone-200 pt-3">
-                      <dt className="font-semibold text-stone-900">Total Due</dt>
-                      <dd className="font-semibold text-stone-900">{formatUSD(pricing.total)}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-stone-500">Processing fee</dt>
-                      <dd className="font-medium text-stone-900">{formatUSD(pricing.platformFee)}</dd>
-                    </div>
-                    <div className="flex justify-between border-t border-stone-200 pt-3 text-base">
-                      <dt className="font-bold text-stone-900">Grand Total</dt>
-                      <dd className="font-bold text-safari-800">{formatUSD(pricing.grandTotal)}</dd>
-                    </div>
-                  </dl>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* ==================== STEP 5: CHECKOUT ==================== */}
-            {step === 4 && (
-              <Card>
-                <CardContent className="p-7 sm:p-9">
                   <h1 className="text-2xl font-bold tracking-tight text-stone-900">Payment</h1>
-                  <p className="mt-1.5 text-sm text-stone-500">
-                    You&apos;ll be securely redirected to Paynow to complete payment.
-                    We never see or store your card or mobile money details —
-                    Paynow handles that entirely.
-                  </p>
 
                   <button
                     type="button"
@@ -1101,15 +1147,9 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                     </span>
                     <span>
                       <span className="block text-sm font-semibold text-stone-900">Local mobile money</span>
-                      <span className="mt-0.5 block text-xs text-stone-400">
-                        EcoCash · OneMoney — for Zimbabwean travel agents booking on a client&apos;s behalf
-                      </span>
+                      <span className="mt-0.5 block text-xs text-stone-400">EcoCash · OneMoney</span>
                     </span>
                   </button>
-
-                  <p className="mt-2.5 text-center text-xs text-stone-400">
-                    You&apos;ll confirm {paymentMethod === "card" ? "your card" : "EcoCash or OneMoney"} on Paynow&apos;s secure checkout page.
-                  </p>
 
                   <div className="mt-7 flex items-center justify-between rounded-xl bg-stone-50 px-5 py-4">
                     <span className="text-sm text-stone-500">
@@ -1143,9 +1183,6 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                       </>
                     )}
                   </Button>
-                  <p className="mt-3 text-center text-xs text-stone-400">
-                    Secured by Paynow Zimbabwe · Instant certificate on confirmed payment
-                  </p>
                 </CardContent>
               </Card>
             )}
@@ -1154,19 +1191,24 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
         </AnimatePresence>
 
         {/* Nav buttons */}
-        {step < 4 && (
+        {step < 3 && (
           <div className="mt-8 flex items-center justify-between">
             <Button variant="ghost" onClick={back} disabled={step === 0}>
               <ArrowLeft className="size-4" />
               Back
             </Button>
-            <Button onClick={next} disabled={!stepValid} size="lg">
-              {step === 3 ? "Continue to payment" : "Continue"}
+            <Button onClick={next} size="lg">
+              {step === 2 ? "Continue to payment" : "Continue"}
               <ArrowRight className="size-4" />
             </Button>
           </div>
         )}
-        {step === 4 && (
+        {step < 3 && showErrors && !stepValid && (
+          <p className="mt-3 text-right text-xs text-red-600">
+            Please fill in the highlighted fields to continue.
+          </p>
+        )}
+        {step === 3 && (
           <div className="mt-8">
             <Button variant="ghost" onClick={back} disabled={paying}>
               <ArrowLeft className="size-4" />

@@ -13,6 +13,8 @@ interface CountrySelectProps {
   /** e.g. "Same as nationality" — an extra option at the top that clears the value. */
   emptyLabel?: string;
   className?: string;
+  /** Highlights the field red, e.g. after a failed required-field check. */
+  invalid?: boolean;
 }
 
 export function CountrySelect({
@@ -22,6 +24,7 @@ export function CountrySelect({
   placeholder = "Select country",
   emptyLabel,
   className,
+  invalid,
 }: CountrySelectProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -56,7 +59,10 @@ export function CountrySelect({
         id={id}
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "flex h-11 w-full items-center justify-between rounded-xl border border-stone-300 bg-white px-4 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-safari-500 focus-visible:border-safari-500",
+          "flex h-11 w-full items-center justify-between rounded-xl border bg-white px-4 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2",
+          invalid
+            ? "border-red-400 focus-visible:ring-red-400 focus-visible:border-red-400"
+            : "border-stone-300 focus-visible:ring-safari-500 focus-visible:border-safari-500",
           value ? "text-stone-900" : "text-stone-400"
         )}
       >

@@ -34,13 +34,12 @@ interface Product {
   category: string;
   coverage_details: {
     medical_limit_usd?: number;
-    emergency_assistance?: boolean;
     accident_cover_usd?: number;
-    travel_protection?: boolean;
-    safari_assistance?: boolean;
-    adventure_activities?: boolean;
-    evacuation?: boolean;
+    safari_assistance_usd?: number;
+    emergency_evacuation_usd?: number;
+    travel_protection_usd?: number;
     funeral_cover_usd?: number;
+    adventure_activities?: boolean;
     base_rate_per_day_usd?: number;
     min_premium_usd?: number;
   };
@@ -61,12 +60,11 @@ interface FormState {
   minPremiumUsd: string;
   medicalLimitUsd: string;
   accidentCoverUsd: string;
+  safariAssistanceUsd: string;
+  emergencyEvacuationUsd: string;
+  travelProtectionUsd: string;
   funeralCoverUsd: string;
-  emergencyAssistance: boolean;
-  travelProtection: boolean;
-  safariAssistance: boolean;
   adventureActivities: boolean;
-  evacuation: boolean;
   featuresText: string;
   popular: boolean;
   featured: boolean;
@@ -83,12 +81,11 @@ const EMPTY_FORM: FormState = {
   minPremiumUsd: "",
   medicalLimitUsd: "",
   accidentCoverUsd: "",
+  safariAssistanceUsd: "",
+  emergencyEvacuationUsd: "",
+  travelProtectionUsd: "",
   funeralCoverUsd: "",
-  emergencyAssistance: true,
-  travelProtection: true,
-  safariAssistance: false,
   adventureActivities: false,
-  evacuation: true,
   featuresText: "",
   popular: false,
   featured: true,
@@ -107,12 +104,11 @@ function productToForm(p: Product): FormState {
     minPremiumUsd: String(c.min_premium_usd ?? ""),
     medicalLimitUsd: String(c.medical_limit_usd ?? ""),
     accidentCoverUsd: String(c.accident_cover_usd ?? ""),
+    safariAssistanceUsd: String(c.safari_assistance_usd ?? ""),
+    emergencyEvacuationUsd: String(c.emergency_evacuation_usd ?? ""),
+    travelProtectionUsd: String(c.travel_protection_usd ?? ""),
     funeralCoverUsd: String(c.funeral_cover_usd ?? ""),
-    emergencyAssistance: Boolean(c.emergency_assistance),
-    travelProtection: Boolean(c.travel_protection),
-    safariAssistance: Boolean(c.safari_assistance),
     adventureActivities: Boolean(c.adventure_activities),
-    evacuation: Boolean(c.evacuation),
     featuresText: (p.features ?? []).join("\n"),
     popular: p.popular,
     featured: p.featured,
@@ -131,12 +127,11 @@ function formToPayload(f: FormState) {
     minPremiumUsd: Number(f.minPremiumUsd),
     medicalLimitUsd: Number(f.medicalLimitUsd),
     accidentCoverUsd: Number(f.accidentCoverUsd),
+    safariAssistanceUsd: Number(f.safariAssistanceUsd),
+    emergencyEvacuationUsd: Number(f.emergencyEvacuationUsd),
+    travelProtectionUsd: Number(f.travelProtectionUsd),
     funeralCoverUsd: Number(f.funeralCoverUsd),
-    emergencyAssistance: f.emergencyAssistance,
-    travelProtection: f.travelProtection,
-    safariAssistance: f.safariAssistance,
     adventureActivities: f.adventureActivities,
-    evacuation: f.evacuation,
     features: f.featuresText.split("\n").map((s) => s.trim()).filter(Boolean),
     popular: f.popular,
     featured: f.featured,
@@ -288,38 +283,40 @@ export function ProductPlansSection() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <Label htmlFor="pMedicalLimit">Medical limit (USD)</Label>
+                <Label htmlFor="pMedicalLimit">Medical (USD)</Label>
                 <Input id="pMedicalLimit" type="number" min="0" step="1" value={form.medicalLimitUsd} onChange={(e) => set("medicalLimitUsd", e.target.value)} required />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="pAccidentCover">Accident cover (USD)</Label>
+                <Label htmlFor="pAccidentCover">Personal Accident (USD)</Label>
                 <Input id="pAccidentCover" type="number" min="0" step="1" value={form.accidentCoverUsd} onChange={(e) => set("accidentCoverUsd", e.target.value)} required />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="pFuneralCover">Funeral cover — repatriation (USD)</Label>
+                <Label htmlFor="pSafariAssistance">Safari Assistance (USD)</Label>
+                <Input id="pSafariAssistance" type="number" min="0" step="1" value={form.safariAssistanceUsd} onChange={(e) => set("safariAssistanceUsd", e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pEmergencyEvacuation">Emergency Assistance & Evacuation (USD)</Label>
+                <Input id="pEmergencyEvacuation" type="number" min="0" step="1" value={form.emergencyEvacuationUsd} onChange={(e) => set("emergencyEvacuationUsd", e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pTravelProtection">Travel Protection (USD)</Label>
+                <Input id="pTravelProtection" type="number" min="0" step="1" value={form.travelProtectionUsd} onChange={(e) => set("travelProtectionUsd", e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pFuneralCover">Funeral — repatriation (USD)</Label>
                 <Input id="pFuneralCover" type="number" min="0" step="1" value={form.funeralCoverUsd} onChange={(e) => set("funeralCoverUsd", e.target.value)} required />
               </div>
             </div>
 
-            <div className="grid gap-2.5 sm:grid-cols-2">
-              {([
-                ["emergencyAssistance", "24/7 emergency assistance"],
-                ["travelProtection", "Travel protection & delays"],
-                ["safariAssistance", "Safari assistance network"],
-                ["adventureActivities", "Adventure activities cover"],
-                ["evacuation", "Emergency medical evacuation"],
-              ] as const).map(([key, label]) => (
-                <label key={key} className="flex items-center gap-2 text-sm text-stone-600">
-                  <input
-                    type="checkbox"
-                    checked={form[key]}
-                    onChange={(e) => set(key, e.target.checked)}
-                    className="size-4 rounded border-stone-300"
-                  />
-                  {label}
-                </label>
-              ))}
-            </div>
+            <label className="flex items-center gap-2 text-sm text-stone-600">
+              <input
+                type="checkbox"
+                checked={form.adventureActivities}
+                onChange={(e) => set("adventureActivities", e.target.checked)}
+                className="size-4 rounded border-stone-300"
+              />
+              Adventure activities cover
+            </label>
 
             <div className="space-y-1.5">
               <Label htmlFor="pFeatures">Features (one per line, shown as bullets on the plan card)</Label>

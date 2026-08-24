@@ -74,11 +74,6 @@ export function PartnersDirectory() {
             <h1 className="mt-5 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
               Service Partners
             </h1>
-            <p className="mx-auto mt-3 max-w-xl text-stone-500">
-              Over 100 clinics, medical practices, ambulance services and
-              emergency care providers across Zimbabwe accept your Zim
-              Travelmate cover directly, with no upfront payment.
-            </p>
           </div>
         </FadeIn>
 

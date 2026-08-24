@@ -25,10 +25,11 @@ function summarizeCoverage(details: Record<string, unknown> | null): string {
   if (!details) return "Medical + Emergency Assistance";
   const parts: string[] = [];
   if (details.medical_limit_usd) parts.push(`$${details.medical_limit_usd} medical`);
-  if (details.emergency_assistance) parts.push("Emergency assistance");
-  if (details.travel_protection) parts.push("Travel protection");
-  if (details.safari_assistance) parts.push("Safari assistance");
-  if (details.evacuation) parts.push("Evacuation");
+  if (details.accident_cover_usd) parts.push("Personal accident");
+  if (details.travel_protection_usd) parts.push("Travel protection");
+  if (details.safari_assistance_usd) parts.push("Safari assistance");
+  if (details.emergency_evacuation_usd) parts.push("Emergency assistance & evacuation");
+  if (details.funeral_cover_usd) parts.push("Funeral cover");
   return parts.length > 0 ? parts.join(" + ") : "Medical + Emergency Assistance";
 }
 

@@ -36,13 +36,12 @@ export async function PATCH(
   // Coverage fields all live inside one jsonb column — if any were sent, rebuild the whole object.
   const coverageFields = [
     "medicalLimitUsd",
-    "emergencyAssistance",
     "accidentCoverUsd",
-    "travelProtection",
-    "safariAssistance",
-    "adventureActivities",
-    "evacuation",
+    "safariAssistanceUsd",
+    "emergencyEvacuationUsd",
+    "travelProtectionUsd",
     "funeralCoverUsd",
+    "adventureActivities",
     "baseRatePerDayUsd",
     "minPremiumUsd",
   ];

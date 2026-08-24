@@ -30,13 +30,12 @@ export interface InsuranceProduct {
   minPremiumUsd: number;
   coverage: {
     medicalLimitUsd: number;
-    emergencyAssistance: boolean;
     accidentCoverUsd: number;
-    travelProtection: boolean;
-    safariAssistance: boolean;
-    adventureActivities: boolean;
-    evacuation: boolean;
+    safariAssistanceUsd: number;
+    emergencyEvacuationUsd: number;
+    travelProtectionUsd: number;
     funeralCoverUsd: number;
+    adventureActivities: boolean;
   };
   features: string[];
   popular?: boolean;
@@ -62,21 +61,20 @@ export const PRODUCTS: InsuranceProduct[] = [
     minPremiumUsd: 30,
     coverage: {
       medicalLimitUsd: 10000,
-      emergencyAssistance: true,
-      accidentCoverUsd: 5000,
-      travelProtection: true,
-      safariAssistance: true,
-      adventureActivities: false,
-      evacuation: true,
+      accidentCoverUsd: 2000,
+      safariAssistanceUsd: 2000,
+      emergencyEvacuationUsd: 4000,
+      travelProtectionUsd: 2000,
       funeralCoverUsd: 10000,
+      adventureActivities: false,
     },
     features: [
-      "$30,000 medical cover",
-      "24/7 emergency assistance",
+      "$10,000 medical cover",
+      "24/7 emergency assistance & evacuation",
       "Travel protection & delays",
       "Safari assistance network",
-      "Emergency medical evacuation",
-      "$5,000 accident cover",
+      "$2,000 personal accident cover",
+      "$10,000 funeral cover",
     ],
     popular: true,
     featured: true,

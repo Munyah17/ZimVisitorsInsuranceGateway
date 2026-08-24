@@ -44,6 +44,7 @@ export default function ClaimsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [claimNumber, setClaimNumber] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState("");
+  const [attempted, setAttempted] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [form, setForm] = useState({
     policyNumber: "",
@@ -59,11 +60,16 @@ export default function ClaimsPage() {
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const valid =
-    form.policyNumber.trim() &&
-    form.incidentDate &&
-    form.location.trim() &&
-    form.description.trim().length > 10;
+  const errors = {
+    policyNumber: form.policyNumber.trim() ? "" : "Policy number is required",
+    incidentDate: form.incidentDate ? "" : "Incident date is required",
+    location: form.location.trim() ? "" : "Location is required",
+    description:
+      form.description.trim().length > 10 ? "" : "Please describe what happened (10+ characters)",
+  };
+  const valid = Object.values(errors).every((e) => !e);
+  const showError = (key: keyof typeof errors) => attempted && errors[key];
+  const fieldClass = (key: keyof typeof errors) => (showError(key) ? "border-red-400 focus-visible:ring-red-400" : "");
 
   const addFiles = (list: FileList | null) => {
     if (!list) return;
@@ -74,6 +80,8 @@ export default function ClaimsPage() {
     setFiles((prev) => prev.filter((_, i) => i !== index));
 
   const submit = async () => {
+    setAttempted(true);
+    if (!valid) return;
     setSubmitting(true);
     setSubmitError("");
     try {
@@ -175,10 +183,6 @@ export default function ClaimsPage() {
           <h1 className="mt-5 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
             Submit a claim
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-stone-500">
-            Tell us what happened. Have your policy number, receipts and any
-            medical reports ready. Photos are fine.
-          </p>
         </div>
 
         <Card className="mt-9">
@@ -188,20 +192,23 @@ export default function ClaimsPage() {
                 <Label htmlFor="policyNumber">Policy number</Label>
                 <Input
                   id="policyNumber"
-                  className="font-mono uppercase"
+                  className={cn("font-mono uppercase", fieldClass("policyNumber"))}
                   placeholder="e.g. ZVIG-2026-00001"
                   value={form.policyNumber}
                   onChange={(e) => set("policyNumber", e.target.value)}
                 />
+                {showError("policyNumber") && <p className="text-xs text-red-600">{errors.policyNumber}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="incidentDate">Incident date</Label>
                 <Input
                   id="incidentDate"
                   type="date"
+                  className={fieldClass("incidentDate")}
                   value={form.incidentDate}
                   onChange={(e) => set("incidentDate", e.target.value)}
                 />
+                {showError("incidentDate") && <p className="text-xs text-red-600">{errors.incidentDate}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="incidentType">Incident type</Label>
@@ -222,21 +229,24 @@ export default function ClaimsPage() {
                   <MapPin className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-stone-400" />
                   <Input
                     id="location"
-                    className="pl-10"
+                    className={cn("pl-10", fieldClass("location"))}
                     placeholder="e.g. Victoria Falls"
                     value={form.location}
                     onChange={(e) => set("location", e.target.value)}
                   />
                 </div>
+                {showError("location") && <p className="text-xs text-red-600">{errors.location}</p>}
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label htmlFor="description">What happened?</Label>
                 <Textarea
                   id="description"
-                  placeholder="Describe the incident, any treatment received, and costs incurred…"
+                  className={fieldClass("description")}
+                  placeholder="Describe the incident…"
                   value={form.description}
                   onChange={(e) => set("description", e.target.value)}
                 />
+                {showError("description") && <p className="text-xs text-red-600">{errors.description}</p>}
               </div>
             </div>
 
@@ -333,7 +343,7 @@ export default function ClaimsPage() {
             <Button
               className="mt-7 w-full"
               size="lg"
-              disabled={!valid || submitting}
+              disabled={submitting}
               onClick={submit}
             >
               {submitting ? (
@@ -344,10 +354,6 @@ export default function ClaimsPage() {
                 <>Submit claim</>
               )}
             </Button>
-            <p className="mt-3 text-center text-xs text-stone-400">
-              Claims are triaged by Zim Travelmate and assessed by our licensed
-              underwriting partner. You&apos;ll receive updates by email and WhatsApp.
-            </p>
           </CardContent>
         </Card>
       </div>
