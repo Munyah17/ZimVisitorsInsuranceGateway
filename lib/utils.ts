@@ -21,3 +21,16 @@ export function formatDate(iso: string) {
   const month = String(d.getMonth() + 1).padStart(2, "0");
   return `${day}-${month}-${d.getFullYear()}`;
 }
+
+/** "5 min ago", "3 h ago", "2 d ago" — computed from a real timestamp, never fabricated. */
+export function formatRelativeTime(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} d ago`;
+  return formatDate(iso.slice(0, 10));
+}
