@@ -1,9 +1,14 @@
 /**
  * GET /api/private/admin-data — real data for the Super Admin console's
- * platform-config sections (Users & Roles, Organizations, Audit Logs,
- * Payment gateways, System Health). Protected by the /private session
- * cookie, same as /api/private/overview. No fabricated numbers here — a
- * status is only shown if it was actually checked.
+ * platform-config sections (User Management, Staff Management, Organizations,
+ * Audit Logs, Payment gateways, System Health). Protected by the /private
+ * session cookie, same as /api/private/overview. No fabricated numbers
+ * here — a status is only shown if it was actually checked.
+ *
+ * Customers and staff (agent/admin/underwriter_staff/support) are fetched
+ * as two separate queries, not one list split client side — staff
+ * accounts are a small, fixed set and must never be pushed out of a
+ * shared limit by customer signup volume.
  */
 
 import { NextResponse } from "next/server";
@@ -18,8 +23,9 @@ export async function GET(request: Request) {
 
   const admin = getSupabaseAdmin();
 
-  const [{ data: userRows, error: usersError }, { data: orgRows }, { data: auditRows }] = await Promise.all([
-    admin.from("users").select("name, email, role, created_at").order("created_at", { ascending: false }).limit(50),
+  const [{ data: customerRows, error: usersError }, { data: staffRows }, { data: orgRows }, { data: auditRows }] = await Promise.all([
+    admin.from("users").select("name, email, role, created_at").eq("role", "customer").order("created_at", { ascending: false }).limit(100),
+    admin.from("users").select("name, email, role, created_at").neq("role", "customer").order("created_at", { ascending: false }).limit(200),
     admin.from("organizations").select("name, type, license_number, status").order("created_at", { ascending: true }),
     admin
       .from("audit_logs")
@@ -28,11 +34,13 @@ export async function GET(request: Request) {
       .limit(20),
   ]);
 
-  const users = (userRows ?? []).map((u) => ({
+  const mapUser = (u: { name: unknown; email: unknown; role: unknown }) => ({
     name: u.name as string,
     email: u.email as string,
     role: u.role as string,
-  }));
+  });
+  const customers = (customerRows ?? []).map(mapUser);
+  const staff = (staffRows ?? []).map(mapUser);
 
   const organizations = (orgRows ?? []).map((o) => ({
     name: o.name as string,
@@ -62,5 +70,5 @@ export async function GET(request: Request) {
     { name: "WhatsApp bot", ok: isWhatsAppConfigured() },
   ];
 
-  return NextResponse.json({ users, organizations, auditLog, gateways, services });
+  return NextResponse.json({ customers, staff, organizations, auditLog, gateways, services });
 }

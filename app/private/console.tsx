@@ -34,6 +34,7 @@ import {
   Settings,
   ShieldAlert,
   TriangleAlert,
+  UserCog,
   Users,
   Wallet,
   X,
@@ -62,6 +63,7 @@ type SectionId =
   | "policies"
   | "claims"
   | "users"
+  | "staff"
   | "organizations"
   | "partners"
   | "apikeys"
@@ -78,7 +80,8 @@ const SECTIONS: { id: SectionId; label: string; icon: LucideIcon }[] = [
   { id: "products", label: "Products & Pricing", icon: Package },
   { id: "policies", label: "Policies", icon: FileText },
   { id: "claims", label: "Claims", icon: ShieldAlert },
-  { id: "users", label: "Users & Roles", icon: Users },
+  { id: "users", label: "User Management", icon: Users },
+  { id: "staff", label: "Staff Management", icon: UserCog },
   { id: "organizations", label: "Organizations", icon: Building2 },
   { id: "partners", label: "Service Partners", icon: Handshake },
   { id: "apikeys", label: "API Keys", icon: KeyRound },
@@ -128,7 +131,8 @@ const INITIAL_FLAGS = [
 const API_KEYS: { name: string; key: string; scopes: string; status: string }[] = [];
 
 interface AdminData {
-  users: { name: string; email: string; role: string }[];
+  customers: { name: string; email: string; role: string }[];
+  staff: { name: string; email: string; role: string }[];
   organizations: { name: string; type: string; license: string; status: string }[];
   auditLog: { who: string; what: string; when: string }[];
   gateways: { name: string; region: string; status: string }[];
@@ -179,7 +183,7 @@ export function SuperAdminConsole() {
   const loadAdminData = () => {
     fetch("/api/private/admin-data")
       .then((r) => r.json())
-      .then((data) => setAdminData("users" in data ? data : null))
+      .then((data) => setAdminData("customers" in data ? data : null))
       .catch(() => setAdminData(null));
   };
 
@@ -445,22 +449,53 @@ export function SuperAdminConsole() {
     </Card>
   );
 
-  const usersCard = (
+  const customersCard = (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Users & roles</CardTitle>
-        <CardDescription>Every account across all portals — change a role and save</CardDescription>
+        <CardTitle>User management</CardTitle>
+        <CardDescription>Every customer / visitor account</CardDescription>
       </CardHeader>
       <CardContent>
         {!adminData ? (
           <div className="flex justify-center py-8 text-stone-400"><Loader2 className="size-5 animate-spin" /></div>
-        ) : adminData.users.length === 0 ? (
-          <p className="py-8 text-center text-sm text-stone-400">No accounts yet.</p>
+        ) : adminData.customers.length === 0 ? (
+          <p className="py-8 text-center text-sm text-stone-400">No customer accounts yet.</p>
+        ) : (
+          <ul className="max-h-[560px] space-y-1 overflow-y-auto">
+            {adminData.customers.map((u) => (
+              <li
+                key={u.email}
+                className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-stone-50"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-stone-900">{u.name}</p>
+                  <p className="truncate text-xs text-stone-500">{u.email}</p>
+                </div>
+                <Badge variant="outline">Customer</Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const staffCard = (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Staff management</CardTitle>
+        <CardDescription>Agents, admins, underwriter staff and support — change a role and save</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!adminData ? (
+          <div className="flex justify-center py-8 text-stone-400"><Loader2 className="size-5 animate-spin" /></div>
+        ) : adminData.staff.length === 0 ? (
+          <p className="py-8 text-center text-sm text-stone-400">No staff accounts yet.</p>
         ) : (
           <>
             {roleError && <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{roleError}</p>}
             <ul className="max-h-[520px] space-y-1 overflow-y-auto">
-              {adminData.users.map((u) => {
+              {adminData.staff.map((u) => {
                 const editing = editingEmail === u.email;
                 return (
                   <li
@@ -826,7 +861,8 @@ export function SuperAdminConsole() {
     products: productsCard,
     policies: policiesCard,
     claims: claimsCard,
-    users: usersCard,
+    users: customersCard,
+    staff: staffCard,
     organizations: orgsCard,
     partners: <ServicePartnersSection />,
     apikeys: apiKeysCard,
