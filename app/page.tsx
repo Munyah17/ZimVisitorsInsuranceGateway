@@ -152,7 +152,7 @@ export default function LandingPage() {
       {/* ============================ WHY ============================== */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
         <FadeIn>
-          <h2 className="text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl sm:text-nowrap">
+          <h2 className="text-center text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl sm:text-nowrap">
             Adventure boldly. We handle the what-ifs.
           </h2>
         </FadeIn>
@@ -185,7 +185,7 @@ export default function LandingPage() {
                 One plan. Clear cover. Fair Premium.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-stone-500">
-                Backed by our licensed Zimbabwean underwriting partner. One
+                Backed by our licensed Zimbabwean underwriting partners. One
                 simple plan covers your whole visit, and your whole group.
               </p>
               <Link
@@ -253,12 +253,14 @@ export default function LandingPage() {
       {/* ========================= HOW IT WORKS ======================== */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
         <FadeIn>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-safari-600">
-            How it works
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-            Covered before your bags are packed
-          </h2>
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-safari-600">
+              How it works
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
+              Covered before your bags are packed
+            </h2>
+          </div>
         </FadeIn>
         <Stagger className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s) => (
@@ -277,16 +279,14 @@ export default function LandingPage() {
       <section className="bg-safari-950 py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <FadeIn>
-            <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sunset-300">
-                  Built on trust
-                </p>
-                <h2 className="mt-3 max-w-xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                  Serious insurance behind a simple experience
-                </h2>
-              </div>
-              <p className="max-w-md text-sm leading-relaxed text-safari-200/70">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sunset-300">
+                Built on trust
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Serious insurance behind a simple experience
+              </h2>
+              <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-safari-200/70">
                 Zim Travelmate is operated by a licensed multiple
                 agent and underwritten by a licensed microinsurance company. One
                 brand for you, full regulatory compliance underneath.
