@@ -211,6 +211,7 @@ create index idx_organizations_status on organizations (status);
 create table insurance_products (
   id               uuid primary key default gen_random_uuid(),
   name             text not null,                    -- e.g. 'Zimbabwe Visitor Premium'
+  tagline          text,                              -- short marketing subtitle on the plan card
   description      text,
   category         product_category not null,
   provider_id      uuid not null references organizations (id),
@@ -220,7 +221,10 @@ create table insurance_products (
   --   "accident_cover_usd": 5000, "adventure_activities": false,
   --   "base_rate_per_day_usd": 1.5, "min_premium_usd": 30 }
   coverage_details jsonb not null default '{}'::jsonb,
+  features         jsonb not null default '[]'::jsonb, -- string[] bullet list on the plan card
   base_price_usd   numeric(10,2) not null,           -- displayed "from" price
+  popular          boolean not null default false,   -- "Most popular" badge
+  featured         boolean not null default true,    -- shown on the landing page plan grid
   active           boolean not null default true,
   created_at       timestamptz not null default now()
 );
@@ -701,14 +705,16 @@ insert into organizations (id, name, type, license_number, status, contact_email
 -- --- Products ---------------------------------------------------------------
 -- Single-product catalogue for launch: Zimbabwe Visitor Premium at USD 30.
 -- Further plans are simply new rows here when the business adds them.
-insert into insurance_products (id, name, description, category, provider_id, coverage_details, base_price_usd, active) values
+insert into insurance_products (id, name, tagline, description, category, provider_id, coverage_details, features, base_price_usd, popular, featured, active) values
   ('aaaaaaa1-0000-0000-0000-000000000002',
    'Zimbabwe Visitor Premium',
+   'Complete protection for your visit',
    'Medical and emergency cover with travel protection and safari assistance.',
    'medical_plus_travel',
    '22222222-2222-2222-2222-222222222222',
    '{"medical_limit_usd": 30000, "emergency_assistance": true, "accident_cover_usd": 5000, "travel_protection": true, "safari_assistance": true, "adventure_activities": false, "evacuation": true, "base_rate_per_day_usd": 1.50, "min_premium_usd": 30}',
-   30.00, true);
+   '["$30,000 medical cover", "24/7 emergency assistance", "Travel protection & delays", "Safari assistance network", "Emergency medical evacuation", "$5,000 accident cover"]',
+   30.00, true, true, true);
 
 -- --- Users ------------------------------------------------------------------
 insert into users (id, name, email, phone, country, role) values

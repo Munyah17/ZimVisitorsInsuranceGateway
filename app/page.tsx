@@ -17,8 +17,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
 import { HeroSlider } from "@/components/hero-slider";
 import { ZimRibbon } from "@/components/zim-ribbon";
-import { FEATURED_PRODUCTS } from "@/lib/mock-data";
+import { fetchActiveProducts } from "@/lib/live-products";
 import { formatUSD } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 /** Medevac helicopter — no lucide equivalent, so a small flat-style SVG. */
 function HelicopterIcon({ className }: { className?: string }) {
@@ -81,7 +83,10 @@ const STEPS = [
   { n: "04", title: "Travel covered", body: "Instant digital certificate with a QR code, delivered to your inbox." },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const products = await fetchActiveProducts();
+  const featuredProducts = products.filter((p) => p.featured);
+
   return (
     <>
       {/* ============================== HERO ============================== */}
@@ -185,8 +190,7 @@ export default function LandingPage() {
                 One plan. Clear cover. Fair Premium.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-stone-500">
-                Backed by our licensed Zimbabwean underwriting partners. One
-                simple plan covers your whole visit, and your whole group.
+                One Policy Provides Coverage For Everyone Travelling
               </p>
               <Link
                 href="/coverage"
@@ -198,7 +202,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <Stagger className="mx-auto mt-14 grid max-w-md gap-6">
-            {FEATURED_PRODUCTS.map((p) => (
+            {featuredProducts.map((p) => (
               <StaggerItem key={p.id} className="h-full">
                 <Card
                   className={

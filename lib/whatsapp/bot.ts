@@ -13,7 +13,8 @@
  * its own — each message is an independent HTTP POST to us).
  */
 
-import { PRODUCTS, TRAVEL_PURPOSES, ACTIVITIES, type ActivityId } from "@/lib/mock-data";
+import { TRAVEL_PURPOSES, ACTIVITIES, type ActivityId } from "@/lib/mock-data";
+import { fetchActiveProducts } from "@/lib/live-products";
 import { COUNTRIES } from "@/lib/countries";
 import { DESTINATIONS } from "@/lib/partners-data";
 import { calculatePremium } from "@/lib/quote-engine";
@@ -25,8 +26,6 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { downloadWhatsAppMedia } from "@/lib/whatsapp/client";
 import { getSession, saveSession, type BotSession } from "@/lib/whatsapp/session";
 import { formatDate, formatUSD } from "@/lib/utils";
-
-const PRODUCT = PRODUCTS[0];
 
 const MENU_TEXT =
   "*Zim Travelmate* 🇿🇼\n" +
@@ -355,8 +354,11 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
       }
       draft.activities = [activityId];
 
+      const [product] = await fetchActiveProducts();
+      if (!product) return ["Sorry, no cover plans are available right now. Please try again shortly."];
+
       const pricing = calculatePremium({
-        product: PRODUCT,
+        product,
         arrivalDate: draft.arrivalDate!,
         departureDate: draft.departureDate!,
         dateOfBirths: [draft.dateOfBirth!],
@@ -366,7 +368,7 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
       session.state = "BUY_CONFIRM";
       await saveSession(session);
       return [
-        `*${PRODUCT.name}*\n` +
+        `*${product.name}*\n` +
           `${draft.fullName}, ${pricing.days} day(s), ${formatDate(draft.arrivalDate!)} to ${formatDate(draft.departureDate!)}\n\n` +
           `Premium: ${formatUSD(pricing.premium)}\n` +
           `ZTA Levy: ${formatUSD(pricing.ztaLevy)}\n` +
@@ -391,8 +393,11 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
         return ["Payments aren't available right now. Please try again shortly or contact support on +263 78 000 1111."];
       }
 
+      const [product] = await fetchActiveProducts();
+      if (!product) return ["Sorry, no cover plans are available right now. Please try again shortly."];
+
       const pricing = calculatePremium({
-        product: PRODUCT,
+        product,
         arrivalDate: draft.arrivalDate!,
         departureDate: draft.departureDate!,
         dateOfBirths: [draft.dateOfBirth!],
@@ -402,7 +407,7 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
       const reference = `ZVIG-WA-${Date.now()}`;
       const req: CheckoutRequest = {
         reference,
-        productId: PRODUCT.id,
+        productId: product.id,
         arrivalDate: draft.arrivalDate!,
         departureDate: draft.departureDate!,
         purpose: draft.purpose!,

@@ -47,9 +47,9 @@ import { CountrySelect } from "@/components/ui/country-select";
 import { Badge } from "@/components/ui/badge";
 import {
   ACTIVITIES,
-  PRODUCTS,
   TRAVEL_PURPOSES,
   type ActivityId,
+  type InsuranceProduct,
 } from "@/lib/mock-data";
 import {
   calculatePremium,
@@ -161,7 +161,7 @@ function travellerValid(t: Traveller) {
   );
 }
 
-export function QuoteWizard() {
+export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
   const [step, setStep] = useState(0);
   const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -190,7 +190,7 @@ export function QuoteWizard() {
     institution: "",
     programme: "",
     finalDestination: "",
-    productId: PRODUCTS[0].id,
+    productId: products[0]?.id ?? "",
   });
 
   // A ?product= link (e.g. from the landing page plan cards) preselects a
@@ -200,10 +200,10 @@ export function QuoteWizard() {
   // JS bundle hydrates.
   useEffect(() => {
     const preselected = new URLSearchParams(window.location.search).get("product");
-    if (preselected && PRODUCTS.some((p) => p.id === preselected)) {
+    if (preselected && products.some((p) => p.id === preselected)) {
       setForm((f) => ({ ...f, productId: preselected }));
     }
-  }, []);
+  }, [products]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -228,7 +228,7 @@ export function QuoteWizard() {
         : [...f.documents, id],
     }));
 
-  const product = PRODUCTS.find((p) => p.id === form.productId) ?? PRODUCTS[0];
+  const product = products.find((p) => p.id === form.productId) ?? products[0];
   const totalTravellers = 1 + (form.tripType === "group" ? form.travellers.length : 0);
 
   const pricing = useMemo(
@@ -930,7 +930,7 @@ export function QuoteWizard() {
                   {totalTravellers > 1 && ` The plan applies to all ${totalTravellers} travellers.`}
                 </p>
                 <div className="mt-7 grid gap-4">
-                  {PRODUCTS.map((p) => {
+                  {products.map((p) => {
                     const selected = form.productId === p.id;
                     return (
                       <button

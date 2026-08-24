@@ -48,10 +48,10 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FadeIn } from "@/components/motion";
-import { PRODUCTS } from "@/lib/mock-data";
 import type { AdminOverview } from "@/lib/admin-overview";
 import { cn, formatUSD } from "@/lib/utils";
 import { ServicePartnersSection } from "./service-partners-section";
+import { ProductPlansSection } from "./product-plans-section";
 import { CountriesModal } from "@/components/countries-modal";
 
 type SectionId =
@@ -353,45 +353,7 @@ export function SuperAdminConsole() {
     </Card>
   );
 
-  const productsCard = (
-    <Card>
-      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
-        <div>
-          <CardTitle>Products & pricing</CardTitle>
-          <CardDescription>The catalogue every channel sells from</CardDescription>
-        </div>
-        <Button variant="outline" size="sm">Add product</Button>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm">
-            <thead>
-              <tr className="border-b border-stone-200 text-left text-xs uppercase tracking-wider text-stone-400">
-                <th className="pb-3 pr-4 font-semibold">Product</th>
-                <th className="pb-3 pr-4 font-semibold">Category</th>
-                <th className="pb-3 pr-4 font-semibold">Underwriter</th>
-                <th className="pb-3 pr-4 font-semibold">Day rate</th>
-                <th className="pb-3 pr-4 font-semibold">Min premium</th>
-                <th className="pb-3 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {PRODUCTS.map((p) => (
-                <tr key={p.id} className="border-b border-stone-100 last:border-0">
-                  <td className="py-3.5 pr-4 font-medium text-stone-900">{p.name}</td>
-                  <td className="py-3.5 pr-4 text-stone-600">{p.category.replaceAll("_", " ")}</td>
-                  <td className="py-3.5 pr-4 text-stone-600">{p.providerName}</td>
-                  <td className="py-3.5 pr-4 tabular-nums text-stone-900">{formatUSD(p.baseRatePerDayUsd)}/day</td>
-                  <td className="py-3.5 pr-4 tabular-nums text-stone-900">{formatUSD(p.minPremiumUsd)}</td>
-                  <td className="py-3.5"><Badge variant="success">Active</Badge></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const productsCard = <ProductPlansSection />;
 
   const usersCard = (
     <Card className="h-full">

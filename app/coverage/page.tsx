@@ -13,7 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PRODUCTS } from "@/lib/mock-data";
+import { fetchActiveProducts } from "@/lib/live-products";
+import type { InsuranceProduct } from "@/lib/mock-data";
 import { formatUSD } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -21,11 +22,13 @@ export const metadata: Metadata = {
   description: "Every Zim Travelmate package, in full detail — what's covered, the limits, and what it costs.",
 };
 
+export const dynamic = "force-dynamic";
+
 const COVERAGE_ITEMS: {
-  key: keyof (typeof PRODUCTS)[number]["coverage"];
+  key: keyof InsuranceProduct["coverage"];
   label: string;
   icon: typeof HeartPulse;
-  describe: (product: (typeof PRODUCTS)[number]) => string;
+  describe: (product: InsuranceProduct) => string;
 }[] = [
   {
     key: "medicalLimitUsd",
@@ -71,7 +74,9 @@ const COVERAGE_ITEMS: {
   },
 ];
 
-export default function CoveragePage() {
+export default async function CoveragePage() {
+  const products = await fetchActiveProducts();
+
   return (
     <div className="bg-gradient-to-b from-safari-50/60 to-transparent">
       <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
@@ -90,7 +95,7 @@ export default function CoveragePage() {
         </div>
 
         <div className="mt-12 space-y-8">
-          {PRODUCTS.map((p) => (
+          {products.map((p) => (
             <Card key={p.id} className={p.popular ? "border-safari-700 ring-1 ring-safari-700" : undefined}>
               <CardContent className="p-7 sm:p-9">
                 <div className="flex flex-wrap items-start justify-between gap-4">
