@@ -6,6 +6,7 @@
  * via /api/admin/data (service-role, requires an admin session).
  */
 
+import { useState } from "react";
 import {
   FileText,
   ShieldAlert,
@@ -23,6 +24,7 @@ import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
+import { CountriesModal } from "@/components/countries-modal";
 import { useRoleData } from "@/lib/use-role-data";
 import { formatUSD } from "@/lib/utils";
 
@@ -65,7 +67,9 @@ interface AdminData {
 
 export default function AdminPage() {
   const { data, loading } = useRoleData<AdminData>("/api/admin/data");
-  const maxPolicies = Math.max(1, ...(data?.policiesByCountry ?? []).map((c) => c.policies));
+  const [showCountries, setShowCountries] = useState(false);
+  const topCountries = (data?.policiesByCountry ?? []).slice(0, 8);
+  const maxPolicies = Math.max(1, ...topCountries.map((c) => c.policies));
 
   if (loading || !data) {
     return (
@@ -96,7 +100,13 @@ export default function AdminPage() {
           <StatTile accent label="Policies today" value={String(metrics.policiesToday)} hint="Since midnight" icon={FileText} />
           <StatTile label="Revenue today" value={formatUSD(metrics.revenueToday)} hint="Gross written premium" icon={Wallet} />
           <StatTile label="Open claims" value={String(metrics.openClaims)} hint="Awaiting action now" icon={ShieldAlert} />
-          <StatTile label="Countries covered" value={String(metrics.countriesCovered)} hint="Visitor nationalities" icon={Globe2} />
+          <StatTile
+            label="Countries covered"
+            value={String(metrics.countriesCovered)}
+            hint="Visitor nationalities · view all"
+            icon={Globe2}
+            onClick={() => setShowCountries(true)}
+          />
           <StatTile label="Visitors (YTD)" value={metrics.visitorsYtd.toLocaleString()} hint={`Since 1 Jan ${new Date().getFullYear()}`} icon={Users} />
           <StatTile label="Claims (YTD)" value={String(metrics.claimsYtd)} hint={`Filed since 1 Jan ${new Date().getFullYear()}`} icon={ShieldAlert} />
           <StatTile label="Commission liability (YTD)" value={formatUSD(metrics.commissionLiabilityYtd)} hint="Accrued, not yet paid" icon={Wallet} />
@@ -107,16 +117,24 @@ export default function AdminPage() {
         {/* Policies by country — single-series bar list */}
         <FadeIn y={16}>
           <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Policies by country</CardTitle>
-              <CardDescription>Every policy on record, by visitor nationality</CardDescription>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle>Policies by country</CardTitle>
+                <CardDescription>Top nationalities by policy count</CardDescription>
+              </div>
+              <button
+                onClick={() => setShowCountries(true)}
+                className="text-xs font-semibold text-safari-700 underline underline-offset-2 hover:text-safari-900"
+              >
+                View all
+              </button>
             </CardHeader>
             <CardContent>
-              {data.policiesByCountry.length === 0 ? (
+              {topCountries.length === 0 ? (
                 <p className="py-6 text-center text-sm text-stone-400">No policies yet.</p>
               ) : (
                 <ul className="space-y-4">
-                  {data.policiesByCountry.map((c) => (
+                  {topCountries.map((c) => (
                     <li key={c.country}>
                       <div className="mb-1.5 flex items-baseline justify-between text-sm">
                         <span className="font-medium text-stone-700">{c.country}</span>
@@ -260,6 +278,8 @@ export default function AdminPage() {
           </Card>
         </FadeIn>
       </div>
+
+      <CountriesModal open={showCountries} onClose={() => setShowCountries(false)} countries={data.policiesByCountry} />
     </DashboardShell>
   );
 }

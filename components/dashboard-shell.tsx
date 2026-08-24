@@ -146,27 +146,33 @@ export function DashboardShell({
   );
 }
 
-/** Stat tile — hero number pattern. */
+/** Stat tile — hero number pattern. Pass onClick to make it interactive. */
 export function StatTile({
   label,
   value,
   hint,
   icon: Icon,
   accent = false,
+  onClick,
 }: {
   label: string;
   value: string;
   hint?: string;
   icon: LucideIcon;
   accent?: boolean;
+  onClick?: () => void;
 }) {
+  const Tag = onClick ? "button" : "div";
   return (
-    <div
+    <Tag
+      type={onClick ? "button" : undefined}
+      onClick={onClick}
       className={cn(
-        "rounded-2xl border p-5",
+        "rounded-2xl border p-5 text-left",
         accent
           ? "border-safari-900 bg-safari-950 text-white"
-          : "border-stone-200/80 bg-white shadow-sm"
+          : "border-stone-200/80 bg-white shadow-sm",
+        onClick && "transition-shadow hover:shadow-md cursor-pointer"
       )}
     >
       <div className="flex items-center justify-between">
@@ -193,6 +199,6 @@ export function StatTile({
           {hint}
         </p>
       )}
-    </div>
+    </Tag>
   );
 }

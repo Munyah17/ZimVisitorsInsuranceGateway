@@ -52,6 +52,7 @@ import { PRODUCTS } from "@/lib/mock-data";
 import type { AdminOverview } from "@/lib/admin-overview";
 import { cn, formatUSD } from "@/lib/utils";
 import { ServicePartnersSection } from "./service-partners-section";
+import { CountriesModal } from "@/components/countries-modal";
 
 type SectionId =
   | "overview"
@@ -210,6 +211,7 @@ export function SuperAdminConsole() {
   const [smsSending, setSmsSending] = useState(false);
   const [smsLog, setSmsLog] = useState(SMS_LOG);
   const [overview, setOverview] = useState<AdminOverview | null>(null);
+  const [showCountries, setShowCountries] = useState(false);
 
   useEffect(() => {
     fetch("/api/private/overview")
@@ -276,7 +278,13 @@ export function SuperAdminConsole() {
       <StatTile accent label="Policies today" value={String(overview.metrics.policiesToday)} hint="Since midnight" icon={FileText} />
       <StatTile label="Revenue today" value={formatUSD(overview.metrics.revenueToday)} hint="Gross written premium" icon={Wallet} />
       <StatTile label="Open claims" value={String(overview.metrics.openClaims)} hint="Awaiting action now" icon={ShieldAlert} />
-      <StatTile label="Countries covered" value={String(overview.metrics.countriesCovered)} hint="Visitor nationalities" icon={Globe2} />
+      <StatTile
+        label="Countries covered"
+        value={String(overview.metrics.countriesCovered)}
+        hint="Visitor nationalities · view all"
+        icon={Globe2}
+        onClick={() => setShowCountries(true)}
+      />
       <StatTile label="Visitors (YTD)" value={overview.metrics.visitorsYtd.toLocaleString()} hint={`Since 1 Jan ${new Date().getFullYear()}`} icon={Users} />
       <StatTile label="Claims (YTD)" value={String(overview.metrics.claimsYtd)} hint={`Filed since 1 Jan ${new Date().getFullYear()}`} icon={ShieldAlert} />
       <StatTile label="Commission liability (YTD)" value={formatUSD(overview.metrics.commissionLiabilityYtd)} hint="Accrued, not yet paid" icon={Wallet} />
@@ -776,6 +784,11 @@ export function SuperAdminConsole() {
       <FadeIn key={section} y={12}>
         {body[section]}
       </FadeIn>
+      <CountriesModal
+        open={showCountries}
+        onClose={() => setShowCountries(false)}
+        countries={overview?.policiesByCountry ?? []}
+      />
     </DashboardShell>
   );
 }

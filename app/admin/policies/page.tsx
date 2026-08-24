@@ -5,18 +5,21 @@
  * Live data from /api/admin/data.
  */
 
+import { useState } from "react";
 import { FileText, Globe2, Loader2, Wallet } from "lucide-react";
 import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FadeIn } from "@/components/motion";
+import { CountriesModal } from "@/components/countries-modal";
 import { useRoleData } from "@/lib/use-role-data";
 import { ADMIN_NAV } from "../nav";
 import { formatUSD } from "@/lib/utils";
 
 interface AdminData {
   metrics: { policiesToday: number; revenueToday: number; countriesCovered: number };
+  policiesByCountry: { country: string; policies: number }[];
   recentPolicies: { policyNumber: string; holder: string; country: string; premium: number; channel: string; status: string; date: string }[];
 }
 
@@ -30,6 +33,7 @@ const STATUS: Record<string, { label: string; variant: "success" | "warning" | "
 
 export default function AdminPoliciesPage() {
   const { data, loading } = useRoleData<AdminData>("/api/admin/data");
+  const [showCountries, setShowCountries] = useState(false);
 
   if (loading || !data) {
     return (
@@ -47,7 +51,13 @@ export default function AdminPoliciesPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <StatTile accent label="Issued today" value={String(data.metrics.policiesToday)} hint="Since midnight" icon={FileText} />
           <StatTile label="Premium today" value={formatUSD(data.metrics.revenueToday)} hint="Gross written" icon={Wallet} />
-          <StatTile label="Countries covered" value={String(data.metrics.countriesCovered)} hint="Visitor nationalities" icon={Globe2} />
+          <StatTile
+            label="Countries covered"
+            value={String(data.metrics.countriesCovered)}
+            hint="Visitor nationalities · view all"
+            icon={Globe2}
+            onClick={() => setShowCountries(true)}
+          />
         </div>
       </FadeIn>
 
@@ -97,6 +107,8 @@ export default function AdminPoliciesPage() {
           </CardContent>
         </Card>
       </FadeIn>
+
+      <CountriesModal open={showCountries} onClose={() => setShowCountries(false)} countries={data.policiesByCountry} />
     </DashboardShell>
   );
 }

@@ -114,8 +114,7 @@ export async function getAdminOverview(): Promise<AdminOverview> {
   }
   const policiesByCountry = [...countryTotals.entries()]
     .map(([country, policies]) => ({ country, policies }))
-    .sort((a, b) => b.policies - a.policies)
-    .slice(0, 8);
+    .sort((a, b) => b.policies - a.policies);
 
   const recentClaims = (claimRows ?? []).map((c) => {
     const policy = Array.isArray(c.policies) ? c.policies[0] : c.policies;
