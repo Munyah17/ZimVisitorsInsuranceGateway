@@ -10,7 +10,7 @@
  * persist to a `platform_settings` table.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Activity,
   Building2,
@@ -18,10 +18,13 @@ import {
   CircleCheck,
   Database,
   FileClock,
+  FileText,
   Flag,
+  Globe2,
   Handshake,
   KeyRound,
   LayoutDashboard,
+  Loader2,
   MessageSquareText,
   Package,
   Plug,
@@ -29,6 +32,7 @@ import {
   Send,
   ServerCog,
   Settings,
+  ShieldAlert,
   ShieldCheck,
   TriangleAlert,
   Users,
@@ -45,6 +49,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FadeIn } from "@/components/motion";
 import { PRODUCTS } from "@/lib/mock-data";
+import type { AdminOverview } from "@/lib/admin-overview";
 import { cn, formatUSD } from "@/lib/utils";
 import { ServicePartnersSection } from "./service-partners-section";
 
@@ -204,6 +209,14 @@ export function SuperAdminConsole() {
   const [smsMessage, setSmsMessage] = useState("");
   const [smsSending, setSmsSending] = useState(false);
   const [smsLog, setSmsLog] = useState(SMS_LOG);
+  const [overview, setOverview] = useState<AdminOverview | null>(null);
+
+  useEffect(() => {
+    fetch("/api/private/overview")
+      .then((r) => r.json())
+      .then((data) => setOverview("metrics" in data ? data : null))
+      .catch(() => setOverview(null));
+  }, []);
 
   const toggleFlag = (id: string) =>
     setFlags((f) => f.map((x) => (x.id === id ? { ...x, on: !x.on } : x)));
@@ -251,6 +264,23 @@ export function SuperAdminConsole() {
       <StatTile label="Active sessions" value="312" hint="Web + portals" icon={Users} />
       <StatTile label="Error rate" value="0.02%" hint="Last 24 h" icon={ShieldCheck} />
       <StatTile label="Database size" value="1.2 GB" hint="Supabase primary" icon={Database} />
+    </div>
+  );
+
+  const businessKpiRow = !overview ? (
+    <div className="flex justify-center py-10 text-stone-400">
+      <Loader2 className="size-6 animate-spin" />
+    </div>
+  ) : (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatTile accent label="Policies today" value={String(overview.metrics.policiesToday)} hint="Since midnight" icon={FileText} />
+      <StatTile label="Revenue today" value={formatUSD(overview.metrics.revenueToday)} hint="Gross written premium" icon={Wallet} />
+      <StatTile label="Open claims" value={String(overview.metrics.openClaims)} hint="Awaiting action now" icon={ShieldAlert} />
+      <StatTile label="Countries covered" value={String(overview.metrics.countriesCovered)} hint="Visitor nationalities" icon={Globe2} />
+      <StatTile label="Visitors (YTD)" value={overview.metrics.visitorsYtd.toLocaleString()} hint={`Since 1 Jan ${new Date().getFullYear()}`} icon={Users} />
+      <StatTile label="Claims (YTD)" value={String(overview.metrics.claimsYtd)} hint={`Filed since 1 Jan ${new Date().getFullYear()}`} icon={ShieldAlert} />
+      <StatTile label="Commission liability (YTD)" value={formatUSD(overview.metrics.commissionLiabilityYtd)} hint="Accrued, not yet paid" icon={Wallet} />
+      <StatTile label="Active agents" value={String(overview.agents.filter((a) => a.status === "active").length)} hint={`${overview.agents.length} on the roster`} icon={Building2} />
     </div>
   );
 
@@ -700,7 +730,7 @@ export function SuperAdminConsole() {
   const body: Record<SectionId, React.ReactNode> = {
     overview: (
       <>
-        {kpiRow}
+        {businessKpiRow}
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {healthCard}
           {auditCard(5)}

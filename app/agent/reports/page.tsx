@@ -32,7 +32,7 @@ export default function AgentReportsPage() {
 
   const monthly = new Map<string, number>();
   for (const p of data.policies) {
-    const key = new Date(p.date).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    const key = new Date(p.date).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
     monthly.set(key, (monthly.get(key) ?? 0) + 1);
   }
   const months = [...monthly.entries()].slice(-6);

@@ -13,10 +13,10 @@ export function formatUSD(amount: number) {
   }).format(amount);
 }
 
+/** British standard: DD-MM-YYYY, e.g. 24-08-2026. */
 export function formatDate(iso: string) {
-  return new Date(iso + "T00:00:00").toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const d = new Date(iso + "T00:00:00");
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  return `${day}-${month}-${d.getFullYear()}`;
 }
