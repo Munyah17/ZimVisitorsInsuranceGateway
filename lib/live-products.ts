@@ -44,6 +44,7 @@ export function mapDbProduct(row: ProductRow): InsuranceProduct {
       safariAssistance: Boolean(coverage.safari_assistance),
       adventureActivities: Boolean(coverage.adventure_activities),
       evacuation: Boolean(coverage.evacuation),
+      funeralCoverUsd: Number(coverage.funeral_cover_usd ?? 0),
     },
     features: row.features ?? [],
     popular: row.popular,

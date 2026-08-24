@@ -14,6 +14,7 @@ export function buildCoverageDetails(body: Record<string, unknown>) {
     safari_assistance: Boolean(body.safariAssistance),
     adventure_activities: Boolean(body.adventureActivities),
     evacuation: Boolean(body.evacuation),
+    funeral_cover_usd: Number(body.funeralCoverUsd) || 0,
     base_rate_per_day_usd: Number(body.baseRatePerDayUsd) || 0,
     min_premium_usd: Number(body.minPremiumUsd) || 0,
   };

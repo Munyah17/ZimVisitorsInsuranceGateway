@@ -40,6 +40,7 @@ interface Product {
     safari_assistance?: boolean;
     adventure_activities?: boolean;
     evacuation?: boolean;
+    funeral_cover_usd?: number;
     base_rate_per_day_usd?: number;
     min_premium_usd?: number;
   };
@@ -60,6 +61,7 @@ interface FormState {
   minPremiumUsd: string;
   medicalLimitUsd: string;
   accidentCoverUsd: string;
+  funeralCoverUsd: string;
   emergencyAssistance: boolean;
   travelProtection: boolean;
   safariAssistance: boolean;
@@ -81,6 +83,7 @@ const EMPTY_FORM: FormState = {
   minPremiumUsd: "",
   medicalLimitUsd: "",
   accidentCoverUsd: "",
+  funeralCoverUsd: "",
   emergencyAssistance: true,
   travelProtection: true,
   safariAssistance: false,
@@ -104,6 +107,7 @@ function productToForm(p: Product): FormState {
     minPremiumUsd: String(c.min_premium_usd ?? ""),
     medicalLimitUsd: String(c.medical_limit_usd ?? ""),
     accidentCoverUsd: String(c.accident_cover_usd ?? ""),
+    funeralCoverUsd: String(c.funeral_cover_usd ?? ""),
     emergencyAssistance: Boolean(c.emergency_assistance),
     travelProtection: Boolean(c.travel_protection),
     safariAssistance: Boolean(c.safari_assistance),
@@ -127,6 +131,7 @@ function formToPayload(f: FormState) {
     minPremiumUsd: Number(f.minPremiumUsd),
     medicalLimitUsd: Number(f.medicalLimitUsd),
     accidentCoverUsd: Number(f.accidentCoverUsd),
+    funeralCoverUsd: Number(f.funeralCoverUsd),
     emergencyAssistance: f.emergencyAssistance,
     travelProtection: f.travelProtection,
     safariAssistance: f.safariAssistance,
@@ -281,7 +286,7 @@ export function ProductPlansSection() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-1.5">
                 <Label htmlFor="pMedicalLimit">Medical limit (USD)</Label>
                 <Input id="pMedicalLimit" type="number" min="0" step="1" value={form.medicalLimitUsd} onChange={(e) => set("medicalLimitUsd", e.target.value)} required />
@@ -289,6 +294,10 @@ export function ProductPlansSection() {
               <div className="space-y-1.5">
                 <Label htmlFor="pAccidentCover">Accident cover (USD)</Label>
                 <Input id="pAccidentCover" type="number" min="0" step="1" value={form.accidentCoverUsd} onChange={(e) => set("accidentCoverUsd", e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pFuneralCover">Funeral cover — repatriation (USD)</Label>
+                <Input id="pFuneralCover" type="number" min="0" step="1" value={form.funeralCoverUsd} onChange={(e) => set("funeralCoverUsd", e.target.value)} required />
               </div>
             </div>
 

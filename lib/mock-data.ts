@@ -36,6 +36,7 @@ export interface InsuranceProduct {
     safariAssistance: boolean;
     adventureActivities: boolean;
     evacuation: boolean;
+    funeralCoverUsd: number;
   };
   features: string[];
   popular?: boolean;
@@ -60,13 +61,14 @@ export const PRODUCTS: InsuranceProduct[] = [
     baseRatePerDayUsd: 1.5,
     minPremiumUsd: 30,
     coverage: {
-      medicalLimitUsd: 30000,
+      medicalLimitUsd: 10000,
       emergencyAssistance: true,
       accidentCoverUsd: 5000,
       travelProtection: true,
       safariAssistance: true,
       adventureActivities: false,
       evacuation: true,
+      funeralCoverUsd: 10000,
     },
     features: [
       "$30,000 medical cover",

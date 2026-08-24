@@ -40,7 +40,10 @@ const COVERAGE_ITEMS: {
     key: "emergencyAssistance",
     label: "Emergency assistance",
     icon: Siren,
-    describe: (p) => (p.coverage.emergencyAssistance ? "24/7 emergency response line" : "Not included"),
+    describe: (p) =>
+      p.coverage.emergencyAssistance
+        ? "24/7 emergency response line, Air and Ground evacuation to the nearest service provider."
+        : "Not included",
   },
   {
     key: "accidentCoverUsd",
@@ -67,10 +70,10 @@ const COVERAGE_ITEMS: {
     describe: (p) => (p.coverage.adventureActivities ? "Rafting, bungee, gorge swing and more" : "Not included on this plan"),
   },
   {
-    key: "evacuation",
-    label: "Emergency evacuation",
+    key: "funeralCoverUsd",
+    label: "Funeral Cover",
     icon: Ambulance,
-    describe: (p) => (p.coverage.evacuation ? "Air and ground evacuation to the nearest suitable facility" : "Not included"),
+    describe: (p) => `Covers cost of repatriation up to ${formatUSD(p.coverage.funeralCoverUsd)}`,
   },
 ];
 
@@ -80,40 +83,17 @@ export default async function CoveragePage() {
   return (
     <div className="bg-gradient-to-b from-safari-50/60 to-transparent">
       <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
-        <div className="text-center">
-          <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-safari-950 text-sunset-300 shadow-lg">
-            <ShieldCheck className="size-7" />
-          </span>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-            Coverage
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-stone-500">
-            Every package Zim Travelmate offers, in full — what&apos;s covered, the
-            limits, and what it costs. Backed by a licensed Zimbabwean
-            underwriter.
-          </p>
-        </div>
-
-        <div className="mt-12 space-y-8">
+        <div className="space-y-8">
           {products.map((p) => (
             <Card key={p.id} className={p.popular ? "border-safari-700 ring-1 ring-safari-700" : undefined}>
               <CardContent className="p-7 sm:p-9">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-safari-600">
-                      {p.tagline}
-                    </p>
-                    <h2 className="mt-2 text-2xl font-bold text-stone-900">{p.name}</h2>
-                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">
-                      {p.description}
-                    </p>
-                  </div>
-                  {p.popular && (
+                {p.popular && (
+                  <div className="flex justify-end">
                     <Badge variant="dark" className="bg-safari-900 px-4 py-1.5 text-sunset-300 shadow-md">
                       Most popular
                     </Badge>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 <div className="mt-6 flex flex-wrap items-baseline gap-2 rounded-2xl bg-safari-950 px-6 py-5 text-white">
                   <span className="text-3xl font-bold tracking-tight">{formatUSD(p.basePriceUsd)}</span>
