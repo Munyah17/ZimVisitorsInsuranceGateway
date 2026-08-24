@@ -25,7 +25,7 @@ const WHY = [
   {
     icon: HeartPulse,
     title: "Medical protection",
-    body: "Hospital treatment, doctor visits and medication across Zimbabwe's private healthcare network, with no upfront bills.",
+    body: "Hospital treatment, doctor visits and medication across Zimbabwe's healthcare network, with no upfront bills or shortfalls.",
   },
   {
     icon: Siren,
@@ -135,10 +135,7 @@ export default function LandingPage() {
       {/* ============================ WHY ============================== */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
         <FadeIn>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-safari-600">
-            Why visitor insurance
-          </p>
-          <h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
+          <h2 className="text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl sm:text-nowrap">
             Adventure boldly. We handle the what-ifs.
           </h2>
         </FadeIn>
