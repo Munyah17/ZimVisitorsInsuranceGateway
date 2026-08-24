@@ -47,7 +47,7 @@ const WHY = [
   },
   {
     title: "Emergency assistance",
-    body: "A 24/7 assistance line, ambulance dispatch and medical evacuation coordination across Zimbabwe.",
+    body: "A 24/7 assistance line, ambulance dispatch, medical evacuation and coordination across Zimbabwe.",
     iconBg: "bg-amber-50",
     render: () => <HelicopterIcon className="size-7" />,
   },
