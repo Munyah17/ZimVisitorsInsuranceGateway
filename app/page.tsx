@@ -53,7 +53,7 @@ const WHY = [
   },
   {
     title: "Travel confidence",
-    body: "Enjoy Your Adventure With Peace of Mind Throughout Your Stay",
+    body: "Enjoy your adventure with peace of mind throughout your stay",
     iconBg: "bg-sky-50",
     render: () => <Plane className="size-6 text-sky-600" fill="currentColor" />,
   },
@@ -188,7 +188,7 @@ export default async function LandingPage() {
                 Coverage
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-                One plan. Clear cover. Fair Premium.
+                One Policy. Clear Cover. Fair Premium
               </h2>
               <Link
                 href="/coverage"
