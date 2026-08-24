@@ -3,9 +3,6 @@ import {
   ShieldCheck,
   Heart,
   Plane,
-  BadgeCheck,
-  Landmark,
-  LockKeyhole,
   Check,
   ArrowRight,
   QrCode,
@@ -59,30 +56,6 @@ const WHY = [
   },
 ];
 
-const TRUST = [
-  {
-    icon: Landmark,
-    title: "Licensed Insurance Partner",
-    body: "Every policy is underwritten by a licensed Zimbabwean microinsurance company.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Tourism Partner Network",
-    body: "Trusted by safari operators, lodges and hotels across Victoria Falls, Hwange and Kariba.",
-  },
-  {
-    icon: LockKeyhole,
-    title: "Secure Payments",
-    body: "International cards, PayPal and African payment methods, processed over encrypted and fully compliant payment rails.",
-  },
-];
-
-const STEPS = [
-  { n: "01", title: "Tell us about your trip", body: "Your details and travel dates in under two minutes, from any device." },
-  { n: "02", title: "Choose your cover", body: "Essential, Premium or Adventure. One clear price, no fine print." },
-  { n: "03", title: "Pay securely", body: "Secure Payment and Checkout Process" },
-  { n: "04", title: "Travel covered", body: "Instant digital certificate with a QR code, delivered to your inbox." },
-];
 
 export default async function LandingPage() {
   const products = await fetchActiveProducts();
@@ -249,65 +222,11 @@ export default async function LandingPage() {
                         className="w-full"
                         size="lg"
                       >
-                        Get covered
+                        Get cover
                       </Button>
                     </Link>
                   </CardContent>
                 </Card>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </div>
-      </section>
-
-      {/* ========================= HOW IT WORKS ======================== */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
-        <FadeIn>
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-safari-600">
-              How it works
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-              Covered before your bags are packed
-            </h2>
-          </div>
-        </FadeIn>
-        <Stagger className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <StaggerItem key={s.n}>
-              <div className="relative">
-                <span className="text-5xl font-bold text-safari-100">{s.n}</span>
-                <h3 className="mt-3 font-semibold text-stone-900">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-stone-500">{s.body}</p>
-              </div>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </section>
-
-      {/* ============================ TRUST ============================ */}
-      <section className="bg-safari-950 py-20 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <FadeIn>
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sunset-300">
-                Built on trust
-              </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                Serious insurance behind a simple experience
-              </h2>
-            </div>
-          </FadeIn>
-          <Stagger className="mt-12 grid gap-6 md:grid-cols-3">
-            {TRUST.map((t) => (
-              <StaggerItem key={t.title}>
-                <div className="h-full rounded-2xl border border-white/10 bg-white/5 p-7 backdrop-blur">
-                  <span className="grid size-11 place-items-center rounded-xl bg-sunset-400/15 text-sunset-300">
-                    <t.icon className="size-5" />
-                  </span>
-                  <h3 className="mt-4 font-semibold text-white">{t.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-safari-200/70">{t.body}</p>
-                </div>
               </StaggerItem>
             ))}
           </Stagger>

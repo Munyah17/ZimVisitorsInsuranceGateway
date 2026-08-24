@@ -106,32 +106,25 @@ export default async function CoveragePage() {
                 </div>
 
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                  {COVERAGE_ITEMS.map((item) => {
+                  {COVERAGE_ITEMS.filter((item) => {
                     const value = p.coverage[item.key];
-                    const included = typeof value === "boolean" ? value : Number(value) > 0;
-                    return (
-                      <div
-                        key={item.label}
-                        className="flex items-start gap-3 rounded-xl border border-stone-100 bg-stone-50/60 p-4"
-                      >
-                        <span
-                          className={
-                            included
-                              ? "grid size-9 shrink-0 place-items-center rounded-lg bg-safari-950 text-sunset-300"
-                              : "grid size-9 shrink-0 place-items-center rounded-lg bg-stone-200 text-stone-400"
-                          }
-                        >
-                          <item.icon className="size-4" />
-                        </span>
-                        <div>
-                          <p className="text-sm font-semibold text-stone-900">{item.label}</p>
-                          <p className="mt-0.5 text-xs leading-relaxed text-stone-500">
-                            {item.describe(p)}
-                          </p>
-                        </div>
+                    return typeof value === "boolean" ? value : Number(value) > 0;
+                  }).map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-start gap-3 rounded-xl border border-stone-100 bg-stone-50/60 p-4"
+                    >
+                      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-safari-950 text-sunset-300">
+                        <item.icon className="size-4" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-stone-900">{item.label}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-stone-500">
+                          {item.describe(p)}
+                        </p>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-7 border-t border-stone-100 pt-6">
@@ -151,7 +144,7 @@ export default async function CoveragePage() {
                 <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-stone-100 pt-6">
                   <Link href={`/quote?product=${p.id}`}>
                     <Button size="lg">
-                      <Wallet className="size-4" /> Get covered
+                      <Wallet className="size-4" /> Get cover
                     </Button>
                   </Link>
                 </div>

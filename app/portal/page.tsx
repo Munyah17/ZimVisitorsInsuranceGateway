@@ -80,7 +80,7 @@ export default function PortalPage() {
           </Badge>
         ) : (
           <Link href="/quote">
-            <Button variant="accent">Get covered</Button>
+            <Button variant="accent">Get cover</Button>
           </Link>
         )
       }
