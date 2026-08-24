@@ -182,7 +182,7 @@ export default function LandingPage() {
                 Coverage
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
-                One plan. Clear cover. Fair price.
+                One plan. Clear cover. Fair Premium.
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-stone-500">
                 Backed by our licensed Zimbabwean underwriting partner. One
