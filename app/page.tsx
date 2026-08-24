@@ -6,6 +6,7 @@ import {
   BadgeCheck,
   Landmark,
   LockKeyhole,
+  Check,
   ArrowRight,
   QrCode,
   Zap,
@@ -17,6 +18,7 @@ import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
 import { HeroSlider } from "@/components/hero-slider";
 import { ZimRibbon } from "@/components/zim-ribbon";
 import { fetchActiveProducts } from "@/lib/live-products";
+import { COVERAGE_BENEFITS } from "@/lib/catalog";
 import { cn, formatUSD } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -188,9 +190,6 @@ export default async function LandingPage() {
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
                 One plan. Clear cover. Fair Premium.
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-stone-500">
-                One Policy Provides Coverage For Everyone Travelling
-              </p>
               <Link
                 href="/coverage"
                 className="mt-3 inline-block text-sm font-semibold text-safari-700 underline underline-offset-4 hover:text-safari-900"
@@ -233,7 +232,17 @@ export default async function LandingPage() {
                         {formatUSD(p.basePriceUsd)}
                       </span>
                     </div>
-                    <div className="flex-1" />
+                    <ul className="mt-6 flex-1 space-y-3">
+                      {COVERAGE_BENEFITS.filter((b) => {
+                        const value = p.coverage[b.key];
+                        return typeof value === "boolean" ? value : Number(value) > 0;
+                      }).map((b) => (
+                        <li key={b.key} className="flex items-start gap-2.5 text-sm text-stone-600">
+                          <Check className="mt-0.5 size-4 shrink-0 text-safari-600" />
+                          {b.label}
+                        </li>
+                      ))}
+                    </ul>
                     <Link href={`/quote?product=${p.id}`} className="mt-7 block">
                       <Button
                         variant={p.popular ? "default" : "outline"}

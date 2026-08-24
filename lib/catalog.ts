@@ -43,6 +43,21 @@ export interface InsuranceProduct {
   featured?: boolean;
 }
 
+/**
+ * Benefit names only, no dollar limits — used for short "what's included"
+ * summaries (e.g. the landing page plan cards). Full amounts belong on
+ * /coverage, not on a marketing summary.
+ */
+export const COVERAGE_BENEFITS: { key: keyof InsuranceProduct["coverage"]; label: string }[] = [
+  { key: "medicalLimitUsd", label: "Medical cover" },
+  { key: "accidentCoverUsd", label: "Personal accident cover" },
+  { key: "safariAssistanceUsd", label: "Safari assistance" },
+  { key: "emergencyEvacuationUsd", label: "Emergency assistance & evacuation" },
+  { key: "travelProtectionUsd", label: "Travel protection" },
+  { key: "funeralCoverUsd", label: "Funeral cover" },
+  { key: "adventureActivities", label: "Adventure activities cover" },
+];
+
 export const ACTIVITIES = [
   { id: "general", label: "General Travel", hint: "Sightseeing, city visits, cultural tours" },
   { id: "safari", label: "Safari", hint: "Game drives, walking safaris, national parks" },

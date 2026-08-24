@@ -62,7 +62,7 @@ export async function fetchLivePolicy(rawNumber: string): Promise<LivePolicy | n
     endDate: data.end_date as string,
     premium: Number(data.premium),
     currency: (data.currency as string) ?? "USD",
-    productName: (product?.name as string) ?? "Zimbabwe Visitor Premium",
+    productName: (product?.name as string) ?? "Visitors Premium Cover",
     coverageSummary: summarizeCoverage(
       (product?.coverage_details as Record<string, unknown>) ?? null
     ),

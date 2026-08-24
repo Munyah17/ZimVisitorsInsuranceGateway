@@ -88,10 +88,6 @@ export default function VerifyPage() {
           <h1 className="mt-5 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
             Verify a policy
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-stone-500">
-            For border officials, hotels, hospitals and tour operators. Enter a
-            policy number to confirm cover instantly.
-          </p>
         </div>
 
         <Card className="mt-9">

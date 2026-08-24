@@ -1179,7 +1179,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                     ) : (
                       <>
                         <Lock className="size-4" />
-                        Pay {formatUSD(pricing.total)} with Paynow
+                        Submit Payment
                       </>
                     )}
                   </Button>
