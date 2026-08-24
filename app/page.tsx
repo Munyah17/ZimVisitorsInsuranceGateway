@@ -1,9 +1,8 @@
 import Link from "next/link";
 import {
   ShieldCheck,
-  HeartPulse,
-  Siren,
-  Compass,
+  Heart,
+  Plane,
   BadgeCheck,
   Landmark,
   LockKeyhole,
@@ -21,21 +20,39 @@ import { ZimRibbon } from "@/components/zim-ribbon";
 import { FEATURED_PRODUCTS } from "@/lib/mock-data";
 import { formatUSD } from "@/lib/utils";
 
+/** Medevac helicopter — no lucide equivalent, so a small flat-style SVG. */
+function HelicopterIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <rect x="2" y="3" width="20" height="1.6" rx="0.8" fill="#F5C518" />
+      <rect x="11.2" y="1.3" width="1.6" height="3" rx="0.8" fill="#F5C518" />
+      <rect x="19.3" y="8.3" width="1.6" height="5.2" rx="0.8" fill="#F5C518" />
+      <rect x="13.8" y="10.9" width="7.2" height="1.9" rx="0.95" fill="#DC2626" />
+      <ellipse cx="9" cy="13" rx="6.6" ry="4.1" fill="#DC2626" />
+      <circle cx="11.6" cy="12" r="1.7" fill="white" fillOpacity="0.9" />
+      <path d="M4 18h9M5.5 16.4v3M11.5 16.4v3" stroke="#44403c" strokeWidth="1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const WHY = [
   {
-    icon: HeartPulse,
     title: "Medical protection",
     body: "Hospital treatment, doctor visits and medication across Zimbabwe's healthcare network, with no upfront bills or shortfalls.",
+    iconBg: "bg-red-50",
+    render: () => <Heart className="size-6 text-red-600" fill="currentColor" />,
   },
   {
-    icon: Siren,
     title: "Emergency assistance",
-    body: "A 24/7 assistance line, ambulance dispatch and medical evacuation coordination from Victoria Falls to Great Zimbabwe.",
+    body: "A 24/7 assistance line, ambulance dispatch and medical evacuation coordination across Zimbabwe.",
+    iconBg: "bg-amber-50",
+    render: () => <HelicopterIcon className="size-7" />,
   },
   {
-    icon: Compass,
     title: "Travel confidence",
     body: "One certificate accepted by hotels, tour operators and border officials. Verified in seconds with a QR scan.",
+    iconBg: "bg-sky-50",
+    render: () => <Plane className="size-6 text-sky-600" fill="currentColor" />,
   },
 ];
 
@@ -144,8 +161,8 @@ export default function LandingPage() {
             <StaggerItem key={item.title}>
               <Card className="h-full transition-shadow hover:shadow-lg hover:shadow-safari-900/5">
                 <CardContent className="p-7">
-                  <span className="grid size-12 place-items-center rounded-2xl bg-safari-50 text-safari-700">
-                    <item.icon className="size-6" />
+                  <span className={`grid size-12 place-items-center rounded-2xl ${item.iconBg}`}>
+                    {item.render()}
                   </span>
                   <h3 className="mt-5 text-lg font-semibold text-stone-900">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-stone-500">{item.body}</p>
