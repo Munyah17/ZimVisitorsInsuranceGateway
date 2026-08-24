@@ -1146,7 +1146,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                       <Smartphone className="size-4" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-stone-900">Local mobile money</span>
+                      <span className="block text-sm font-semibold text-stone-900">Checkout With Paynow</span>
                       <span className="mt-0.5 block text-xs text-stone-400">EcoCash · OneMoney</span>
                     </span>
                   </button>
