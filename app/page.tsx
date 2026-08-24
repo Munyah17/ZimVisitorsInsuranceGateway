@@ -50,7 +50,7 @@ const WHY = [
   },
   {
     title: "Travel confidence",
-    body: "One certificate accepted by hotels, tour operators and border officials. Verified in seconds with a QR scan.",
+    body: "Enjoy Your Adventure With Peace of Mind Throughout Your Stay",
     iconBg: "bg-sky-50",
     render: () => <Plane className="size-6 text-sky-600" fill="currentColor" />,
   },
