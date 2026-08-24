@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { DateField } from "@/components/ui/date-field";
 import { cn } from "@/lib/utils";
 
 const TIMELINE = [
@@ -201,12 +202,11 @@ export default function ClaimsPage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="incidentDate">Incident date</Label>
-                <Input
+                <DateField
                   id="incidentDate"
-                  type="date"
-                  className={fieldClass("incidentDate")}
+                  invalid={Boolean(showError("incidentDate"))}
                   value={form.incidentDate}
-                  onChange={(e) => set("incidentDate", e.target.value)}
+                  onChange={(iso) => set("incidentDate", iso)}
                 />
                 {showError("incidentDate") && <p className="text-xs text-red-600">{errors.incidentDate}</p>}
               </div>

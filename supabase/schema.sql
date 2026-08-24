@@ -700,7 +700,7 @@ insert into organizations (id, name, type, license_number, status, contact_email
   ('33333333-3333-3333-3333-333333333333', 'Savanna Specialty Insurers', 'partner_insurer', 'IPEC-IN-2023-019', 'active', 'partners@savannaspecialty.co.zw'),
   ('44444444-4444-4444-4444-444444444444', 'Victoria Falls Private Hospital', 'hospital', null, 'active', 'admissions@vfph.co.zw'),
   ('55555555-5555-5555-5555-555555555555', 'Shearwater Adventures', 'tourism_operator', null, 'active', 'bookings@shearwater.co.zw'),
-  ('66666666-6666-6666-6666-666666666666', 'MARS Ambulance Zimbabwe', 'ambulance_service', null, 'active', 'dispatch@mars.co.zw');
+  ('66666666-6666-6666-6666-666666666666', 'HEMS Ambulance', 'ambulance_service', null, 'active', 'info@hems.co.zw');
 
 -- --- Products ---------------------------------------------------------------
 -- Single-product catalogue for launch: Zimbabwe Visitor Premium at USD 30.
@@ -834,7 +834,8 @@ insert into service_partners (name, category, city, phone, open_24h) values
   ('Baines Medical Group', 'Medical Practices', 'Harare', '+263 24 270 5011', false),
   ('Matobo Family Practice', 'Medical Practices', 'Bulawayo', '+263 29 226 3350', false),
   ('Great Zimbabwe Medical Rooms', 'Medical Practices', 'Masvingo', '+263 39 226 4180', false),
-  ('MARS Ambulance Zimbabwe', 'Ambulance Services', 'Nationwide', '+263 24 277 1221', true),
+  ('HEMS Ambulance', 'Ambulance Services', 'Nationwide', '0808 0630', true),
+  ('Discovery Ambulance', 'Ambulance Services', 'Nationwide', '+263 71 868 2555', true),
   ('EMRAS Emergency Medical', 'Ambulance Services', 'Harare', '+263 24 279 7478', true),
   ('Falls Rescue Response', 'Ambulance Services', 'Victoria Falls', '+263 83 284 6119', true),
   ('ACE Air & Ambulance', 'Emergency Care', 'Nationwide', '+263 78 004 4747', true),

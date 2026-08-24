@@ -16,8 +16,6 @@ const COLUMNS = [
     links: [
       { label: "Service Partners", href: "/partners" },
       { label: "Agent Portal", href: "/portals" },
-      { label: "Hotels & Lodges", href: "/portals" },
-      { label: "API Access (soon)", href: "/#" },
     ],
   },
   {
@@ -37,10 +35,6 @@ export function SiteFooter() {
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <Logo light />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-safari-200/70">
-              Digital insurance for every visitor to Zimbabwe. Issued in minutes,
-              verified anywhere, backed by a licensed Zimbabwean underwriter.
-            </p>
           </div>
           {COLUMNS.map((col) => (
             <div key={col.title}>

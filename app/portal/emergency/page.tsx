@@ -31,7 +31,7 @@ const MEDICAL_EMERGENCY_PROVIDERS = PARTNERS.filter(
 
 const EMERGENCY = [
   { icon: HeartPulse, label: "Medical Emergency", note: "Direct line to our medical team" },
-  { icon: Ambulance, label: "Ambulance Service", note: "MARS dispatch nationwide" },
+  { icon: Ambulance, label: "Ambulance Service", note: "HEMS and Discovery dispatch nationwide" },
   { icon: Hospital, label: "Nearest Hospital", note: "Directions to partner facilities" },
   { icon: Compass, label: "Travel Assistance", note: "Lost documents, disruptions" },
   { icon: CircleAlert, label: "Report Incident", note: "Start a claim record now" },

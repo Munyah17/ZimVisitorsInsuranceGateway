@@ -44,7 +44,8 @@ export const PARTNERS: Partner[] = [
   { name: "Matobo Family Practice", category: "Medical Practices", city: "Bulawayo", phone: "+263 29 226 3350" },
   { name: "Great Zimbabwe Medical Rooms", category: "Medical Practices", city: "Masvingo", phone: "+263 39 226 4180" },
   // Ambulance services
-  { name: "MARS Ambulance Zimbabwe", category: "Ambulance Services", city: "Nationwide", phone: "+263 24 277 1221", open24h: true },
+  { name: "HEMS Ambulance", category: "Ambulance Services", city: "Nationwide", phone: "0808 0630", open24h: true },
+  { name: "Discovery Ambulance", category: "Ambulance Services", city: "Nationwide", phone: "+263 71 868 2555", open24h: true },
   { name: "EMRAS Emergency Medical", category: "Ambulance Services", city: "Harare", phone: "+263 24 279 7478", open24h: true },
   { name: "Falls Rescue Response", category: "Ambulance Services", city: "Victoria Falls", phone: "+263 83 284 6119", open24h: true },
   // Emergency care

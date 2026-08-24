@@ -12,14 +12,6 @@ import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase-admi
 import { isPaynowConfigured } from "@/lib/payment-gateways/paynow";
 import { isWhatsAppConfigured } from "@/lib/whatsapp/client";
 
-const ROLE_LABELS: Record<string, string> = {
-  admin: "Admin",
-  agent: "Agent",
-  customer: "Customer",
-  underwriter_staff: "Underwriter Staff",
-  support: "Support",
-};
-
 export async function GET(request: Request) {
   if (!verifySuperAdmin(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!isSupabaseAdminConfigured()) return NextResponse.json({ error: "Not configured" }, { status: 503 });
@@ -39,7 +31,7 @@ export async function GET(request: Request) {
   const users = (userRows ?? []).map((u) => ({
     name: u.name as string,
     email: u.email as string,
-    role: ROLE_LABELS[u.role as string] ?? (u.role as string),
+    role: u.role as string,
   }));
 
   const organizations = (orgRows ?? []).map((o) => ({

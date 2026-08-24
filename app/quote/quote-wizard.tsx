@@ -43,6 +43,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { CountrySelect } from "@/components/ui/country-select";
+import { DateField } from "@/components/ui/date-field";
 import { Badge } from "@/components/ui/badge";
 import {
   ACTIVITIES,
@@ -538,12 +539,11 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="dob">Date of birth</Label>
-                      <Input
+                      <DateField
                         id="dob"
-                        type="date"
-                        className={errClass(showLeaderError("dateOfBirth"))}
+                        invalid={Boolean(showLeaderError("dateOfBirth"))}
                         value={form.dateOfBirth}
-                        onChange={(e) => set("dateOfBirth", e.target.value)}
+                        onChange={(iso) => set("dateOfBirth", iso)}
                       />
                       {showLeaderError("dateOfBirth") && <p className="text-xs text-red-600">{showLeaderError("dateOfBirth")}</p>}
                     </div>
@@ -635,10 +635,9 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                               </div>
                               <div className="space-y-1.5">
                                 <Label>Date of birth</Label>
-                                <Input
-                                  type="date"
+                                <DateField
                                   value={t.dateOfBirth}
-                                  onChange={(e) => setTraveller(i, { dateOfBirth: e.target.value })}
+                                  onChange={(iso) => setTraveller(i, { dateOfBirth: iso })}
                                 />
                               </div>
                               <div className="space-y-1.5">
@@ -671,11 +670,6 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                           </div>
                         ))}
                       </div>
-                      <p className="mt-3 text-xs text-stone-400">
-                        Every traveller is individually covered and named on the group
-                        certificate, and each receives their own certificate at the
-                        email address given above. One payment covers everyone.
-                      </p>
                     </div>
                   )}
 
@@ -697,24 +691,22 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                   <div className="mt-7 grid gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <Label htmlFor="arrival">Arrival date</Label>
-                      <Input
+                      <DateField
                         id="arrival"
-                        type="date"
-                        className={errClass(showTripError("arrivalDate"))}
+                        invalid={Boolean(showTripError("arrivalDate"))}
                         value={form.arrivalDate}
-                        onChange={(e) => set("arrivalDate", e.target.value)}
+                        onChange={(iso) => set("arrivalDate", iso)}
                       />
                       {showTripError("arrivalDate") && <p className="text-xs text-red-600">{showTripError("arrivalDate")}</p>}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="departure">Departure date</Label>
-                      <Input
+                      <DateField
                         id="departure"
-                        type="date"
                         min={form.arrivalDate}
-                        className={errClass(showTripError("departureDate"))}
+                        invalid={Boolean(showTripError("departureDate"))}
                         value={form.departureDate}
-                        onChange={(e) => set("departureDate", e.target.value)}
+                        onChange={(iso) => set("departureDate", iso)}
                       />
                       {showTripError("departureDate") && <p className="text-xs text-red-600">{showTripError("departureDate")}</p>}
                     </div>
@@ -988,13 +980,11 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
             {/* ==================== STEP 3: COVERAGE & QUOTE ==================== */}
             {step === 2 && (
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-stone-900">
-                  Choose your cover
-                </h1>
-                <p className="mt-1.5 text-sm text-stone-500">
-                  Every plan is backed by our licensed Zimbabwean underwriter.
-                  {totalTravellers > 1 && ` The plan applies to all ${totalTravellers} travellers.`}
-                </p>
+                {totalTravellers > 1 && (
+                  <p className="text-sm text-stone-500">
+                    The plan applies to all {totalTravellers} travellers.
+                  </p>
+                )}
                 <div className="mt-7 grid gap-4">
                   {products.map((p) => {
                     const selected = form.productId === p.id;
@@ -1035,7 +1025,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                           </div>
                         </div>
                         <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5">
-                          {p.features.slice(0, 4).map((f) => (
+                          {p.features.map((f) => (
                             <li key={f} className="flex items-center gap-1.5 text-xs text-stone-600">
                               <Check className="size-3 text-safari-600" /> {f}
                             </li>
