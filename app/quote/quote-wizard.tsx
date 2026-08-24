@@ -786,9 +786,11 @@ export function QuoteWizard() {
                       </ul>
                       <Link
                         href={`/partners?city=${encodeURIComponent(form.destination)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="mt-3 inline-block text-xs font-semibold text-safari-700 underline underline-offset-2 hover:text-safari-900"
                       >
-                        View all partners in {form.destination} →
+                        View all partners in {form.destination} ↗
                       </Link>
                     </div>
                   )}
