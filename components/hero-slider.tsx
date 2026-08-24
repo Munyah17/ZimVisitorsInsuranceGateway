@@ -18,8 +18,12 @@ const SLIDES = [
   { src: "/hero/victoria-falls-sunset.jpg", alt: "Victoria Falls at sunset" },
   { src: "/hero/great-zimbabwe-aerial.jpg", alt: "Great Zimbabwe from the air" },
   { src: "/hero/hwange-safari.webp", alt: "Wildlife at a Hwange waterhole" },
+  { src: "/hero/matobo-balancing-rocks.jpg", alt: "The balancing rocks of Matobo Hills" },
   { src: "/hero/great-zimbabwe-tower.webp", alt: "The Great Enclosure at Great Zimbabwe" },
+  { src: "/hero/bvumba-mountains.jpg", alt: "The misty Bvumba (Vumba) Mountains" },
   { src: "/hero/victoria-falls-aerial.jpg", alt: "Victoria Falls and its rainbow" },
+  { src: "/hero/gonarezhou-chilojo-cliffs.jpg", alt: "The Chilojo Cliffs of Gonarezhou National Park" },
+  { src: "/hero/mtarazi-falls.jpg", alt: "Mtarazi Falls, Zimbabwe's highest waterfall" },
 ];
 
 const INTERVAL_MS = 6000;
@@ -67,9 +71,9 @@ export function HeroSlider() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Translucent overlay keeps copy readable over any slide */}
-        <div className="absolute inset-0 bg-gradient-to-b from-safari-950/85 via-safari-950/70 to-safari-950/85" />
-        <div className="absolute inset-0 bg-gradient-to-r from-safari-950/60 to-transparent" />
+        {/* Light scrim — just enough for text contrast, images stay the focus */}
+        <div className="absolute inset-0 bg-gradient-to-b from-safari-950/55 via-safari-950/25 to-safari-950/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-safari-950/40 via-transparent to-transparent" />
       </div>
 
       {/* Prev / next arrows: faint until hovered, always tappable */}

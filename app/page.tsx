@@ -81,7 +81,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn delay={0.08}>
-            <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:text-6xl lg:text-7xl">
               Travel Zimbabwe with{" "}
               <span className="bg-gradient-to-r from-sunset-200 via-sunset-300 to-sunset-400 bg-clip-text text-transparent">
                 confidence.
@@ -90,10 +90,9 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn delay={0.16}>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-safari-100/80">
-              Instant visitor medical and emergency insurance for your Zimbabwean
-              adventure, from the mist of Victoria Falls to the plains of Hwange.
-              Trusted protection, verified anywhere.
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-safari-50 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
+              Instant Visitors&apos; Medical and Emergency Insurance For Your
+              Zimbabwean Adventure From Zambezi to Limpopo
             </p>
           </FadeIn>
 
