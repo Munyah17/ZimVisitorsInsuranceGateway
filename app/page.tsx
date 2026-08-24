@@ -6,7 +6,6 @@ import {
   BadgeCheck,
   Landmark,
   LockKeyhole,
-  Check,
   ArrowRight,
   QrCode,
   Zap,
@@ -18,7 +17,7 @@ import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
 import { HeroSlider } from "@/components/hero-slider";
 import { ZimRibbon } from "@/components/zim-ribbon";
 import { fetchActiveProducts } from "@/lib/live-products";
-import { formatUSD } from "@/lib/utils";
+import { cn, formatUSD } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +61,7 @@ const TRUST = [
   {
     icon: Landmark,
     title: "Licensed Insurance Partner",
-    body: "Every policy is underwritten by a licensed Zimbabwean microinsurance company, regulated by IPEC.",
+    body: "Every policy is underwritten by a licensed Zimbabwean microinsurance company.",
   },
   {
     icon: BadgeCheck,
@@ -79,7 +78,7 @@ const TRUST = [
 const STEPS = [
   { n: "01", title: "Tell us about your trip", body: "Your details and travel dates in under two minutes, from any device." },
   { n: "02", title: "Choose your cover", body: "Essential, Premium or Adventure. One clear price, no fine print." },
-  { n: "03", title: "Pay securely", body: "Card, PayPal or mobile money in your currency." },
+  { n: "03", title: "Pay securely", body: "Secure Payment and Checkout Process" },
   { n: "04", title: "Travel covered", body: "Instant digital certificate with a QR code, delivered to your inbox." },
 ];
 
@@ -201,7 +200,16 @@ export default async function LandingPage() {
             </div>
           </FadeIn>
 
-          <Stagger className="mx-auto mt-14 grid max-w-md gap-6">
+          <Stagger
+            className={cn(
+              "mx-auto mt-14 grid gap-6",
+              featuredProducts.length === 1
+                ? "max-w-md"
+                : featuredProducts.length === 2
+                  ? "max-w-3xl sm:grid-cols-2"
+                  : "max-w-5xl sm:grid-cols-2 lg:grid-cols-3"
+            )}
+          >
             {featuredProducts.map((p) => (
               <StaggerItem key={p.id} className="h-full">
                 <Card
@@ -219,24 +227,13 @@ export default async function LandingPage() {
                     </span>
                   )}
                   <CardContent className="flex h-full flex-col p-7">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-safari-600">
-                      {p.tagline}
-                    </p>
-                    <h3 className="mt-2 text-xl font-bold text-stone-900">{p.name}</h3>
+                    <h3 className="text-xl font-bold text-stone-900">{p.name}</h3>
                     <div className="mt-4 flex items-baseline gap-1.5">
                       <span className="text-4xl font-bold tracking-tight text-stone-900">
                         {formatUSD(p.basePriceUsd)}
                       </span>
-                      <span className="text-sm text-stone-400">one-time premium</span>
                     </div>
-                    <ul className="mt-6 flex-1 space-y-3">
-                      {p.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2.5 text-sm text-stone-600">
-                          <Check className="mt-0.5 size-4 shrink-0 text-safari-600" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex-1" />
                     <Link href={`/quote?product=${p.id}`} className="mt-7 block">
                       <Button
                         variant={p.popular ? "default" : "outline"}
@@ -290,11 +287,6 @@ export default async function LandingPage() {
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Serious insurance behind a simple experience
               </h2>
-              <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-safari-200/70">
-                Zim Travelmate is operated by a licensed multiple
-                agent and underwritten by a licensed microinsurance company. One
-                brand for you, full regulatory compliance underneath.
-              </p>
             </div>
           </FadeIn>
           <Stagger className="mt-12 grid gap-6 md:grid-cols-3">

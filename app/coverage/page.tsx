@@ -24,6 +24,12 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+/** "Up to $X[, extra]" when the benefit applies, otherwise a plain "not included" line. */
+function amountLine(amount: number, extra?: string) {
+  if (amount <= 0) return "Not included on this plan";
+  return `Up to ${formatUSD(amount)}${extra ? `, ${extra}` : ""}`;
+}
+
 const COVERAGE_ITEMS: {
   key: keyof InsuranceProduct["coverage"];
   label: string;
@@ -34,37 +40,40 @@ const COVERAGE_ITEMS: {
     key: "medicalLimitUsd",
     label: "Medical",
     icon: HeartPulse,
-    describe: (p) => `Up to ${formatUSD(p.coverage.medicalLimitUsd)}`,
+    describe: (p) => amountLine(p.coverage.medicalLimitUsd),
   },
   {
     key: "accidentCoverUsd",
     label: "Personal Accident cover",
     icon: ShieldCheck,
-    describe: (p) => `Up to ${formatUSD(p.coverage.accidentCoverUsd)}`,
+    describe: (p) => amountLine(p.coverage.accidentCoverUsd),
   },
   {
     key: "safariAssistanceUsd",
     label: "Safari Assistance",
     icon: Mountain,
-    describe: (p) => `Up to ${formatUSD(p.coverage.safariAssistanceUsd)}, with roadside assistance and Air rescue`,
+    describe: (p) => amountLine(p.coverage.safariAssistanceUsd, "with roadside assistance and Air rescue"),
   },
   {
     key: "emergencyEvacuationUsd",
     label: "Emergency Assistance and Evacuation",
     icon: Siren,
-    describe: (p) => `Up to ${formatUSD(p.coverage.emergencyEvacuationUsd)}`,
+    describe: (p) => amountLine(p.coverage.emergencyEvacuationUsd),
   },
   {
     key: "travelProtectionUsd",
     label: "Travel Protection",
     icon: PlaneTakeoff,
-    describe: (p) => `Up to ${formatUSD(p.coverage.travelProtectionUsd)}`,
+    describe: (p) => amountLine(p.coverage.travelProtectionUsd),
   },
   {
     key: "funeralCoverUsd",
     label: "Funeral Cover",
     icon: Ambulance,
-    describe: (p) => `Covers cost of repatriation up to ${formatUSD(p.coverage.funeralCoverUsd)}`,
+    describe: (p) =>
+      p.coverage.funeralCoverUsd > 0
+        ? `Covers cost of repatriation up to ${formatUSD(p.coverage.funeralCoverUsd)}`
+        : "Not included on this plan",
   },
   {
     key: "adventureActivities",
@@ -94,13 +103,12 @@ export default async function CoveragePage() {
 
                 <div className="mt-6 flex flex-wrap items-baseline gap-2 rounded-2xl bg-safari-950 px-6 py-5 text-white">
                   <span className="text-3xl font-bold tracking-tight">{formatUSD(p.basePriceUsd)}</span>
-                  <span className="text-sm text-safari-200/70">one-time premium, not a subscription</span>
                 </div>
 
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">
                   {COVERAGE_ITEMS.map((item) => {
                     const value = p.coverage[item.key];
-                    const included = typeof value === "boolean" ? value : true;
+                    const included = typeof value === "boolean" ? value : Number(value) > 0;
                     return (
                       <div
                         key={item.label}
