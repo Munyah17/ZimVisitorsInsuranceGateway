@@ -1,8 +1,7 @@
 /**
- * Supabase client — prepared but NOT yet used by the prototype.
- *
- * The frontend currently runs on lib/mock-data.ts only. When the backend
- * (supabase/schema.sql) is deployed, screens switch to this client:
+ * Anon-key Supabase client for public reads (product catalogue, policy
+ * verification) — every screen in the app is backed by this or the
+ * service-role client (lib/supabase-admin.ts), never by static data.
  *
  *   import { getSupabase } from "@/lib/supabase";
  *   const supabase = getSupabase();

@@ -21,7 +21,7 @@ export interface LivePolicy {
   coverageSummary: string;
 }
 
-function summarizeCoverage(details: Record<string, unknown> | null): string {
+export function summarizeCoverage(details: Record<string, unknown> | null): string {
   if (!details) return "Medical + Emergency Assistance";
   const parts: string[] = [];
   if (details.medical_limit_usd) parts.push(`$${details.medical_limit_usd} medical`);

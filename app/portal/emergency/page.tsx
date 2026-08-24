@@ -19,9 +19,11 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
-import { MOCK_CUSTOMER } from "@/lib/mock-data";
 import { PARTNERS } from "@/lib/partners-data";
 import { CLIENT_NAV } from "../nav";
+
+/** Zim Travelmate's 24/7 emergency assistance line — same number on every certificate. */
+const EMERGENCY_PHONE = "+263 78 000 1111";
 
 const MEDICAL_EMERGENCY_PROVIDERS = PARTNERS.filter(
   (p) => p.category === "Ambulance Services" || p.category === "Emergency Care"
@@ -37,8 +39,6 @@ const EMERGENCY = [
 ];
 
 export default function EmergencyPage() {
-  const { policy } = MOCK_CUSTOMER;
-
   return (
     <DashboardShell
       title="Emergency assistance"
@@ -48,7 +48,7 @@ export default function EmergencyPage() {
     >
       <FadeIn y={16}>
         <a
-          href={`tel:${policy.emergencyPhone.replace(/\s/g, "")}`}
+          href={`tel:${EMERGENCY_PHONE.replace(/\s/g, "")}`}
           className="flex items-center justify-between gap-4 rounded-2xl bg-red-600 px-6 py-6 text-white shadow-lg shadow-red-600/25 transition-colors hover:bg-red-700"
         >
           <span className="flex items-center gap-4">
@@ -60,7 +60,7 @@ export default function EmergencyPage() {
                 Call emergency hotline
               </span>
               <span className="block text-xl font-bold tracking-tight sm:text-3xl">
-                {policy.emergencyPhone}
+                {EMERGENCY_PHONE}
               </span>
             </span>
           </span>

@@ -49,7 +49,7 @@ import {
   TRAVEL_PURPOSES,
   type ActivityId,
   type InsuranceProduct,
-} from "@/lib/mock-data";
+} from "@/lib/catalog";
 import {
   calculatePremium,
   tripDays,

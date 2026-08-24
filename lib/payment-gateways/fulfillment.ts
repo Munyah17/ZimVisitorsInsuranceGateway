@@ -55,9 +55,21 @@ function generatePolicyNumber(): string {
 }
 
 async function insertCustomer(sb: SupabaseClient, t: CheckoutTraveller): Promise<string> {
+  // If this traveller's email matches a registered account, link the new
+  // customer row back to it (customers.user_id) so the customer portal can
+  // find their policies directly, and backfill any account-level identity
+  // fields (nationality/passport/phone) that are still empty from signup.
+  const { data: matchingUser } = await sb
+    .from("users")
+    .select("id, country, passport_number, phone")
+    .ilike("email", t.email)
+    .eq("role", "customer")
+    .maybeSingle();
+
   const { data, error } = await sb
     .from("customers")
     .insert({
+      user_id: matchingUser?.id ?? null,
       full_name: t.fullName,
       nationality: t.nationality,
       // The wizard collects one passport-country-equivalent field
@@ -71,6 +83,18 @@ async function insertCustomer(sb: SupabaseClient, t: CheckoutTraveller): Promise
     .select("id")
     .single();
   if (error) throw new Error(`Failed to save traveller ${t.fullName}: ${error.message}`);
+
+  if (matchingUser && (!matchingUser.country || !matchingUser.passport_number || !matchingUser.phone)) {
+    await sb
+      .from("users")
+      .update({
+        country: matchingUser.country ?? t.nationality,
+        passport_number: matchingUser.passport_number ?? t.passportNumber,
+        phone: matchingUser.phone ?? t.phone,
+      })
+      .eq("id", matchingUser.id);
+  }
+
   return data.id as string;
 }
 

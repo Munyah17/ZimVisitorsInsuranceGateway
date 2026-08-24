@@ -17,7 +17,7 @@
  * (POST /api/quote) so rates can change without redeploying the frontend.
  */
 
-import type { ActivityId, InsuranceProduct } from "./mock-data";
+import type { ActivityId, InsuranceProduct } from "./catalog";
 
 export const ZTA_LEVY_RATE = 0.02;
 export const STAMP_DUTY_RATE = 0.05;

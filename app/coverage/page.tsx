@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchActiveProducts } from "@/lib/live-products";
-import type { InsuranceProduct } from "@/lib/mock-data";
+import type { InsuranceProduct } from "@/lib/catalog";
 import { formatUSD } from "@/lib/utils";
 
 export const metadata: Metadata = {

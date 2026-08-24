@@ -24,6 +24,13 @@ export interface AgentIdentity {
   orgName: string | null;
 }
 
+export interface CustomerIdentity {
+  role: "customer";
+  userId: string;
+  name: string;
+  email: string;
+}
+
 export async function requireAdmin(request: Request): Promise<AdminIdentity | null> {
   const userRow = await authenticatedUserRow(request);
   if (!userRow || userRow.role !== "admin") return null;
@@ -55,7 +62,15 @@ export async function requireAgent(request: Request): Promise<AgentIdentity | nu
   };
 }
 
-async function authenticatedUserRow(request: Request): Promise<{ id: string; role: string; name: string } | null> {
+export async function requireCustomer(request: Request): Promise<CustomerIdentity | null> {
+  const userRow = await authenticatedUserRow(request);
+  if (!userRow || userRow.role !== "customer") return null;
+  return { role: "customer", userId: userRow.id, name: userRow.name, email: userRow.email };
+}
+
+async function authenticatedUserRow(
+  request: Request
+): Promise<{ id: string; role: string; name: string; email: string } | null> {
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
   if (!token) return null;
@@ -66,7 +81,7 @@ async function authenticatedUserRow(request: Request): Promise<{ id: string; rol
 
   const { data: userRow } = await admin
     .from("users")
-    .select("id, role, name")
+    .select("id, role, name, email")
     .eq("auth_user_id", authData.user.id)
     .maybeSingle();
 

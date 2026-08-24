@@ -13,7 +13,7 @@
  * its own — each message is an independent HTTP POST to us).
  */
 
-import { TRAVEL_PURPOSES, ACTIVITIES, type ActivityId } from "@/lib/mock-data";
+import { TRAVEL_PURPOSES, ACTIVITIES, type ActivityId } from "@/lib/catalog";
 import { fetchActiveProducts } from "@/lib/live-products";
 import { COUNTRIES } from "@/lib/countries";
 import { DESTINATIONS } from "@/lib/partners-data";

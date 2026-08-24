@@ -1,13 +1,13 @@
 /**
- * Live product catalogue — replaces the static PRODUCTS/FEATURED_PRODUCTS
- * arrays in lib/mock-data.ts. Same InsuranceProduct shape either way, so
- * calculatePremium() and every display component are unaffected; only
- * the source of the data changes. Managed from the Super Admin console
- * (/private -> Products & Pricing) via /api/admin/products.
+ * Live product catalogue, backed by the `insurance_products` table.
+ * calculatePremium() and every display component key off the
+ * InsuranceProduct shape (lib/catalog.ts) regardless of source. Managed
+ * from the Super Admin console (/private -> Products & Pricing) via
+ * /api/admin/products.
  */
 
 import { getSupabase } from "@/lib/supabase";
-import type { InsuranceProduct, ProductCategory } from "@/lib/mock-data";
+import type { InsuranceProduct, ProductCategory } from "@/lib/catalog";
 
 interface ProductRow {
   id: string;
