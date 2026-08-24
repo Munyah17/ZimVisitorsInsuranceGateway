@@ -154,9 +154,6 @@ export default async function CoveragePage() {
                       <Wallet className="size-4" /> Get covered
                     </Button>
                   </Link>
-                  <p className="text-xs text-stone-400">
-                    Underwritten by a licensed Zimbabwean insurer. Issued in minutes, valid instantly.
-                  </p>
                 </div>
               </CardContent>
             </Card>

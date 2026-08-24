@@ -124,15 +124,15 @@ export function PartnersDirectory() {
         )}
 
         {/* Cards */}
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {filtered.map((p) => (
             <div
               key={p.name}
-              className="group flex flex-col rounded-2xl border border-stone-200/80 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-safari-300 hover:shadow-lg hover:shadow-safari-900/5"
+              className="group flex flex-col rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-safari-300 hover:shadow-lg hover:shadow-safari-900/5"
             >
               {/* Logo placeholder: swapped for the provider's uploaded logo when live */}
               <div className="flex items-start justify-between">
-                <span className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-safari-700 to-safari-950 text-lg font-bold text-sunset-300">
+                <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-safari-700 to-safari-950 text-sm font-bold text-sunset-300">
                   {partnerInitials(p.name)}
                 </span>
                 {p.open24h && (
@@ -141,8 +141,8 @@ export function PartnersDirectory() {
                   </Badge>
                 )}
               </div>
-              <h2 className="mt-4 font-bold leading-snug text-stone-900">{p.name}</h2>
-              <Badge variant={CATEGORY_BADGE[p.category]} className="mt-2 w-fit">
+              <h2 className="mt-3 text-sm font-bold leading-snug text-stone-900">{p.name}</h2>
+              <Badge variant={CATEGORY_BADGE[p.category]} className="mt-1.5 w-fit">
                 {p.category === "Ambulance Services" ? (
                   <Siren className="size-3" />
                 ) : (
@@ -150,20 +150,20 @@ export function PartnersDirectory() {
                 )}
                 {p.category}
               </Badge>
-              <div className="mt-4 flex-1 space-y-2 text-sm">
-                <p className="flex items-center gap-2 text-stone-600">
-                  <MapPin className="size-4 shrink-0 text-safari-500" />
+              <div className="mt-3 flex-1 space-y-1.5 text-xs">
+                <p className="flex items-center gap-1.5 text-stone-600">
+                  <MapPin className="size-3.5 shrink-0 text-safari-500" />
                   {p.city}
                 </p>
                 <a
                   href={`tel:${p.phone.replace(/\s/g, "")}`}
-                  className="flex items-center gap-2 font-medium text-stone-800 transition-colors hover:text-safari-700"
+                  className="flex items-center gap-1.5 font-medium text-stone-800 transition-colors hover:text-safari-700"
                 >
-                  <Phone className="size-4 shrink-0 text-safari-500" />
+                  <Phone className="size-3.5 shrink-0 text-safari-500" />
                   {p.phone}
                 </a>
               </div>
-              <p className="mt-4 flex items-center gap-1.5 border-t border-stone-100 pt-3 text-xs text-stone-400">
+              <p className="mt-3 flex items-center gap-1.5 border-t border-stone-100 pt-2.5 text-[11px] text-stone-400">
                 <ShieldCheck className="size-3.5 text-safari-500" />
                 Accepts Travelmate cover directly
               </p>

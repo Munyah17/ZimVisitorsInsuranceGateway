@@ -24,7 +24,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { QrScanner } from "@/components/qr-scanner";
 import { formatDate } from "@/lib/utils";
+
+/** Accepts either a full verify URL (from our own QR codes) or a bare policy number. */
+function extractPolicyNumber(scanned: string): string {
+  try {
+    const url = new URL(scanned);
+    const fromQuery = url.searchParams.get("number");
+    if (fromQuery) return fromQuery;
+  } catch {
+    // Not a URL — treat the raw scanned text as the policy number.
+  }
+  return scanned;
+}
 
 interface LivePolicy {
   policyNumber: string;
@@ -47,6 +60,7 @@ type Result =
 export default function VerifyPage() {
   const [number, setNumber] = useState("");
   const [result, setResult] = useState<Result>({ state: "idle" });
+  const [scanning, setScanning] = useState(false);
 
   const verify = async (value: string) => {
     if (!value.trim()) return;
@@ -77,6 +91,13 @@ export default function VerifyPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleScan = (scanned: string) => {
+    const value = extractPolicyNumber(scanned);
+    setScanning(false);
+    setNumber(value);
+    verify(value);
+  };
 
   return (
     <div className="bg-gradient-to-b from-safari-50/60 to-transparent">
@@ -115,10 +136,14 @@ export default function VerifyPage() {
                   </>
                 )}
               </Button>
+              <Button type="button" variant="outline" size="lg" className="sm:w-36" onClick={() => setScanning(true)}>
+                <QrCode className="size-4" /> Scan QR
+              </Button>
             </form>
             <p className="mt-3 flex items-center gap-1.5 text-xs text-stone-400">
               <QrCode className="size-3.5" />
-              Scanning a certificate QR code opens this page with the result pre-filled.
+              Scan a certificate QR code with this device's camera, or your phone's
+              own camera app opens this page pre-filled automatically.
             </p>
           </CardContent>
         </Card>
@@ -244,6 +269,7 @@ export default function VerifyPage() {
           )}
         </AnimatePresence>
       </div>
+      {scanning && <QrScanner onScan={handleScan} onClose={() => setScanning(false)} />}
     </div>
   );
 }
