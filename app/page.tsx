@@ -115,7 +115,7 @@ export default async function LandingPage() {
           <FadeIn delay={0.16}>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-safari-50 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
               Instant Visitors&apos; Medical and Emergency Insurance For Your
-              Zimbabwean Adventure From Zambezi to Limpopo
+              Zimbabwean Adventure Across Zimbabwe, From Zambezi to Limpopo
             </p>
           </FadeIn>
 
