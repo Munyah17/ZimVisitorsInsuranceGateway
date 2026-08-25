@@ -46,6 +46,21 @@ export interface CheckoutRequest {
   totalAmount: number;
   /** Which surface this checkout started from. Defaults to "web". */
   channel?: "web" | "whatsapp";
+  /** Customer's preferred insurer (organizations.id). Falls back to Motions if unset/invalid. */
+  insurerId?: string | null;
+}
+
+/** Validates the customer's chosen insurer is a real, active insurer org; falls back to Motions otherwise. */
+async function resolveInsurer(sb: SupabaseClient, insurerId: string | null | undefined): Promise<string> {
+  if (!insurerId) return UNDERWRITER_ORG_ID;
+  const { data } = await sb
+    .from("organizations")
+    .select("id")
+    .eq("id", insurerId)
+    .in("type", ["microinsurer", "partner_insurer"])
+    .eq("status", "active")
+    .maybeSingle();
+  return data?.id ?? UNDERWRITER_ORG_ID;
 }
 
 function generatePolicyNumber(): string {
@@ -130,6 +145,7 @@ async function insertPolicy(
     endDate: string;
     premium: number;
     channel: "web" | "whatsapp";
+    underwriterId: string;
   }
 ): Promise<{ id: string; policy_number: string }> {
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -141,7 +157,7 @@ async function insertPolicy(
         customer_id: args.customerId,
         travel_detail_id: args.travelDetailId,
         product_id: args.productId,
-        underwriter_id: UNDERWRITER_ORG_ID,
+        underwriter_id: args.underwriterId,
         start_date: args.startDate,
         end_date: args.endDate,
         premium: args.premium,
@@ -168,6 +184,8 @@ export async function createPendingCheckout(req: CheckoutRequest): Promise<Pendi
   const allTravellers = [req.leader, ...req.travellers];
   const perTravellerPremium =
     Math.round((req.pricingBreakdown.premium / allTravellers.length) * 100) / 100;
+
+  const underwriterId = await resolveInsurer(sb, req.insurerId);
 
   const leaderCustomerId = await insertCustomer(sb, req.leader);
   const leaderTravelDetailId = await insertTravelDetails(sb, leaderCustomerId, req);
@@ -206,6 +224,7 @@ export async function createPendingCheckout(req: CheckoutRequest): Promise<Pendi
       endDate: req.departureDate,
       premium: perTravellerPremium,
       channel: req.channel ?? "web",
+      underwriterId,
     });
     policyIds.push(policy.id);
     if (isLeader) leaderPolicyId = policy.id;

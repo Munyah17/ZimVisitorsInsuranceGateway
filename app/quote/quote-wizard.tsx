@@ -44,6 +44,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { CountrySelect } from "@/components/ui/country-select";
 import { DateField } from "@/components/ui/date-field";
+import { InsurerSelect } from "@/components/ui/insurer-select";
 import { Badge } from "@/components/ui/badge";
 import {
   ACTIVITIES,
@@ -59,6 +60,7 @@ import {
 } from "@/lib/quote-engine";
 import { DESTINATIONS, partnersNear } from "@/lib/partners-data";
 import { callingCodeFor } from "@/lib/calling-codes";
+import { DEFAULT_INSURER_ID } from "@/lib/insurers";
 import { cn, formatDate, formatUSD } from "@/lib/utils";
 
 const STEPS = [
@@ -140,6 +142,7 @@ interface FormState {
   modeOfTransport: string;
   transport: string;
   documents: string[];
+  insurerId: string;
   // Purpose-specific details
   company: string;
   hostOrganization: string;
@@ -186,6 +189,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
     modeOfTransport: "",
     transport: "",
     documents: [],
+    insurerId: DEFAULT_INSURER_ID,
     company: "",
     hostOrganization: "",
     institution: "",
@@ -372,6 +376,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
           travellers: form.tripType === "group" ? form.travellers.map(toTraveller) : [],
           pricingBreakdown: pricing,
           totalAmount: pricing.grandTotal,
+          insurerId: form.insurerId || null,
         }),
       });
 
@@ -972,6 +977,18 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                         );
                       })}
                     </div>
+                  </div>
+
+                  <div className="mt-5 space-y-1.5">
+                    <Label htmlFor="insurer">
+                      Preferred insurer{" "}
+                      <span className="font-normal text-stone-400">(optional)</span>
+                    </Label>
+                    <InsurerSelect
+                      id="insurer"
+                      value={form.insurerId}
+                      onChange={(v) => set("insurerId", v)}
+                    />
                   </div>
                 </CardContent>
               </Card>
