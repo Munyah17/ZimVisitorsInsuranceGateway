@@ -715,7 +715,35 @@ insert into organizations (name, type, status) values
   ('Credsure', 'partner_insurer', 'active'),
   ('Clarion', 'partner_insurer', 'active'),
   ('Champions', 'partner_insurer', 'active'),
-  ('Doves', 'partner_insurer', 'active');
+  ('Doves', 'partner_insurer', 'active'),
+  -- Short-term insurers, per IPEC's quarterly capital-position report.
+  ('Alliance', 'partner_insurer', 'active'),
+  ('AFC', 'partner_insurer', 'active'),
+  ('Allied', 'partner_insurer', 'active'),
+  ('CBZ', 'partner_insurer', 'active'),
+  ('CELL', 'partner_insurer', 'active'),
+  ('Econet', 'partner_insurer', 'active'),
+  ('Evolution', 'partner_insurer', 'active'),
+  ('ECGC', 'partner_insurer', 'active'),
+  ('FBC', 'partner_insurer', 'active'),
+  ('Hamilton', 'partner_insurer', 'active'),
+  ('Quality', 'partner_insurer', 'active'),
+  ('Safel', 'partner_insurer', 'active'),
+  ('Sanctuary', 'partner_insurer', 'active'),
+  ('Empaya', 'partner_insurer', 'active'),
+  ('Zimnat Lion', 'partner_insurer', 'active'),
+  ('Misty', 'partner_insurer', 'active');
+
+-- Microinsurers, per IPEC's quarterly capital-position report.
+insert into organizations (name, type, status) values
+  ('Bayce Microinsurance', 'microinsurer', 'active'),
+  ('Clientsure Microinsurance', 'microinsurer', 'active'),
+  ('Coverlink Microinsurance', 'microinsurer', 'active'),
+  ('Ethical Microinsurance', 'microinsurer', 'active'),
+  ('Golden Knot Microinsurance', 'microinsurer', 'active'),
+  ('Highground Microinsurance', 'microinsurer', 'active'),
+  ('Microsure Microinsurance', 'microinsurer', 'active'),
+  ('Mountsentry Microinsurance', 'microinsurer', 'active');
 
 -- --- Products ---------------------------------------------------------------
 -- Single-product catalogue for launch: Zimbabwe Visitor Premium at USD 30.
