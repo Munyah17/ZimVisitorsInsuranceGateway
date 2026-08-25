@@ -63,6 +63,9 @@ import { callingCodeFor } from "@/lib/calling-codes";
 import { DEFAULT_INSURER_ID } from "@/lib/insurers";
 import { cn, formatDate, formatUSD } from "@/lib/utils";
 
+/** A date-of-birth picker with no value yet should open near an adult's likely birth year, not this year. */
+const DOB_OPEN_YEAR = new Date().getFullYear() - 30;
+
 const STEPS = [
   "Travellers",
   "Trip & itinerary",
@@ -549,6 +552,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                         invalid={Boolean(showLeaderError("dateOfBirth"))}
                         value={form.dateOfBirth}
                         onChange={(iso) => set("dateOfBirth", iso)}
+                        openToYear={DOB_OPEN_YEAR}
                       />
                       {showLeaderError("dateOfBirth") && <p className="text-xs text-red-600">{showLeaderError("dateOfBirth")}</p>}
                     </div>
@@ -643,6 +647,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                                 <DateField
                                   value={t.dateOfBirth}
                                   onChange={(iso) => setTraveller(i, { dateOfBirth: iso })}
+                                  openToYear={DOB_OPEN_YEAR}
                                 />
                               </div>
                               <div className="space-y-1.5">

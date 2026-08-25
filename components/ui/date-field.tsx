@@ -26,6 +26,8 @@ interface DateFieldProps {
   placeholder?: string;
   className?: string;
   invalid?: boolean;
+  /** Year the picker opens to when there's no value yet — e.g. ~30 years back for a date of birth, so it doesn't open on today's year. */
+  openToYear?: number;
 }
 
 type View = "days" | "months" | "years";
@@ -63,7 +65,7 @@ function toISO(year: number, month: number, day: number): string {
   return `${year}-${mm}-${dd}`;
 }
 
-export function DateField({ id, value, onChange, min, placeholder = "DD-MM-YYYY", className, invalid }: DateFieldProps) {
+export function DateField({ id, value, onChange, min, placeholder = "DD-MM-YYYY", className, invalid, openToYear }: DateFieldProps) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>("days");
   const [typed, setTyped] = useState<string | null>(null);
@@ -71,11 +73,12 @@ export function DateField({ id, value, onChange, min, placeholder = "DD-MM-YYYY"
   const parsed = parseISO(value);
   const minParsed = parseISO(min);
   const today = new Date();
+  const fallbackYear = openToYear ?? today.getFullYear();
 
-  const [viewYear, setViewYear] = useState(parsed?.year ?? minParsed?.year ?? today.getFullYear());
+  const [viewYear, setViewYear] = useState(parsed?.year ?? minParsed?.year ?? fallbackYear);
   const [viewMonth, setViewMonth] = useState(parsed?.month ?? minParsed?.month ?? today.getMonth());
   const [decadeStart, setDecadeStart] = useState(
-    Math.floor((parsed?.year ?? today.getFullYear()) / 12) * 12
+    Math.floor((parsed?.year ?? fallbackYear) / 12) * 12
   );
 
   useEffect(() => {
@@ -92,9 +95,9 @@ export function DateField({ id, value, onChange, min, placeholder = "DD-MM-YYYY"
 
   const openPicker = () => {
     setView("days");
-    setViewYear(parsed?.year ?? minParsed?.year ?? today.getFullYear());
+    setViewYear(parsed?.year ?? minParsed?.year ?? fallbackYear);
     setViewMonth(parsed?.month ?? minParsed?.month ?? today.getMonth());
-    setDecadeStart(Math.floor((parsed?.year ?? today.getFullYear()) / 12) * 12);
+    setDecadeStart(Math.floor((parsed?.year ?? fallbackYear) / 12) * 12);
     setOpen(true);
   };
 
