@@ -985,10 +985,7 @@ export function QuoteWizard({ products }: { products: InsuranceProduct[] }) {
                   </div>
 
                   <div className="mt-5 space-y-1.5">
-                    <Label htmlFor="insurer">
-                      Preferred insurer{" "}
-                      <span className="font-normal text-stone-400">(optional)</span>
-                    </Label>
+                    <Label htmlFor="insurer">Select Insurer</Label>
                     <InsurerSelect
                       id="insurer"
                       value={form.insurerId}

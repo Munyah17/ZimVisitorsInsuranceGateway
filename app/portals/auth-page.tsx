@@ -176,10 +176,7 @@ export function AuthPage() {
 
                 {tab === "signup" && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="insurer">
-                      Preferred insurer{" "}
-                      <span className="font-normal text-stone-400">(optional)</span>
-                    </Label>
+                    <Label htmlFor="insurer">Select Insurer</Label>
                     <InsurerSelect id="insurer" value={insurerId} onChange={setInsurerId} />
                   </div>
                 )}

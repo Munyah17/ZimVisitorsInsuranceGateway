@@ -24,7 +24,7 @@ interface InsurerSelectProps {
   className?: string;
 }
 
-export function InsurerSelect({ id, value, onChange, placeholder = "Select insurer (optional)", className }: InsurerSelectProps) {
+export function InsurerSelect({ id, value, onChange, placeholder = "Select Insurer", className }: InsurerSelectProps) {
   const [insurers, setInsurers] = useState<Insurer[] | null>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
