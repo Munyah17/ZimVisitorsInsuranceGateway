@@ -694,13 +694,28 @@ on conflict (id) do nothing;
 -- ===========================================================================
 
 -- --- Organizations -----------------------------------------------------------
+-- License numbers/contact emails are left null unless independently
+-- verified real — never fabricated placeholders.
 insert into organizations (id, name, type, license_number, status, contact_email) values
-  ('11111111-1111-1111-1111-111111111111', 'ZVIG Multiple Agency (Pvt) Ltd', 'multiple_agency', 'IPEC-MA-2026-041', 'active', 'ops@zvig.co.zw'),
-  ('22222222-2222-2222-2222-222222222222', 'Horizon Microinsurance Company', 'microinsurer', 'IPEC-MI-2024-007', 'active', 'underwriting@horizonmicro.co.zw'),
-  ('33333333-3333-3333-3333-333333333333', 'Savanna Specialty Insurers', 'partner_insurer', 'IPEC-IN-2023-019', 'active', 'partners@savannaspecialty.co.zw'),
+  ('11111111-1111-1111-1111-111111111111', 'Zim Travel Mate', 'multiple_agency', null, 'active', null),
+  ('22222222-2222-2222-2222-222222222222', 'Motions Microinsurance Pvt Ltd', 'microinsurer', null, 'active', null),
   ('44444444-4444-4444-4444-444444444444', 'Victoria Falls Private Hospital', 'hospital', null, 'active', 'admissions@vfph.co.zw'),
   ('55555555-5555-5555-5555-555555555555', 'Shearwater Adventures', 'tourism_operator', null, 'active', 'bookings@shearwater.co.zw'),
   ('66666666-6666-6666-6666-666666666666', 'HEMS Ambulance', 'ambulance_service', null, 'active', 'info@hems.co.zw');
+
+-- Real named insurers (partner_insurer) — no license numbers/contacts
+-- fabricated; add them once verified.
+insert into organizations (name, type, status) values
+  ('Ecosure', 'partner_insurer', 'active'),
+  ('Nyaradzo', 'partner_insurer', 'active'),
+  ('Old Mutual Zimbabwe', 'partner_insurer', 'active'),
+  ('First Mutual', 'partner_insurer', 'active'),
+  ('Zimnat', 'partner_insurer', 'active'),
+  ('Nicoz Diamond', 'partner_insurer', 'active'),
+  ('Credsure', 'partner_insurer', 'active'),
+  ('Clarion', 'partner_insurer', 'active'),
+  ('Champions', 'partner_insurer', 'active'),
+  ('Doves', 'partner_insurer', 'active');
 
 -- --- Products ---------------------------------------------------------------
 -- Single-product catalogue for launch: Zimbabwe Visitor Premium at USD 30.

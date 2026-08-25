@@ -20,7 +20,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InsurerSelect } from "@/components/ui/insurer-select";
 import { getSupabase } from "@/lib/supabase";
+import { DEFAULT_INSURER_ID } from "@/lib/insurers";
 
 const ROLE_DEST: Record<string, string> = {
   customer: "/portal",
@@ -36,6 +38,7 @@ export function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [insurerId, setInsurerId] = useState(DEFAULT_INSURER_ID);
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -49,7 +52,7 @@ export function AuthPage() {
         const res = await fetch("/api/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
+          body: JSON.stringify({ name, email, password, insurerId: insurerId || null }),
         });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -170,6 +173,16 @@ export function AuthPage() {
                     </button>
                   </div>
                 </div>
+
+                {tab === "signup" && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="insurer">
+                      Preferred insurer{" "}
+                      <span className="font-normal text-stone-400">(optional)</span>
+                    </Label>
+                    <InsurerSelect id="insurer" value={insurerId} onChange={setInsurerId} />
+                  </div>
+                )}
 
                 {error && (
                   <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
