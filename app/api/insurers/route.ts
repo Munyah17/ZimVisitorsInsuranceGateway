@@ -22,11 +22,6 @@ export async function GET() {
     .order("name", { ascending: true });
 
   const insurers = (data ?? []) as { id: string; name: string }[];
-  // Shortened for the public picker only — the full legal name stays on
-  // certificates and elsewhere the organizations table is read directly.
-  for (const i of insurers) {
-    if (i.id === DEFAULT_INSURER_ID) i.name = "Motions";
-  }
   insurers.sort((a, b) => {
     if (a.id === DEFAULT_INSURER_ID) return -1;
     if (b.id === DEFAULT_INSURER_ID) return 1;

@@ -698,41 +698,38 @@ on conflict (id) do nothing;
 -- verified real — never fabricated placeholders.
 insert into organizations (id, name, type, license_number, status, contact_email) values
   ('11111111-1111-1111-1111-111111111111', 'Zim Travel Mate', 'multiple_agency', null, 'active', null),
-  ('22222222-2222-2222-2222-222222222222', 'Motions Microinsurance Pvt Ltd', 'microinsurer', null, 'active', null),
+  ('22222222-2222-2222-2222-222222222222', 'Motions Microinsurance', 'microinsurer', null, 'active', null),
   ('44444444-4444-4444-4444-444444444444', 'Victoria Falls Private Hospital', 'hospital', null, 'active', 'admissions@vfph.co.zw'),
   ('55555555-5555-5555-5555-555555555555', 'Shearwater Adventures', 'tourism_operator', null, 'active', 'bookings@shearwater.co.zw'),
   ('66666666-6666-6666-6666-666666666666', 'HEMS Ambulance', 'ambulance_service', null, 'active', 'info@hems.co.zw');
 
--- Real named insurers (partner_insurer) — no license numbers/contacts
--- fabricated; add them once verified.
+-- Real named short-term insurers (partner_insurer), per IPEC's quarterly
+-- capital-position report. Stored under their full trading names — this is
+-- what customers pick from in the "Select Insurer" field, so abbreviations
+-- don't belong here. No license numbers/contacts fabricated; add them once
+-- independently verified.
 insert into organizations (name, type, status) values
-  ('Ecosure', 'partner_insurer', 'active'),
-  ('Nyaradzo', 'partner_insurer', 'active'),
-  ('Old Mutual Zimbabwe', 'partner_insurer', 'active'),
-  ('First Mutual', 'partner_insurer', 'active'),
-  ('Zimnat', 'partner_insurer', 'active'),
-  ('Nicoz Diamond', 'partner_insurer', 'active'),
-  ('Credsure', 'partner_insurer', 'active'),
-  ('Clarion', 'partner_insurer', 'active'),
-  ('Champions', 'partner_insurer', 'active'),
-  ('Doves', 'partner_insurer', 'active'),
-  -- Short-term insurers, per IPEC's quarterly capital-position report.
-  ('Alliance', 'partner_insurer', 'active'),
-  ('AFC', 'partner_insurer', 'active'),
-  ('Allied', 'partner_insurer', 'active'),
-  ('CBZ', 'partner_insurer', 'active'),
-  ('CELL', 'partner_insurer', 'active'),
-  ('Econet', 'partner_insurer', 'active'),
-  ('Evolution', 'partner_insurer', 'active'),
-  ('ECGC', 'partner_insurer', 'active'),
-  ('FBC', 'partner_insurer', 'active'),
+  ('AFC Insurance', 'partner_insurer', 'active'),
+  ('Alliance Insurance', 'partner_insurer', 'active'),
+  ('Allied Insurance', 'partner_insurer', 'active'),
+  ('CBZ Insurance', 'partner_insurer', 'active'),
+  ('CELL Insurance', 'partner_insurer', 'active'),
+  ('Champions Insurance', 'partner_insurer', 'active'),
+  ('Clarion Insurance', 'partner_insurer', 'active'),
+  ('Credsure Insurance', 'partner_insurer', 'active'),
+  ('ECGC Insurance', 'partner_insurer', 'active'),
+  ('Econet Insurance', 'partner_insurer', 'active'),
+  ('Empaya Insurance', 'partner_insurer', 'active'),
+  ('Evolution Insurance', 'partner_insurer', 'active'),
+  ('FBC Insurance', 'partner_insurer', 'active'),
   ('Hamilton', 'partner_insurer', 'active'),
-  ('Quality', 'partner_insurer', 'active'),
-  ('Safel', 'partner_insurer', 'active'),
-  ('Sanctuary', 'partner_insurer', 'active'),
-  ('Empaya', 'partner_insurer', 'active'),
-  ('Zimnat Lion', 'partner_insurer', 'active'),
-  ('Misty', 'partner_insurer', 'active');
+  ('Misty Insurance', 'partner_insurer', 'active'),
+  ('Nicoz Diamond Insurance', 'partner_insurer', 'active'),
+  ('Old Mutual Insurance', 'partner_insurer', 'active'),
+  ('Quality Insurance', 'partner_insurer', 'active'),
+  ('Safel Insurance', 'partner_insurer', 'active'),
+  ('Sanctuary Insurance', 'partner_insurer', 'active'),
+  ('Zimnat Lion Insurance', 'partner_insurer', 'active');
 
 -- Microinsurers, per IPEC's quarterly capital-position report.
 insert into organizations (name, type, status) values

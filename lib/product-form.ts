@@ -1,6 +1,6 @@
 /** Shared by the admin product create/update routes. */
 
-/** Motions Microinsurance Pvt Ltd — same default underwriter checkout uses. */
+/** Motions Microinsurance — same default underwriter checkout uses. */
 export const DEFAULT_UNDERWRITER_ORG_ID = "22222222-2222-2222-2222-222222222222";
 
 export const CATEGORIES = ["medical", "medical_plus_travel", "adventure", "transit"];

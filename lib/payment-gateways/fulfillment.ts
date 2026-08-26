@@ -19,7 +19,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { findSessionByPendingReference, saveSession } from "@/lib/whatsapp/session";
 import { sendWhatsAppText, isWhatsAppConfigured } from "@/lib/whatsapp/client";
 
-/** Motions Microinsurance Pvt Ltd — seeded primary underwriter (schema.sql). */
+/** Motions Microinsurance — seeded primary underwriter (schema.sql). */
 const UNDERWRITER_ORG_ID = "22222222-2222-2222-2222-222222222222";
 
 export interface CheckoutTraveller {
