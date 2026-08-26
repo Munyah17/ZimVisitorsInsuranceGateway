@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { verifyPaynowCallback, PAYNOW_PAID_STATUSES } from "@/lib/payment-gateways/paynow";
+import {
+  verifyPaynowCallback,
+  PAYNOW_PAID_STATUSES,
+  PAYNOW_FAILED_STATUSES,
+} from "@/lib/payment-gateways/paynow";
 import { activatePaidPayment, markPaymentFailed } from "@/lib/payment-gateways/fulfillment";
 import { getBaseUrl } from "@/lib/request-url";
 
@@ -29,9 +33,11 @@ export async function POST(request: Request) {
         status as unknown as Record<string, unknown>,
         baseUrl
       );
-    } else {
+    } else if (PAYNOW_FAILED_STATUSES.includes(status.status)) {
       await markPaymentFailed(status.reference, status as unknown as Record<string, unknown>);
     }
+    // Anything else ("created", "sent") is still in flight — leave the
+    // payment pending so the return page keeps polling for the real outcome.
   } catch (err) {
     // Log and still 200 — Paynow isn't responsible for retrying our DB
     // errors; the status-poll fallback in /api/checkout/paynow/status

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { pollPaynowStatus, PAYNOW_PAID_STATUSES } from "@/lib/payment-gateways/paynow";
+import {
+  pollPaynowStatus,
+  PAYNOW_PAID_STATUSES,
+  PAYNOW_FAILED_STATUSES,
+} from "@/lib/payment-gateways/paynow";
 import {
   getCheckoutStatus,
   activatePaidPayment,
@@ -39,7 +43,7 @@ export async function GET(request: Request) {
             getBaseUrl(request)
           );
           result = await getCheckoutStatus(reference);
-        } else if (["cancelled", "disputed"].includes(live.status)) {
+        } else if (PAYNOW_FAILED_STATUSES.includes(live.status)) {
           await markPaymentFailed(live.reference, live as unknown as Record<string, unknown>);
           result = await getCheckoutStatus(reference);
         }

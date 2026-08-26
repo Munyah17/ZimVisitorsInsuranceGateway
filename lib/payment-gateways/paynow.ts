@@ -41,6 +41,20 @@ export interface PaynowCheckoutResult {
 }
 
 /**
+ * Paynow shows `additionalinfo` to the customer on its own checkout page, and
+ * the SDK mangles it twice on the way there:
+ *   - Cart.summary() trims `length - 3` to strip a trailing ", " (2 chars),
+ *     eating the last real character. The trailing "." below is sacrificial.
+ *   - build() runs encodeURI() over every value, so anything non-ASCII arrives
+ *     percent-escaped. Keeping the text plain ASCII limits that to spaces.
+ * Both are bugs in the `paynow` package, not something to route around by
+ * hand-rolling our own client.
+ */
+function forPaynowDisplay(description: string): string {
+  return description.replace(/[^\x20-\x7E]/g, "-") + ".";
+}
+
+/**
  * Requests a hosted checkout session for a full-redirect payment. Paynow
  * returns a browserurl; the caller is responsible for sending the customer
  * there with a full navigation (never an iframe — Paynow's own guidance).
@@ -54,7 +68,10 @@ export async function initiatePaynowCheckout(params: {
 }): Promise<PaynowCheckoutResult> {
   const paynow = createClient(params.baseUrl);
   const payment = paynow.createPayment(params.reference, params.email);
-  payment.add(params.description, params.amount);
+
+  // Round to cents: the spec wants two decimal places, and summing per
+  // traveller premiums can otherwise drift to 45.300000000000004.
+  payment.add(forPaynowDisplay(params.description), Math.round(params.amount * 100) / 100);
 
   const response = await paynow.send(payment);
   if (!response || !response.success || !response.redirectUrl) {
@@ -87,6 +104,18 @@ function toStatus(raw: Record<string, unknown>): PaynowStatus {
 
 /** Statuses that mean funds have actually been received. */
 export const PAYNOW_PAID_STATUSES = ["paid", "awaiting delivery", "delivered"];
+
+/**
+ * Statuses that mean this transaction will never be paid.
+ *
+ * Deliberately NOT "everything that isn't paid": Paynow pushes a status
+ * update on every change, and "created" (awaiting the customer) and "sent"
+ * (referred upstream to EcoCash/the bank, not yet paid) are both mid-flight.
+ * Treating those as failures strands a live payment — getCheckoutStatus()
+ * reports "failed" and the poll fallback only re-polls while "pending", so
+ * the customer sees a permanent failure for money they're still sending.
+ */
+export const PAYNOW_FAILED_STATUSES = ["cancelled", "refunded", "disputed"];
 
 /**
  * Verifies and parses Paynow's resulturl webhook POST body (raw
