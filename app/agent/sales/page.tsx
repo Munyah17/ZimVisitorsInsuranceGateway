@@ -84,7 +84,7 @@ export default function AgentSalesPage() {
                         <td className="py-3.5 pr-4 font-medium text-stone-900">{c.name}</td>
                         <td className="py-3.5 pr-4 text-stone-600">{c.country}</td>
                         <td className="py-3.5 pr-4 font-medium tabular-nums text-stone-900">{formatUSD(c.premium)}</td>
-                        <td className="py-3.5 pr-4 text-stone-500">{formatDate(c.date.slice(0, 10))}</td>
+                        <td className="py-3.5 pr-4 text-stone-500">{formatDate(c.date)}</td>
                         <td className="py-3.5">
                           <Badge variant={c.status === "active" ? "success" : "warning"}>
                             {c.status === "active" ? "Active" : "Pending payment"}

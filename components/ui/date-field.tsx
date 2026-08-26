@@ -16,7 +16,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, parseDMY } from "@/lib/utils";
 
 interface DateFieldProps {
   id?: string;
@@ -44,19 +44,6 @@ function parseISO(iso: string | undefined): { year: number; month: number; day: 
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if (!m) return null;
   return { year: Number(m[1]), month: Number(m[2]) - 1, day: Number(m[3]) };
-}
-
-/** Accepts DD-MM-YYYY, DD/MM/YYYY or "DD MM YYYY". Returns an ISO date or null. */
-function parseTyped(text: string): string | null {
-  const m = /^(\d{1,2})[-/\s](\d{1,2})[-/\s](\d{4})$/.exec(text.trim());
-  if (!m) return null;
-  const day = Number(m[1]);
-  const month = Number(m[2]);
-  const year = Number(m[3]);
-  if (month < 1 || month > 12) return null;
-  const daysInMonth = new Date(year, month, 0).getDate();
-  if (day < 1 || day > daysInMonth) return null;
-  return toISO(year, month - 1, day);
 }
 
 function toISO(year: number, month: number, day: number): string {
@@ -138,13 +125,17 @@ export function DateField({ id, value, onChange, min, placeholder = "DD-MM-YYYY"
 
   const handleTypedChange = (text: string) => {
     setTyped(text);
-    const iso = parseTyped(text);
+    const iso = parseDMY(text);
     if (iso) onChange(iso);
   };
 
-  const commitTyped = () => {
-    if (typed !== null && !parseTyped(typed)) setTyped(null);
-  };
+  /**
+   * Dropping the in-progress text on blur hands the display back to
+   * formatDate, so whatever separator or unpadded form was typed
+   * ("1/5/1990") settles to the canonical DD-MM-YYYY ("01-05-1990").
+   * An unparseable entry falls back to the last good value the same way.
+   */
+  const commitTyped = () => setTyped(null);
 
   const displayValue = typed !== null ? typed : value ? formatDate(value) : "";
 

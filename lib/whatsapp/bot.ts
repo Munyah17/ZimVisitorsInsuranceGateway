@@ -25,7 +25,7 @@ import { generateClaimNumber } from "@/lib/claims";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { downloadWhatsAppMedia } from "@/lib/whatsapp/client";
 import { getSession, saveSession, type BotSession } from "@/lib/whatsapp/session";
-import { formatDate, formatUSD } from "@/lib/utils";
+import { formatDate, formatUSD, parseDMY } from "@/lib/utils";
 
 const MENU_TEXT =
   "*Zim Travelmate* 🇿🇼\n" +
@@ -79,13 +79,6 @@ function matchCountry(input: string): { match?: string; suggestions: string[] } 
   const contains = COUNTRIES.filter((c) => c.toLowerCase().includes(q));
   if (contains.length === 1) return { match: contains[0], suggestions: [] };
   return { suggestions: contains.slice(0, 6) };
-}
-
-function parseDate(input: string): string | null {
-  const t = input.trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return null;
-  const d = new Date(`${t}T00:00:00`);
-  return Number.isNaN(d.getTime()) ? null : t;
 }
 
 function isValidEmail(input: string): boolean {
@@ -262,7 +255,7 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
         draft.nationality = match;
         session.state = "BUY_DOB";
         await saveSession(session);
-        return ["Date of birth? (YYYY-MM-DD)"];
+        return ["Date of birth? (DD-MM-YYYY)"];
       }
       if (suggestions.length > 0) {
         return [`Did you mean one of these?\n${suggestions.map((s) => `• ${s}`).join("\n")}\n\nReply with the exact name.`];
@@ -271,8 +264,8 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
     }
 
     case "BUY_DOB": {
-      const dob = parseDate(text);
-      if (!dob) return ["Please use the format YYYY-MM-DD, e.g. 1990-05-21."];
+      const dob = parseDMY(text);
+      if (!dob) return ["Please use the format DD-MM-YYYY, e.g. 21-05-1990."];
       draft.dateOfBirth = dob;
       session.state = "BUY_PASSPORT";
       await saveSession(session);
@@ -292,21 +285,21 @@ async function handleBuyFlow(session: BotSession, text: string, baseUrl: string)
       draft.email = text.trim();
       session.state = "BUY_ARRIVAL";
       await saveSession(session);
-      return ["Arrival date in Zimbabwe? (YYYY-MM-DD)"];
+      return ["Arrival date in Zimbabwe? (DD-MM-YYYY)"];
     }
 
     case "BUY_ARRIVAL": {
-      const d = parseDate(text);
-      if (!d) return ["Please use the format YYYY-MM-DD."];
+      const d = parseDMY(text);
+      if (!d) return ["Please use the format DD-MM-YYYY, e.g. 24-08-2026."];
       draft.arrivalDate = d;
       session.state = "BUY_DEPARTURE";
       await saveSession(session);
-      return ["Departure date? (YYYY-MM-DD)"];
+      return ["Departure date? (DD-MM-YYYY)"];
     }
 
     case "BUY_DEPARTURE": {
-      const d = parseDate(text);
-      if (!d) return ["Please use the format YYYY-MM-DD."];
+      const d = parseDMY(text);
+      if (!d) return ["Please use the format DD-MM-YYYY, e.g. 24-08-2026."];
       if (draft.arrivalDate && d < draft.arrivalDate) {
         return ["Departure date can't be before your arrival date. Please try again."];
       }
@@ -509,12 +502,12 @@ async function handleClaimFlow(
       draft.claimIncidentType = type;
       session.state = "CLAIM_AWAITING_DATE";
       await saveSession(session);
-      return ["When did it happen? (YYYY-MM-DD)"];
+      return ["When did it happen? (DD-MM-YYYY)"];
     }
 
     case "CLAIM_AWAITING_DATE": {
-      const d = parseDate(text);
-      if (!d) return ["Please use the format YYYY-MM-DD."];
+      const d = parseDMY(text);
+      if (!d) return ["Please use the format DD-MM-YYYY, e.g. 24-08-2026."];
       draft.claimIncidentDate = d;
       session.state = "CLAIM_AWAITING_LOCATION";
       await saveSession(session);

@@ -10,6 +10,7 @@ import { DashboardShell, StatTile } from "@/components/dashboard-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion";
 import { useRoleData } from "@/lib/use-role-data";
+import { formatMonthYear } from "@/lib/utils";
 import { AGENT_NAV } from "../nav";
 
 interface AgentData {
@@ -32,7 +33,7 @@ export default function AgentReportsPage() {
 
   const monthly = new Map<string, number>();
   for (const p of data.policies) {
-    const key = new Date(p.date).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+    const key = formatMonthYear(p.date);
     monthly.set(key, (monthly.get(key) ?? 0) + 1);
   }
   const months = [...monthly.entries()].slice(-6);

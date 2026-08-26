@@ -83,7 +83,7 @@ export default function AgentCommissionsPage() {
                         <tr key={r.policyNumber + r.date} className="border-b border-stone-100 last:border-0">
                           <td className="py-3.5 pr-4 font-mono text-xs text-stone-500">{r.policyNumber}</td>
                           <td className="py-3.5 pr-4 font-semibold tabular-nums text-stone-900">{formatUSD(r.amount)}</td>
-                          <td className="py-3.5 pr-4 text-stone-500">{formatDate(r.date.slice(0, 10))}</td>
+                          <td className="py-3.5 pr-4 text-stone-500">{formatDate(r.date)}</td>
                           <td className="py-3.5"><Badge variant={badge.variant}>{badge.label}</Badge></td>
                         </tr>
                       );

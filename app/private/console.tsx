@@ -436,7 +436,7 @@ export function SuperAdminConsole() {
                       <td className="py-3.5 pr-4 font-medium tabular-nums text-stone-900">
                         {c.amount !== null ? formatUSD(c.amount) : "—"}
                       </td>
-                      <td className="py-3.5 pr-4 text-stone-500">{formatDate(c.date.slice(0, 10))}</td>
+                      <td className="py-3.5 pr-4 text-stone-500">{formatDate(c.date)}</td>
                       <td className="py-3.5"><Badge variant={b.variant}>{b.label}</Badge></td>
                     </tr>
                   );
